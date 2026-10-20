@@ -1,0 +1,1312 @@
+{
+  "savedAt": "2026-10-20T21:03:20.329Z",
+  "version": "2.0",
+  "counts": {
+    "users": 12,
+    "patients": 7,
+    "doctors": 5,
+    "clinics": 3,
+    "appointments": 6,
+    "prescriptions": 1
+  },
+  "data": {
+    "users": [
+      {
+        "_id": "6ad7ce8768f058b7e759153b",
+        "__v": 0,
+        "createdAt": "2026-10-20T20:35:41.358Z",
+        "email": "admin@doctorx.com",
+        "isActive": true,
+        "name": "Dr. Gregory House (Platform Admin)",
+        "password": "$2b$10$HEIcM4h0sRlrgILnjgvjg.ExrzaZ6ogXKtddQPtfWzj8veR2lafoy",
+        "phone": "+1 (555) 999-0001",
+        "role": "platform_admin",
+        "updatedAt": "2026-10-20T20:35:41.358Z"
+      },
+      {
+        "_id": "6ad7ce8768f058b7e759154b",
+        "__v": 0,
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.389Z",
+        "email": "clinic@doctorx.com",
+        "isActive": true,
+        "name": "Claire Temple (Clinic Admin)",
+        "password": "$2b$10$rTm2SYL8QDNAWz.FUynIrOseTunimgNDgYYId7kXvE5BZ9chRbLEu",
+        "phone": "+1 (555) 999-0002",
+        "role": "clinic_admin",
+        "updatedAt": "2026-10-20T20:35:41.389Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759155a",
+        "__v": 0,
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.392Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "email": "doctor@doctorx.com",
+        "isActive": true,
+        "name": "Dr. Sarah Jenkins",
+        "password": "$2b$10$7wahqAc0AgHJfwrdXC5HS.yc3NZsGAOfoHZ/60l1HiLbMJ46NjsgC",
+        "phone": "+1 (555) 301-4411",
+        "role": "doctor",
+        "updatedAt": "2026-10-20T20:35:41.392Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759156d",
+        "__v": 0,
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.395Z",
+        "doctorId": "6ad7ce8868f058b7e7591575",
+        "email": "dr.robert@doctorx.com",
+        "isActive": true,
+        "name": "Dr. Robert Chen",
+        "password": "$2b$10$Y05VTbVLDCaFoXmWcs8nmuIT84rdLXH/Wf8/CGgHhG2r/sZQitCF2",
+        "phone": "+1 (555) 301-4422",
+        "role": "doctor",
+        "updatedAt": "2026-10-20T20:35:41.395Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759157b",
+        "__v": 0,
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.397Z",
+        "doctorId": "6ad7ce8868f058b7e7591581",
+        "email": "dr.priya@doctorx.com",
+        "isActive": true,
+        "name": "Dr. Priya Patel",
+        "password": "$2b$10$B54rG/CqbrWy6Q0JupT1b.xB5ilJIbCJWKrp2aDuWwzZqA6aknacK",
+        "phone": "+1 (555) 301-4433",
+        "role": "doctor",
+        "updatedAt": "2026-10-20T20:35:41.397Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e7591584",
+        "__v": 0,
+        "createdAt": "2026-10-20T20:35:41.399Z",
+        "email": "patient@doctorx.com",
+        "isActive": true,
+        "name": "Eleanor Vance",
+        "password": "$2b$10$t2sgpFOCl4g43AS1eUTC/.LTBEuocFEHf30gT6zBsTpnroH3C4eQm",
+        "patientId": "6ad7ce8868f058b7e7591589",
+        "phone": "+1 (555) 412-8821",
+        "role": "patient",
+        "updatedAt": "2026-10-20T20:35:41.399Z"
+      },
+      {
+        "_id": "6ad7d0c17286168d356e99b8",
+        "email": "roysayan5060@gmail.com",
+        "password": "$2b$10$TDyCRUtTXDDkRRlpbZ38Peq0i4Mysf3hHOWvwZNboVABXqA3rC/yS",
+        "name": "Sayan Rou",
+        "role": "patient",
+        "phone": "9875356960",
+        "isActive": true,
+        "patientId": "6ad7d0c17286168d356e99b9",
+        "createdAt": "2026-10-20T20:36:17.576Z",
+        "updatedAt": "2026-10-20T20:41:08.195Z",
+        "__v": 0,
+        "lastLogin": "2026-10-20T20:41:08.195Z"
+      },
+      {
+        "_id": "6ad7d0eb7286168d356e9a25",
+        "email": "ayan@gmail.com",
+        "password": "$2b$10$T1RxURiZbk7eDS6FkqSJM.ZBgL2Ov.5/0B6IxCyHuTSs7xDA7/5nO",
+        "name": "Ayan Pandey",
+        "role": "patient",
+        "phone": "9875356960",
+        "isActive": true,
+        "patientId": "6ad7d0eb7286168d356e9a26",
+        "createdAt": "2026-10-20T20:36:59.090Z",
+        "updatedAt": "2026-10-20T20:36:59.090Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d1177286168d356e9a9a",
+        "email": "sghosh@gmail.com",
+        "password": "$2b$10$PoXkWjmbPAx3SUmSaWDcoOVg4Czqllp1NcXRi4NTgwFUWQYo1bOyG",
+        "name": "Sayantani Ghosh",
+        "role": "patient",
+        "phone": "9875356960",
+        "isActive": true,
+        "patientId": "6ad7d1177286168d356e9a9b",
+        "createdAt": "2026-10-20T20:37:43.221Z",
+        "updatedAt": "2026-10-20T20:37:43.221Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d12e7286168d356e9aed",
+        "email": "ssghosh@gmail.com",
+        "password": "$2b$10$qdneI/W0yUy1fvR50avMiOTOg7SzCLR6ToO7ob.j5M04Y9ZzQKsIa",
+        "name": "Soumya Ghosh",
+        "role": "doctor",
+        "phone": "9875356960",
+        "isActive": true,
+        "doctorId": "6ad7d12e7286168d356e9aef",
+        "clinicId": "6ad7ce8768f058b7e7591537",
+        "createdAt": "2026-10-20T20:38:06.524Z",
+        "updatedAt": "2026-10-20T20:41:40.866Z",
+        "__v": 0,
+        "lastLogin": "2026-10-20T20:41:40.866Z"
+      },
+      {
+        "_id": "6ad7d15d7286168d356e9b66",
+        "email": "sahitya@gmail.com",
+        "password": "$2b$10$HmnAWo2hdNeByaX3MoYe5.EntwIJ5Oj0xrCDVBHge7eFKte.L1.Fy",
+        "name": "Sahitya Ghosh",
+        "role": "doctor",
+        "phone": "9875356960",
+        "isActive": true,
+        "doctorId": "6ad7d15d7286168d356e9b68",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:38:53.066Z",
+        "updatedAt": "2026-10-20T20:38:53.066Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d1b27286168d356e9c03",
+        "email": "roys@gmail.com",
+        "password": "$2b$10$0Is/hz8dH7A8wIrJUdSJae5NbuccNez5thCfhIjb5JcOrYJ9P8cna",
+        "name": "Roy Clinic",
+        "role": "clinic_admin",
+        "phone": "9875356960",
+        "isActive": true,
+        "clinicId": "6ad7d1b27286168d356e9c04",
+        "createdAt": "2026-10-20T20:40:18.616Z",
+        "updatedAt": "2026-10-20T20:40:18.616Z",
+        "__v": 0
+      }
+    ],
+    "patients": [
+      {
+        "_id": "6ad7ce8868f058b7e7591589",
+        "__v": 0,
+        "address": "142 Pine Street, Apt 4B",
+        "allergies": [
+          "Penicillin",
+          "Sulfa drugs"
+        ],
+        "bloodGroup": "O+",
+        "chronicConditions": [
+          "Stage 1 Essential Hypertension",
+          "Mild Asthma"
+        ],
+        "city": "New York",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.402Z",
+        "dateOfBirth": "1985-06-14T00:00:00.000Z",
+        "email": "patient@doctorx.com",
+        "emergencyContact": {
+          "name": "Thomas Vance",
+          "relationship": "Spouse",
+          "phone": "+1 (555) 412-8899"
+        },
+        "firstName": "Eleanor",
+        "gender": "female",
+        "lastName": "Vance",
+        "medicalHistory": "Diagnosed with hypertension in 2021. Managed on daily low-dose ACE inhibitor. No surgical history.",
+        "patientId": "PAT-2026-2D08BA8512",
+        "phone": "+1 (555) 412-8821",
+        "primaryDoctorId": "6ad7ce8868f058b7e7591567",
+        "state": "NY",
+        "status": "active",
+        "updatedAt": "2026-10-20T20:35:41.402Z",
+        "userId": "6ad7ce8868f058b7e7591584"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759158d",
+        "__v": 0,
+        "address": "88 Oakridge Lane",
+        "allergies": [
+          "Aspirin"
+        ],
+        "bloodGroup": "A+",
+        "chronicConditions": [
+          "Type 2 Diabetes Mellitus"
+        ],
+        "city": "New York",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.409Z",
+        "dateOfBirth": "1978-11-23T00:00:00.000Z",
+        "email": "john.doe@example.com",
+        "emergencyContact": {
+          "name": "Mary Doe",
+          "relationship": "Sister",
+          "phone": "+1 (555) 678-5678"
+        },
+        "firstName": "John",
+        "gender": "male",
+        "lastName": "Doe",
+        "medicalHistory": "Type 2 Diabetes diagnosed 2019. Diet and metformin controlled. Regular quarterly HbA1c screening.",
+        "patientId": "PAT-2026-15B5918520",
+        "phone": "+1 (555) 678-1234",
+        "primaryDoctorId": "6ad7ce8868f058b7e7591567",
+        "state": "NY",
+        "status": "active",
+        "updatedAt": "2026-10-20T20:35:41.409Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759158f",
+        "__v": 0,
+        "address": "25 Sunset Blvd",
+        "allergies": [
+          "Peanuts"
+        ],
+        "bloodGroup": "B+",
+        "chronicConditions": [
+          "Migraine with aura"
+        ],
+        "city": "Jersey City",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.412Z",
+        "dateOfBirth": "1992-03-08T00:00:00.000Z",
+        "email": "anita.sharma@example.com",
+        "emergencyContact": {
+          "name": "Raj Sharma",
+          "relationship": "Father",
+          "phone": "+1 (555) 321-4321"
+        },
+        "firstName": "Anita",
+        "gender": "female",
+        "lastName": "Sharma",
+        "medicalHistory": "Occasional episodic migraines triggered by stress. Relieved by triptans.",
+        "patientId": "PAT-2026-F0AB308523",
+        "phone": "+1 (555) 321-9876",
+        "primaryDoctorId": "6ad7ce8868f058b7e7591575",
+        "state": "NJ",
+        "status": "active",
+        "updatedAt": "2026-10-20T20:35:41.412Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e7591591",
+        "__v": 0,
+        "address": "109 Riverside Drive",
+        "allergies": [],
+        "bloodGroup": "AB+",
+        "chronicConditions": [],
+        "city": "New York",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.415Z",
+        "dateOfBirth": "2001-08-30T00:00:00.000Z",
+        "email": "marcus.webb@example.com",
+        "emergencyContact": {
+          "name": "Grace Webb",
+          "relationship": "Mother",
+          "phone": "+1 (555) 789-4567"
+        },
+        "firstName": "Marcus",
+        "gender": "male",
+        "lastName": "Webb",
+        "medicalHistory": "Annual preventive physical and sports medical clearance.",
+        "patientId": "PAT-2026-089BAB8526",
+        "phone": "+1 (555) 789-0123",
+        "primaryDoctorId": "6ad7ce8868f058b7e7591575",
+        "state": "NY",
+        "status": "active",
+        "updatedAt": "2026-10-20T20:35:41.415Z"
+      },
+      {
+        "_id": "6ad7d0c17286168d356e99b9",
+        "patientId": "PAT-2026-5F3FD17548",
+        "userId": "6ad7d0c17286168d356e99b8",
+        "firstName": "Sayan",
+        "lastName": "Rou",
+        "gender": "female",
+        "dateOfBirth": "2005-01-01T00:00:00.000Z",
+        "bloodGroup": "B+",
+        "phone": "9875356960",
+        "email": "roysayan5060@gmail.com",
+        "address": "",
+        "city": "",
+        "state": "",
+        "allergies": [],
+        "chronicConditions": [],
+        "medicalHistory": "Consent acknowledged upon registration",
+        "status": "active",
+        "emergencyContact": {
+          "name": "",
+          "relationship": "",
+          "phone": ""
+        },
+        "createdAt": "2026-10-20T20:36:17.560Z",
+        "updatedAt": "2026-10-20T20:36:17.560Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d0eb7286168d356e9a26",
+        "patientId": "PAT-2026-C1CA349086",
+        "userId": "6ad7d0eb7286168d356e9a25",
+        "firstName": "Ayan",
+        "lastName": "Pandey",
+        "gender": "male",
+        "dateOfBirth": "1995-01-01T00:00:00.000Z",
+        "bloodGroup": "B-",
+        "phone": "9875356960",
+        "email": "ayan@gmail.com",
+        "address": "",
+        "city": "",
+        "state": "",
+        "allergies": [],
+        "chronicConditions": [],
+        "medicalHistory": "Consent acknowledged upon registration",
+        "status": "active",
+        "emergencyContact": {
+          "name": "",
+          "relationship": "",
+          "phone": ""
+        },
+        "createdAt": "2026-10-20T20:36:59.088Z",
+        "updatedAt": "2026-10-20T20:36:59.088Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d1177286168d356e9a9b",
+        "patientId": "PAT-2026-6779E13215",
+        "userId": "6ad7d1177286168d356e9a9a",
+        "firstName": "Sayantani",
+        "lastName": "Ghosh",
+        "gender": "female",
+        "dateOfBirth": "1995-01-16T00:00:00.000Z",
+        "bloodGroup": "O+",
+        "phone": "9875356960",
+        "email": "sghosh@gmail.com",
+        "address": "",
+        "city": "",
+        "state": "",
+        "allergies": [],
+        "chronicConditions": [],
+        "medicalHistory": "Consent acknowledged upon registration",
+        "status": "active",
+        "emergencyContact": {
+          "name": "",
+          "relationship": "",
+          "phone": ""
+        },
+        "createdAt": "2026-10-20T20:37:43.216Z",
+        "updatedAt": "2026-10-20T20:37:43.216Z",
+        "__v": 0
+      }
+    ],
+    "doctors": [
+      {
+        "_id": "6ad7ce8868f058b7e7591567",
+        "__v": 0,
+        "bio": "Board-certified cardiologist specializing in preventive cardiology, hypertension, and cardiovascular health optimization.",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "consultationFee": 150,
+        "createdAt": "2026-10-20T20:35:41.419Z",
+        "doctorId": "DOC-2026-8209448176",
+        "email": "doctor@doctorx.com",
+        "experienceYears": 14,
+        "isVerified": true,
+        "name": "Dr. Sarah Jenkins",
+        "phone": "+1 (555) 301-4411",
+        "qualifications": [
+          "MBBS",
+          "MD (Cardiology)",
+          "FACC"
+        ],
+        "rating": 4.9,
+        "registrationNumber": "MED-CARDIO-88412",
+        "specialty": "Cardiology",
+        "title": "Dr.",
+        "updatedAt": "2026-10-20T20:35:41.419Z",
+        "userId": "6ad7ce8868f058b7e759155a",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ]
+      },
+      {
+        "_id": "6ad7ce8868f058b7e7591575",
+        "__v": 0,
+        "bio": "Compassionate primary care physician dedicated to comprehensive patient-centered chronic disease management and wellness.",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "consultationFee": 90,
+        "createdAt": "2026-10-20T20:35:41.437Z",
+        "doctorId": "DOC-2026-C00BE88294",
+        "email": "dr.robert@doctorx.com",
+        "experienceYears": 9,
+        "isVerified": true,
+        "name": "Dr. Robert Chen",
+        "phone": "+1 (555) 301-4422",
+        "qualifications": [
+          "MBBS",
+          "MRCP",
+          "Dip. Family Medicine"
+        ],
+        "rating": 4.8,
+        "registrationNumber": "MED-GEN-55291",
+        "specialty": "General Medicine",
+        "title": "Dr.",
+        "updatedAt": "2026-10-20T20:35:41.437Z",
+        "userId": "6ad7ce8868f058b7e759156d",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "10:00",
+            "endTime": "18:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "10:00",
+            "endTime": "18:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "10:00",
+            "endTime": "18:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "10:00",
+            "endTime": "18:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "10:00",
+            "endTime": "18:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ]
+      },
+      {
+        "_id": "6ad7ce8868f058b7e7591581",
+        "__v": 0,
+        "bio": "Compassionate pediatric physician focused on child wellness, developmental milestones, and pediatric acute care.",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "consultationFee": 110,
+        "createdAt": "2026-10-20T20:35:41.441Z",
+        "doctorId": "DOC-2026-4D4D688403",
+        "email": "dr.priya@doctorx.com",
+        "experienceYears": 11,
+        "isVerified": true,
+        "name": "Dr. Priya Patel",
+        "phone": "+1 (555) 301-4433",
+        "qualifications": [
+          "MBBS",
+          "MD (Pediatrics)",
+          "DCH"
+        ],
+        "rating": 4.95,
+        "registrationNumber": "MED-PED-99120",
+        "specialty": "Pediatrics",
+        "title": "Dr.",
+        "updatedAt": "2026-10-20T20:35:41.441Z",
+        "userId": "6ad7ce8868f058b7e759157b",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "09:00",
+            "endTime": "16:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "09:00",
+            "endTime": "16:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "09:00",
+            "endTime": "16:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "09:00",
+            "endTime": "16:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "09:00",
+            "endTime": "16:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ]
+      },
+      {
+        "_id": "6ad7d12e7286168d356e9aef",
+        "doctorId": "DOC-2026-C3F7D16506",
+        "userId": "6ad7d12e7286168d356e9aed",
+        "name": "Soumya Ghosh",
+        "title": "Dr.",
+        "specialty": "Cardiology",
+        "qualifications": [
+          "MBBS"
+        ],
+        "registrationNumber": "Asfjiannbx738910",
+        "experienceYears": 5,
+        "consultationFee": 500,
+        "bio": "",
+        "phone": "9875356960",
+        "email": "ssghosh@gmail.com",
+        "clinicId": "6ad7ce8768f058b7e7591537",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 6,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ],
+        "isVerified": true,
+        "rating": 4.8,
+        "createdAt": "2026-10-20T20:38:06.512Z",
+        "updatedAt": "2026-10-20T20:38:06.512Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d15d7286168d356e9b68",
+        "doctorId": "DOC-2026-0813323056",
+        "userId": "6ad7d15d7286168d356e9b66",
+        "name": "Sahitya Ghosh",
+        "title": "Dr.",
+        "specialty": "Cardiology",
+        "qualifications": [
+          "MBBS"
+        ],
+        "registrationNumber": "12331344",
+        "experienceYears": 5,
+        "consultationFee": 2000,
+        "bio": "",
+        "phone": "9875356960",
+        "email": "sahitya@gmail.com",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 6,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ],
+        "isVerified": true,
+        "rating": 4.8,
+        "createdAt": "2026-10-20T20:38:53.061Z",
+        "updatedAt": "2026-10-20T20:38:53.061Z",
+        "__v": 0
+      }
+    ],
+    "clinics": [
+      {
+        "_id": "6ad7ce8768f058b7e759152f",
+        "__v": 0,
+        "address": "45 Health Boulevard, Medical Enclave",
+        "availableBalancePaise": 0,
+        "bankDetails": {
+          "accountName": "",
+          "accountNumber": "",
+          "ifsc": "",
+          "bankName": ""
+        },
+        "city": "New York",
+        "code": "APEX-01",
+        "consultationFeeDefault": 120,
+        "createdAt": "2026-10-20T20:35:41.201Z",
+        "defaultDoctorSharePercentage": 70,
+        "email": "contact@apexhealth.org",
+        "isActive": true,
+        "name": "Apex Multispecialty Hospital & Clinic",
+        "ownerName": "",
+        "phone": "+1 (555) 234-5678",
+        "registrationNumber": "",
+        "state": "NY",
+        "updatedAt": "2026-10-20T20:35:41.201Z",
+        "zipCode": "10001"
+      },
+      {
+        "_id": "6ad7ce8768f058b7e7591537",
+        "__v": 0,
+        "address": "782 Central Avenue",
+        "availableBalancePaise": 0,
+        "bankDetails": {
+          "accountName": "",
+          "accountNumber": "",
+          "ifsc": "",
+          "bankName": ""
+        },
+        "city": "Jersey City",
+        "code": "METRO-02",
+        "consultationFeeDefault": 95,
+        "createdAt": "2026-10-20T20:35:41.337Z",
+        "defaultDoctorSharePercentage": 70,
+        "email": "info@metrowellness.org",
+        "isActive": true,
+        "name": "Metro Wellness Center",
+        "ownerName": "",
+        "phone": "+1 (555) 876-5432",
+        "registrationNumber": "",
+        "state": "NJ",
+        "updatedAt": "2026-10-20T20:35:41.337Z",
+        "zipCode": "07302"
+      },
+      {
+        "_id": "6ad7d1b27286168d356e9c04",
+        "name": "Roy Clinic",
+        "code": "CLN-8612",
+        "ownerName": "Roy Clinic",
+        "registrationNumber": "Hdjkaka",
+        "address": "Narua",
+        "city": "New Delhi",
+        "state": "Delhi",
+        "zipCode": "110001",
+        "phone": "9875356960",
+        "email": "roys@gmail.com",
+        "isActive": true,
+        "consultationFeeDefault": 500,
+        "defaultDoctorSharePercentage": 70,
+        "availableBalancePaise": 0,
+        "bankDetails": {
+          "accountName": "",
+          "accountNumber": "",
+          "ifsc": "",
+          "bankName": ""
+        },
+        "createdAt": "2026-10-20T20:40:18.613Z",
+        "updatedAt": "2026-10-20T20:40:18.613Z",
+        "__v": 0
+      }
+    ],
+    "memberships": [
+      {
+        "_id": "6ad7ce8868f058b7e75915b1",
+        "__v": 0,
+        "appointmentDurationMinutes": 30,
+        "breakTimes": [],
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "consultationFee": 150,
+        "createdAt": "2026-10-20T20:35:41.445Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "doctorSharePercentage": 70,
+        "holidays": [],
+        "isActive": true,
+        "notes": "",
+        "updatedAt": "2026-10-20T20:35:41.445Z",
+        "verificationStatus": "verified",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "10:00",
+            "endTime": "13:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "10:00",
+            "endTime": "13:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "10:00",
+            "endTime": "13:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "10:00",
+            "endTime": "13:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "10:00",
+            "endTime": "13:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ]
+      },
+      {
+        "_id": "6ad7ce8868f058b7e75915b4",
+        "__v": 0,
+        "appointmentDurationMinutes": 30,
+        "breakTimes": [],
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "consultationFee": 90,
+        "createdAt": "2026-10-20T20:35:41.448Z",
+        "doctorId": "6ad7ce8868f058b7e7591575",
+        "doctorSharePercentage": 75,
+        "holidays": [],
+        "isActive": true,
+        "notes": "",
+        "updatedAt": "2026-10-20T20:35:41.448Z",
+        "verificationStatus": "verified",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "14:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "14:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "14:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "14:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "14:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ]
+      },
+      {
+        "_id": "6ad7ce8868f058b7e75915b7",
+        "__v": 0,
+        "appointmentDurationMinutes": 30,
+        "breakTimes": [],
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "consultationFee": 110,
+        "createdAt": "2026-10-20T20:35:41.451Z",
+        "doctorId": "6ad7ce8868f058b7e7591581",
+        "doctorSharePercentage": 70,
+        "holidays": [],
+        "isActive": true,
+        "notes": "",
+        "updatedAt": "2026-10-20T20:35:41.451Z",
+        "verificationStatus": "verified",
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "17:00",
+            "endTime": "20:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "17:00",
+            "endTime": "20:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "17:00",
+            "endTime": "20:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "17:00",
+            "endTime": "20:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "17:00",
+            "endTime": "20:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ]
+      },
+      {
+        "_id": "6ad7d12e7286168d356e9af1",
+        "clinicId": "6ad7ce8768f058b7e7591537",
+        "doctorId": "6ad7d12e7286168d356e9aef",
+        "consultationFee": 500,
+        "doctorSharePercentage": 70,
+        "appointmentDurationMinutes": 30,
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 6,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ],
+        "holidays": [],
+        "isActive": true,
+        "verificationStatus": "verified",
+        "notes": "",
+        "breakTimes": [],
+        "createdAt": "2026-10-20T20:38:06.520Z",
+        "updatedAt": "2026-10-20T20:38:06.520Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d15d7286168d356e9b6a",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "doctorId": "6ad7d15d7286168d356e9b68",
+        "consultationFee": 2000,
+        "doctorSharePercentage": 70,
+        "appointmentDurationMinutes": 30,
+        "workingHours": [
+          {
+            "dayOfWeek": 1,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 2,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 3,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 4,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 5,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          },
+          {
+            "dayOfWeek": 6,
+            "startTime": "09:00",
+            "endTime": "17:00",
+            "slotDurationMinutes": 30,
+            "isAvailable": true
+          }
+        ],
+        "holidays": [],
+        "isActive": true,
+        "verificationStatus": "verified",
+        "notes": "",
+        "breakTimes": [],
+        "createdAt": "2026-10-20T20:38:53.064Z",
+        "updatedAt": "2026-10-20T20:38:53.064Z",
+        "__v": 0
+      }
+    ],
+    "appointments": [
+      {
+        "_id": "6ad7ce8868f058b7e7591593",
+        "__v": 0,
+        "appointmentDate": "2026-10-21T04:30:00.000Z",
+        "appointmentId": "APT-2026-FF37A08529",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.457Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "endTime": "10:30",
+        "notes": "Patient reports occasional morning headaches.",
+        "patientId": "6ad7ce8868f058b7e7591589",
+        "reason": "Routine Cardiology Follow-up & BP Evaluation",
+        "startTime": "10:00",
+        "status": "confirmed",
+        "type": "in-person",
+        "updatedAt": "2026-10-20T20:35:41.457Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e7591596",
+        "__v": 0,
+        "appointmentDate": "2026-10-21T04:30:00.000Z",
+        "appointmentId": "APT-2026-38C2688533",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.465Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "endTime": "12:00",
+        "notes": "",
+        "patientId": "6ad7ce8868f058b7e759158d",
+        "reason": "Cardiovascular Risk Assessment for Diabetic Patient",
+        "startTime": "11:30",
+        "status": "confirmed",
+        "type": "in-person",
+        "updatedAt": "2026-10-20T20:35:41.465Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e7591598",
+        "__v": 0,
+        "appointmentDate": "2026-10-22T04:30:00.000Z",
+        "appointmentId": "APT-2026-BED0F68536",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.467Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "endTime": "14:30",
+        "notes": "",
+        "patientId": "6ad7ce8868f058b7e759158f",
+        "reason": "Follow-up consultation on recent lipid profile results",
+        "startTime": "14:00",
+        "status": "confirmed",
+        "type": "teleconsultation",
+        "updatedAt": "2026-10-20T20:35:41.467Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759159a",
+        "__v": 0,
+        "appointmentDate": "2026-10-26T04:30:00.000Z",
+        "appointmentId": "APT-2026-451C2C8538",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.470Z",
+        "doctorId": "6ad7ce8868f058b7e7591575",
+        "endTime": "11:00",
+        "notes": "",
+        "patientId": "6ad7ce8868f058b7e7591591",
+        "reason": "Annual preventive physical",
+        "startTime": "10:30",
+        "status": "confirmed",
+        "type": "in-person",
+        "updatedAt": "2026-10-20T20:35:41.470Z"
+      },
+      {
+        "_id": "6ad7ce8868f058b7e759159c",
+        "__v": 0,
+        "appointmentDate": "2026-10-14T04:30:00.000Z",
+        "appointmentId": "APT-2026-BD050F8541",
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "createdAt": "2026-10-20T20:35:41.473Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "endTime": "10:00",
+        "notes": "",
+        "patientId": "6ad7ce8868f058b7e7591589",
+        "reason": "Initial Blood Pressure Check and Consultation",
+        "startTime": "09:30",
+        "status": "completed",
+        "type": "in-person",
+        "updatedAt": "2026-10-20T20:35:41.473Z"
+      },
+      {
+        "_id": "6ad7d1f17286168d356e9d0c",
+        "appointmentId": "APT-2026-1000A81952",
+        "patientId": "6ad7d0c17286168d356e99b9",
+        "doctorId": "6ad7d12e7286168d356e9aef",
+        "clinicId": "6ad7ce8768f058b7e7591537",
+        "appointmentDate": "2026-10-20T00:00:00.000Z",
+        "startTime": "11:00",
+        "endTime": "11:30",
+        "status": "confirmed",
+        "type": "in-person",
+        "reason": "General Consultation",
+        "notes": "",
+        "createdAt": "2026-10-20T20:41:21.953Z",
+        "updatedAt": "2026-10-20T20:41:21.953Z",
+        "__v": 0
+      }
+    ],
+    "prescriptions": [
+      {
+        "_id": "6ad7ce8868f058b7e75915a0",
+        "__v": 0,
+        "additionalInstructions": "Maintain a daily BP diary. Reduce dietary sodium (< 2g/day). Perform 30 minutes of moderate aerobic exercise daily.",
+        "amendmentHistory": [],
+        "approvedAt": "2026-10-14T04:30:00.000Z",
+        "approvedBy": "6ad7ce8868f058b7e759155a",
+        "approvedByName": "Dr. Sarah Jenkins",
+        "createdAt": "2026-10-20T20:35:41.476Z",
+        "diagnosisSummary": "Stage 1 Essential Hypertension (ICD-10: I10)",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "encounterId": "6ad7ce8868f058b7e759159e",
+        "followUpDate": "2026-11-04T04:30:00.000Z",
+        "items": [
+          {
+            "medicineName": "Ramipril Tablets",
+            "dosageStrength": "2.5 mg",
+            "route": "Oral",
+            "frequency": "Once Daily (OD)",
+            "duration": "30 Days",
+            "quantity": 30,
+            "foodInstruction": "Before Food",
+            "specialInstructions": "Take once daily in the morning with a glass of water."
+          },
+          {
+            "medicineName": "Aspirin Gastro-resistant",
+            "dosageStrength": "75 mg",
+            "route": "Oral",
+            "frequency": "Once Daily (OD)",
+            "duration": "30 Days",
+            "quantity": 30,
+            "foodInstruction": "After Food",
+            "specialInstructions": "Take with or immediately after food."
+          }
+        ],
+        "patientId": "6ad7ce8868f058b7e7591589",
+        "prescriptionId": "RX-2026-0545158546",
+        "status": "active",
+        "updatedAt": "2026-10-20T20:35:41.476Z",
+        "whatsappRecipientPhone": "",
+        "whatsappSent": false,
+        "whatsappStatus": "pending"
+      }
+    ],
+    "invoices": [
+      {
+        "_id": "6ad7d1f17286168d356e9d12",
+        "invoiceNumber": "INV-2026-C616401977",
+        "patientId": "6ad7d0c17286168d356e99b9",
+        "doctorId": "6ad7d12e7286168d356e9aef",
+        "appointmentId": "6ad7d1f17286168d356e9d0c",
+        "clinicId": "6ad7ce8768f058b7e7591537",
+        "items": [
+          {
+            "description": "Consultation with Dr. Soumya Ghosh (Cardiology)",
+            "unitPrice": 500,
+            "quantity": 1,
+            "total": 500
+          }
+        ],
+        "subtotal": 500,
+        "tax": 0,
+        "discount": 0,
+        "totalAmount": 500,
+        "amountPaise": 50000,
+        "doctorShareAmount": 350,
+        "clinicShareAmount": 150,
+        "gatewayCharges": 0,
+        "refundAmount": 0,
+        "refundStatus": "none",
+        "refundReason": "",
+        "refundRef": "",
+        "settlementStatus": "unsettled",
+        "status": "paid",
+        "paymentMethod": "upi_test",
+        "transactionRef": "TXN-DEMO-882016",
+        "notes": "Consultation fee for Appointment APT-2026-1000A81952",
+        "createdAt": "2026-10-20T20:41:21.978Z",
+        "updatedAt": "2026-10-20T20:41:22.017Z",
+        "__v": 0,
+        "paymentDate": "2026-10-20T20:41:22.016Z"
+      }
+    ],
+    "settlements": [
+      {
+        "_id": "6ad7d03a695ce9d75689de75",
+        "__v": 0,
+        "adjustmentsInr": 0,
+        "appointmentIds": [],
+        "clinicId": "6ad7ce8768f058b7e759152f",
+        "clinicShareInr": 450,
+        "createdAt": "2026-10-20T20:35:41.479Z",
+        "doctorId": "6ad7ce8868f058b7e7591567",
+        "doctorShareInr": 1050,
+        "doctorSharePercentage": 70,
+        "invoiceIds": [],
+        "netPayableInr": 1050,
+        "netPayablePaise": 105000,
+        "notes": "Prior weekly consultation payout batch settled via NEFT transfer",
+        "paidAt": "2026-10-17T20:34:02.437Z",
+        "paymentMode": "manual_bank_transfer",
+        "paymentReference": "UTR-28442437",
+        "settlementId": "SET-2026-4692F02437",
+        "status": "paid",
+        "totalPatientPaidInr": 1500,
+        "updatedAt": "2026-10-20T20:35:41.479Z"
+      }
+    ],
+    "reminders": [],
+    "notifications": [
+      {
+        "_id": "6ad7d1f17286168d356e9d0e",
+        "userId": "6ad7d0c17286168d356e99b8",
+        "patientId": "6ad7d0c17286168d356e99b9",
+        "title": "Appointment Confirmed",
+        "message": "Your appointment with Dr. Soumya Ghosh on 20/10/2026 at 11:00 is confirmed.",
+        "type": "appointment",
+        "read": false,
+        "link": "/appointments/APT-2026-1000A81952",
+        "createdAt": "2026-10-20T20:41:21.974Z",
+        "updatedAt": "2026-10-20T20:41:21.974Z",
+        "__v": 0
+      },
+      {
+        "_id": "6ad7d1f17286168d356e9d10",
+        "userId": "6ad7d12e7286168d356e9aed",
+        "title": "New Appointment Booked",
+        "message": "New appointment scheduled with Sayan Rou on 20/10/2026 at 11:00.",
+        "type": "appointment",
+        "read": true,
+        "link": "/doctor/appointments",
+        "createdAt": "2026-10-20T20:41:21.976Z",
+        "updatedAt": "2026-10-20T20:41:46.526Z",
+        "__v": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased selection:bg-teal-500 selection:text-white;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom background patterns and gradients */
+.bg-mesh-light {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(20, 184, 166, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(14, 165, 233, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(236, 72, 153, 0.04) 0px, transparent 50%);
+}
+
+.bg-mesh-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #0d9488 50%, #0369a1 100%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(15, 118, 110, 0.15);
+  border-color: rgba(20, 184, 166, 0.4);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print optimizations for clinical prescriptions */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  header, aside, button, nav, .print\:hidden {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+}
