@@ -134,6 +134,7 @@ export interface Appointment {
   startTime: string;
   endTime: string;
   status: 'requested' | 'confirmed' | 'completed' | 'cancelled' | 'no-show';
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | 'waived';
   type: 'in-person' | 'teleconsultation' | 'follow-up';
   reason: string;
   cancellationReason?: string;
@@ -262,6 +263,13 @@ export interface Invoice {
   paymentMethod?: string;
   paymentDate?: string;
   transactionRef?: string;
+  gatewayOrderId?: string;
+  gatewayPaymentId?: string;
+  gatewaySignature?: string;
+  gatewayStatus?: string;
+  paymentGateway?: 'razorpay' | 'demo' | 'cash' | 'counter_pos';
+  currency?: string;
+  isDemo?: boolean;
   notes?: string;
   createdAt: string;
 }

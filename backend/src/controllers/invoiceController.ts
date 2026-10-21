@@ -310,7 +310,18 @@ export const processTestPayment = async (req: AuthenticatedRequest, res: Respons
     invoice.paymentMethod = paymentMethod as any;
     invoice.paymentDate = new Date();
     invoice.transactionRef = `TXN-DEMO-${Date.now().toString().slice(-6)}`;
+    invoice.isDemo = true;
+    invoice.paymentGateway = 'demo';
+    invoice.notes = 'SIMULATED DEMO TRANSACTION — No real money received.';
     await invoice.save();
+
+    // Confirm linked appointment
+    if (invoice.appointmentId) {
+      await Appointment.findByIdAndUpdate(invoice.appointmentId, {
+        status: 'confirmed',
+        paymentStatus: 'paid',
+      });
+    }
 
     // Record immutable financial ledger entry (Credit to Clinic)
     if (targetClinicId) {
@@ -322,8 +333,9 @@ export const processTestPayment = async (req: AuthenticatedRequest, res: Respons
         direction: 'credit',
         amountPaise: Math.round(invoice.totalAmount * 100),
         amountInr: invoice.totalAmount,
+        currency: 'INR',
         status: 'cleared',
-        description: `Patient consultation payment: Invoice ${invoice.invoiceNumber} via ${paymentMethod}`,
+        description: `[DEMO SIMULATION] Patient consultation payment: Invoice ${invoice.invoiceNumber} via ${paymentMethod}`,
         referenceType: 'Invoice',
         referenceId: invoice.invoiceNumber,
         invoiceId: invoice._id,
@@ -332,6 +344,8 @@ export const processTestPayment = async (req: AuthenticatedRequest, res: Respons
         transactionRef: invoice.transactionRef,
         paymentMethod,
         netAmountPaise: Math.round(invoice.totalAmount * 100),
+        idempotencyKey: invoice.transactionRef,
+        metadata: { isDemo: true },
       });
     }
 
@@ -432,10 +446,12 @@ export const refundInvoice = async (req: AuthenticatedRequest, res: Response): P
   }
 };
 
+import { razorpayService } from '../services/razorpayService';
+
 /**
  * POST /api/invoices/verify-payment
- * Verification endpoint for Indian payment gateways (Razorpay / Cashfree)
- * Validates gateway order and signature in production; provides simulation fallback in demo mode.
+ * Verification endpoint for Indian payment gateways (Razorpay)
+ * Computes and checks cryptographic signature and confirms payment.
  */
 export const verifyPaymentGateway = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -447,12 +463,65 @@ export const verifyPaymentGateway = async (req: AuthenticatedRequest, res: Respo
       return;
     }
 
-    // In demo environment, confirm signature verification simulation
+    if (invoice.status === 'paid') {
+      res.json({ success: true, message: 'Invoice already marked as paid.', data: invoice });
+      return;
+    }
+
+    // Cryptographic signature check
+    const isValid = razorpayService.verifyPaymentSignature({
+      orderId: razorpay_order_id || invoice.gatewayOrderId || '',
+      paymentId: razorpay_payment_id,
+      signature: razorpay_signature,
+    });
+
+    if (!isValid) {
+      res.status(400).json({ success: false, message: 'Gateway signature verification failed. Invalid signature.' });
+      return;
+    }
+
     invoice.status = 'paid';
-    invoice.paymentMethod = 'upi_test';
+    invoice.gatewayPaymentId = razorpay_payment_id;
+    invoice.gatewaySignature = razorpay_signature;
+    invoice.gatewayStatus = 'captured';
+    invoice.paymentMethod = invoice.isDemo ? 'upi_test' : 'razorpay';
     invoice.paymentDate = new Date();
-    invoice.transactionRef = razorpay_payment_id || `RAZOR-PAY-${Date.now().toString().slice(-6)}`;
+    invoice.transactionRef = razorpay_payment_id;
     await invoice.save();
+
+    // Confirm appointment
+    if (invoice.appointmentId) {
+      await Appointment.findByIdAndUpdate(invoice.appointmentId, {
+        status: 'confirmed',
+        paymentStatus: 'paid',
+      });
+    }
+
+    // Record in ledger
+    if (invoice.clinicId) {
+      const existingLedger = await FinancialLedgerEntry.findOne({ transactionRef: razorpay_payment_id });
+      if (!existingLedger) {
+        await FinancialLedgerEntry.create({
+          entryId: generateId('LEDG'),
+          clinicId: invoice.clinicId,
+          type: 'patient_payment',
+          direction: 'credit',
+          amountPaise: invoice.amountPaise,
+          amountInr: invoice.totalAmount,
+          currency: 'INR',
+          status: 'cleared',
+          description: `${invoice.isDemo ? '[DEMO SIMULATION] ' : ''}Patient consultation payment: Invoice ${invoice.invoiceNumber}`,
+          referenceType: 'Invoice',
+          referenceId: invoice.invoiceNumber,
+          invoiceId: invoice._id,
+          patientId: invoice.patientId,
+          doctorId: invoice.doctorId,
+          paymentMethod: invoice.paymentMethod,
+          transactionRef: razorpay_payment_id,
+          idempotencyKey: razorpay_payment_id,
+        });
+      }
+    }
 
     res.json({
       success: true,

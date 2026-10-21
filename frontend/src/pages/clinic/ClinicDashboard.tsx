@@ -725,9 +725,20 @@ export const ClinicDashboard: React.FC = () => {
                       ₹{inv.clinicShareAmount || Math.round(inv.totalAmount * 0.3)}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="capitalize px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-bold text-slate-700">
-                        {inv.paymentMethod?.replace('_test', '')}
-                      </span>
+                      <div className="flex flex-col gap-0.5 items-start">
+                        <span className="capitalize px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-bold text-slate-700">
+                          {inv.paymentMethod?.replace('_test', '')}
+                        </span>
+                        {inv.isDemo ? (
+                          <span className="text-[9px] px-1 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200 font-bold whitespace-nowrap">
+                            Demo Sandbox
+                          </span>
+                        ) : (
+                          <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold whitespace-nowrap">
+                            Razorpay Verified
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 px-4">
                       <Badge

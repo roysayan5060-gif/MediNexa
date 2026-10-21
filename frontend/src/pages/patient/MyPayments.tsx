@@ -77,23 +77,81 @@ export const MyPayments: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      const methodMapping = {
-        card: 'card_test',
-        upi: 'upi_test',
-        netbanking: 'test_simulation',
-        wallet: 'test_simulation',
-      };
-
-      const res = await api.post(`/invoices/${selectedInvoice.invoiceNumber}/pay`, {
-        paymentMethod: methodMapping[paymentMethod],
+      // 1. Authoritative Order Creation on Server
+      const orderRes = await api.post('/payments/create-order', {
+        invoiceNumber: selectedInvoice.invoiceNumber,
       });
 
-      if (res.data.success) {
-        setPaymentSuccess(res.data.data);
-        fetchInvoices();
+      if (!orderRes.data.success) {
+        throw new Error(orderRes.data.message || 'Failed to create payment order');
+      }
+
+      const orderData = orderRes.data.data;
+
+      // 2. If in Demo Simulation Mode (No Razorpay keys configured)
+      if (orderData.isDemo || !orderData.keyId) {
+        const verifyRes = await api.post('/payments/verify-signature', {
+          razorpay_order_id: orderData.orderId,
+          razorpay_payment_id: `pay_demo_${Date.now()}`,
+          razorpay_signature: `demo_sig_${Date.now()}`,
+          invoiceNumber: selectedInvoice.invoiceNumber,
+        });
+
+        if (verifyRes.data.success) {
+          setPaymentSuccess(verifyRes.data.data.invoice || verifyRes.data.data);
+          fetchInvoices();
+        }
+      } else {
+        // 3. Real Gateway Flow: Official Razorpay Checkout popup
+        const options = {
+          key: orderData.keyId,
+          amount: orderData.amountPaise,
+          currency: orderData.currency || 'INR',
+          name: (selectedInvoice.clinicId as any)?.name || 'Doctor X Healthcare',
+          description: `Consultation Invoice ${selectedInvoice.invoiceNumber}`,
+          order_id: orderData.orderId,
+          handler: async function (response: any) {
+            try {
+              setIsProcessing(true);
+              const verifyRes = await api.post('/payments/verify-signature', {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                invoiceNumber: selectedInvoice.invoiceNumber,
+              });
+
+              if (verifyRes.data.success) {
+                setPaymentSuccess(verifyRes.data.data.invoice || verifyRes.data.data);
+                fetchInvoices();
+              }
+            } catch (err: any) {
+              setPaymentError(err.response?.data?.message || 'Payment signature verification failed.');
+            } finally {
+              setIsProcessing(false);
+            }
+          },
+          prefill: {
+            name: user?.name,
+            email: user?.email,
+            contact: user?.phone,
+          },
+          theme: {
+            color: '#0f766e',
+          },
+          modal: {
+            ondismiss: async function () {
+              setIsProcessing(false);
+              await api.post('/payments/cancel-order', { orderId: orderData.orderId }).catch(() => {});
+              setPaymentError('Payment was cancelled.');
+            },
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
       }
     } catch (err: any) {
-      setPaymentError(err.response?.data?.message || 'Payment simulation failed. Please try again.');
+      setPaymentError(err.response?.data?.message || 'Payment processing failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -202,9 +260,22 @@ export const MyPayments: React.FC = () => {
                       <span className="text-sm font-black text-slate-900 font-mono">₹{inv.totalAmount}</span>
                     </td>
                     <td className="py-4 px-4">
-                      <Badge variant={inv.status === 'paid' ? 'success' : inv.status === 'refunded' ? 'danger' : 'warning'}>
-                        {inv.status}
-                      </Badge>
+                      <div className="flex flex-col gap-1 items-start">
+                        <Badge variant={inv.status === 'paid' ? 'success' : inv.status === 'refunded' ? 'danger' : 'warning'}>
+                          {inv.status}
+                        </Badge>
+                        {inv.status === 'paid' && (
+                          inv.isDemo ? (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-bold whitespace-nowrap">
+                              Demo Sandbox
+                            </span>
+                          ) : (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold whitespace-nowrap">
+                              Razorpay Verified
+                            </span>
+                          )
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-4 text-right">
                       {inv.status === 'pending' ? (

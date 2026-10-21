@@ -53,6 +53,7 @@ export const DoctorDirectory: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [confirmedBookingData, setConfirmedBookingData] = useState<any | null>(null);
+  const [gatewayConfig, setGatewayConfig] = useState<{ isConfigured: boolean; isLive: boolean; keyId: string | null; isDemo: boolean } | null>(null);
 
   // Selected Clinic Profile Modal
   const [selectedClinicProfile, setSelectedClinicProfile] = useState<any | null>(null);
@@ -88,6 +89,10 @@ export const DoctorDirectory: React.FC = () => {
     const delayDebounce = setTimeout(() => {
       fetchDirectoryData();
     }, 250);
+    // Fetch Gateway configuration (identifies if Razorpay keys are active or in demo simulation mode)
+    api.get('/payments/config').then((res) => {
+      if (res.data.success) setGatewayConfig(res.data.data);
+    }).catch(() => {});
     return () => clearTimeout(delayDebounce);
   }, [search, selectedSpecialty]);
 
@@ -165,11 +170,108 @@ export const DoctorDirectory: React.FC = () => {
       const appointment = apptRes.data.data;
       const invoiceNumber = appointment.invoice?.invoiceNumber;
 
-      // 2. If online payment selected, pay invoice to Clinic
+      // 2. If online payment selected, create authoritative gateway order and verify signature
       if (invoiceNumber && paymentMethod !== 'pay_at_clinic') {
-        await api.post(`/invoices/${invoiceNumber}/pay`, {
-          paymentMethod,
+        const orderRes = await api.post('/payments/create-order', {
+          appointmentId: appointment.appointmentId,
         });
+
+        if (!orderRes.data.success) {
+          throw new Error(orderRes.data.message || 'Failed to create payment order');
+        }
+
+        const orderData = orderRes.data.data;
+
+        // If Demo Simulation Mode (No Razorpay keys configured yet)
+        if (orderData.isDemo || !orderData.keyId) {
+          const verifyRes = await api.post('/payments/verify-signature', {
+            razorpay_order_id: orderData.orderId,
+            razorpay_payment_id: `pay_demo_${Date.now()}`,
+            razorpay_signature: `demo_sig_${Date.now()}`,
+            appointmentId: appointment.appointmentId,
+          });
+
+          if (!verifyRes.data.success) {
+            throw new Error(verifyRes.data.message || 'Payment simulation failed');
+          }
+
+          setConfirmedBookingData({
+            appointment,
+            doctor: selectedDoctor,
+            clinic: selectedDoctor.clinicId,
+            date: bookingDate,
+            time: selectedSlot,
+            paymentMethod,
+            amount: selectedDoctor.consultationFee || 500,
+            invoiceNumber,
+            gatewayPaymentId: `pay_demo_${Date.now()}`,
+            isDemo: true,
+          });
+
+          setCheckoutStep('confirmed');
+          setIsSubmitting(false);
+          return;
+        } else {
+          // Authoritative Razorpay Checkout popup
+          const options = {
+            key: orderData.keyId,
+            amount: orderData.amountPaise,
+            currency: orderData.currency || 'INR',
+            name: selectedDoctor.clinicId?.name || 'Doctor X Healthcare',
+            description: `Consultation with Dr. ${selectedDoctor.name}`,
+            order_id: orderData.orderId,
+            handler: async function (response: any) {
+              try {
+                setIsSubmitting(true);
+                const verifyRes = await api.post('/payments/verify-signature', {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  appointmentId: appointment.appointmentId,
+                });
+
+                if (verifyRes.data.success) {
+                  setConfirmedBookingData({
+                    appointment,
+                    doctor: selectedDoctor,
+                    clinic: selectedDoctor.clinicId,
+                    date: bookingDate,
+                    time: selectedSlot,
+                    paymentMethod: 'razorpay',
+                    amount: selectedDoctor.consultationFee || 500,
+                    invoiceNumber,
+                    gatewayPaymentId: response.razorpay_payment_id,
+                    isDemo: false,
+                  });
+                  setCheckoutStep('confirmed');
+                }
+              } catch (verifyErr: any) {
+                setBookingError(verifyErr.response?.data?.message || 'Payment signature verification failed.');
+              } finally {
+                setIsSubmitting(false);
+              }
+            },
+            prefill: {
+              name: user?.name,
+              email: user?.email,
+              contact: user?.phone,
+            },
+            theme: {
+              color: '#0f766e',
+            },
+            modal: {
+              ondismiss: async function () {
+                setIsSubmitting(false);
+                await api.post('/payments/cancel-order', { orderId: orderData.orderId }).catch(() => {});
+                setBookingError('Payment cancelled. Your appointment is held pending payment.');
+              },
+            },
+          };
+
+          const rzp = new (window as any).Razorpay(options);
+          rzp.open();
+          return;
+        }
       }
 
       setConfirmedBookingData({
@@ -181,6 +283,7 @@ export const DoctorDirectory: React.FC = () => {
         paymentMethod,
         amount: selectedDoctor.consultationFee || 500,
         invoiceNumber,
+        isDemo: false,
       });
 
       setCheckoutStep('confirmed');
@@ -666,6 +769,23 @@ export const DoctorDirectory: React.FC = () => {
                 </p>
               </div>
 
+              {/* Gateway Mode Badge */}
+              {confirmedBookingData.isDemo ? (
+                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold flex items-center justify-center gap-1.5 max-w-md mx-auto">
+                  <span>⚠️ DEMO / TEST MODE — Simulated Payment (No Real Money Received)</span>
+                </div>
+              ) : confirmedBookingData.paymentMethod !== 'pay_at_clinic' ? (
+                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-bold flex items-center justify-center gap-1.5 max-w-md mx-auto">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Razorpay Gateway Verified & Authoritative Payment</span>
+                </div>
+              ) : (
+                <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold flex items-center justify-center gap-1.5 max-w-md mx-auto">
+                  <Clock className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Pay on Arrival at Clinic Reception</span>
+                </div>
+              )}
+
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 max-w-md mx-auto text-[11px]">
                 <div className="flex justify-between">
                   <span className="text-slate-400 font-bold">Doctor:</span>
@@ -687,6 +807,12 @@ export const DoctorDirectory: React.FC = () => {
                   <span className="text-slate-400 font-bold">Payment Method:</span>
                   <span className="font-bold text-slate-800 capitalize">{confirmedBookingData.paymentMethod?.replace('_test', '')}</span>
                 </div>
+                {confirmedBookingData.gatewayPaymentId && (
+                  <div className="flex justify-between border-t border-slate-200 pt-1">
+                    <span className="text-slate-400 font-bold">Payment Reference:</span>
+                    <span className="font-mono font-bold text-teal-800">{confirmedBookingData.gatewayPaymentId}</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-center gap-3 pt-3">

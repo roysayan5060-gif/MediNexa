@@ -15,7 +15,11 @@ export type PaymentMethod =
   | 'upi_test'
   | 'netbanking_test'
   | 'pay_at_clinic'
-  | 'insurance_claim';
+  | 'insurance_claim'
+  | 'razorpay'
+  | 'upi'
+  | 'card'
+  | 'netbanking';
 
 export interface IInvoice extends Document {
   invoiceNumber: string;
@@ -44,6 +48,13 @@ export interface IInvoice extends Document {
   paymentDate?: Date;
   transactionRef?: string;
   notes?: string;
+  gatewayOrderId?: string;
+  gatewayPaymentId?: string;
+  gatewaySignature?: string;
+  gatewayStatus?: 'created' | 'authorized' | 'captured' | 'failed' | 'refunded';
+  paymentGateway?: 'razorpay' | 'demo' | 'cash' | 'counter_pos';
+  currency?: string;
+  isDemo?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -172,6 +183,10 @@ const InvoiceSchema = new Schema<IInvoice>(
         'netbanking_test',
         'pay_at_clinic',
         'insurance_claim',
+        'razorpay',
+        'upi',
+        'card',
+        'netbanking',
       ],
       default: 'test_simulation',
     },
@@ -182,9 +197,44 @@ const InvoiceSchema = new Schema<IInvoice>(
       type: String,
       default: '',
     },
+    gatewayOrderId: {
+      type: String,
+      index: true,
+      sparse: true,
+    },
+    gatewayPaymentId: {
+      type: String,
+      index: true,
+      sparse: true,
+    },
+    gatewaySignature: {
+      type: String,
+      default: '',
+    },
+    gatewayStatus: {
+      type: String,
+      enum: ['created', 'authorized', 'captured', 'failed', 'refunded'],
+      default: 'created',
+      index: true,
+    },
+    paymentGateway: {
+      type: String,
+      enum: ['razorpay', 'demo', 'cash', 'counter_pos'],
+      default: 'demo',
+      index: true,
+    },
+    currency: {
+      type: String,
+      default: 'INR',
+    },
+    isDemo: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     notes: {
       type: String,
-      default: 'Demonstration / Sandbox billing record. No real credit card or sensitive payment information processed.',
+      default: 'Billing record. Doctor X payment platform.',
     },
   },
   {

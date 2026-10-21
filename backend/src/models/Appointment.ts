@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export type AppointmentStatus = 'requested' | 'confirmed' | 'completed' | 'cancelled' | 'no-show';
+export type AppointmentPaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'waived';
 export type AppointmentType = 'in-person' | 'teleconsultation' | 'follow-up';
 
 export interface IAppointment extends Document {
@@ -12,6 +13,7 @@ export interface IAppointment extends Document {
   startTime: string;     // "10:00"
   endTime: string;       // "10:30"
   status: AppointmentStatus;
+  paymentStatus: AppointmentPaymentStatus;
   type: AppointmentType;
   reason: string;
   cancellationReason?: string;
@@ -64,6 +66,12 @@ const AppointmentSchema = new Schema<IAppointment>(
       type: String,
       enum: ['requested', 'confirmed', 'completed', 'cancelled', 'no-show'],
       default: 'confirmed',
+      index: true,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded', 'waived'],
+      default: 'pending',
       index: true,
     },
     type: {

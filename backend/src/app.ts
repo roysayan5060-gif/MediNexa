@@ -15,6 +15,7 @@ import notificationRoutes from './routes/notificationRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import clinicRoutes from './routes/clinicRoutes';
 import adminRoutes from './routes/adminRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 
 import { errorHandler } from './middleware/errorHandler';
 import { setupSwagger } from './config/swagger';
@@ -52,8 +53,15 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Request parsing
-app.use(express.json({ limit: '5mb' }));
+// Request parsing with rawBody capture for webhook signature verification
+app.use(
+  express.json({
+    limit: '5mb',
+    verify: (req: any, _res: any, buf: Buffer) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Logging
@@ -86,6 +94,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // 404 handler for unknown routes
 app.use((req: Request, res: Response) => {
