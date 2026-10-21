@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-10-21T07:00:04.269Z",
+  "savedAt": "2026-10-21T07:08:14.592Z",
   "version": "2.0",
   "counts": {
     "users": 3,
@@ -36,7 +36,8 @@
         "password": "$2b$10$WkXNXdCmPyzcWZyYdKacbeKfbLQaOpiIEwp0dypOlDY7KxY4dn3kG",
         "phone": "+91 9123456780",
         "role": "doctor",
-        "updatedAt": "2026-10-21T06:59:24.175Z"
+        "updatedAt": "2026-10-21T07:05:48.988Z",
+        "lastLogin": "2026-10-21T07:05:48.985Z"
       },
       {
         "_id": "6ad8618cbc7e021f6da2602a",

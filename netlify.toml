@@ -1,0 +1,13 @@
+# Netlify Production Deployment Configuration for Doctor X Frontend
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

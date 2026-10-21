@@ -25,21 +25,38 @@ const app: Express = express();
 // Security HTTP headers
 app.use(helmet());
 
-// CORS config
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+// CORS configuration supporting dynamic production domains and Vercel/Netlify deployments
+const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').trim().replace(/\/$/, '');
+const allowedOrigins = clientUrl ? clientUrl.split(',').map((u) => u.trim().replace(/\/$/, '')) : [];
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow localhost and specified client origin, and requests without origin (like Postman or server-to-server)
-      if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1') || origin === clientUrl) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Dev-friendly fallback
+      // Allow requests with no origin (e.g. mobile native, curl, Postman, server-to-server webhooks)
+      if (!origin) {
+        return callback(null, true);
       }
+      // Allow local development and LAN IP testing
+      if (
+        origin.startsWith('http://localhost') ||
+        origin.startsWith('http://127.0.0.1') ||
+        origin.startsWith('http://192.168.')
+      ) {
+        return callback(null, true);
+      }
+      // Allow explicitly configured CLIENT_URL
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      // Allow Vercel or Netlify production / preview deployments
+      if (origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app')) {
+        return callback(null, true);
+      }
+      callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Razorpay-Signature', 'X-Razorpay-Event-Id'],
   })
 );
 

@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// Resolve API base URL dynamically for production vs development
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '');
+let baseURL = '/api';
+if (rawBaseUrl) {
+  baseURL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
+}
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
