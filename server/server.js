@@ -16,6 +16,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const FRONTEND_URL = process.env.FRONTEND_URL || '*';
 
+// Trust reverse proxy headers (Render, Cloudflare, Railway HTTPS termination)
+app.set('trust proxy', 1);
+
 // CORS configuration for local and deployed production environments
 app.use(cors({
   origin: FRONTEND_URL === '*' ? '*' : FRONTEND_URL,
