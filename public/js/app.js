@@ -1,6 +1,6 @@
 // MediNexa Global Application State & Controller
 const State = {
-  activeView: 'home', // 'home', 'doctors', 'appointments', 'doctor-portal', 'clinic-portal'
+  activeView: 'welcome', // 'welcome', 'patient-home', 'doctors', 'appointments', 'doctor-portal', 'clinic-portal'
   selectedDoctorForBooking: null,
   activeFilterSpecialty: 'All',
   activeFilterCity: 'All',
@@ -29,6 +29,17 @@ function showToast(message, type = 'info') {
 function switchView(viewName) {
   State.activeView = viewName;
   
+  const mainNav = document.getElementById('main-nav-links');
+  const headerActions = document.getElementById('header-actions');
+
+  if (viewName === 'welcome') {
+    if (mainNav) mainNav.classList.add('hidden');
+    if (headerActions) headerActions.style.display = 'none';
+  } else {
+    if (mainNav) mainNav.classList.remove('hidden');
+    if (headerActions) headerActions.style.display = 'flex';
+  }
+
   // Update nav buttons
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === viewName);
@@ -45,7 +56,9 @@ function switchView(viewName) {
   }
 
   // View specific loaders
-  if (viewName === 'doctors') {
+  if (viewName === 'patient-home') {
+    loadFeaturedDoctorsHome();
+  } else if (viewName === 'doctors') {
     loadDoctorsDirectory();
   } else if (viewName === 'appointments') {
     loadPatientAppointments();
@@ -64,7 +77,7 @@ function selectRole(role) {
   if (Auth.currentUser && (Auth.currentUser.role === role || Auth.currentUser.role === 'admin')) {
     if (role === 'doctor') switchView('doctor-portal');
     else if (role === 'clinic') switchView('clinic-portal');
-    else switchView('home');
+    else switchView('patient-home');
     return;
   }
 
@@ -94,6 +107,14 @@ function setupNavigationEvents() {
 
   const brandLink = document.getElementById('brand-home-link');
   if (brandLink) {
-    brandLink.addEventListener('click', () => switchView('home'));
+    brandLink.addEventListener('click', () => {
+      if (Auth.currentUser) {
+        if (Auth.currentUser.role === 'doctor') switchView('doctor-portal');
+        else if (Auth.currentUser.role === 'clinic') switchView('clinic-portal');
+        else switchView('patient-home');
+      } else {
+        switchView('welcome');
+      }
+    });
   }
 }
