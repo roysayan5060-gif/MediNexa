@@ -282,14 +282,21 @@ router.post('/login', async (req, res) => {
           const defaultRole = role || (email.includes('doctor') ? 'doctor' : email.includes('clinic') ? 'clinic' : 'patient');
           const salt = await bcrypt.genSalt(10);
           const passwordHash = await bcrypt.hash(password, salt);
+          const matchedDoc = memoryStore.doctors.find(d => d.email.toLowerCase() === email.toLowerCase());
+          const matchedClinic = memoryStore.clinics.find(c => c.email.toLowerCase() === email.toLowerCase());
+
+          let properName = email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
+          if (matchedDoc) properName = matchedDoc.name;
+          else if (matchedClinic) properName = matchedClinic.clinic_name;
+
           user = {
             _id: `user_demo_${Date.now()}`,
             id: `user_demo_${Date.now()}`,
-            name: email.split('@')[0].replace('.', ' ').toUpperCase(),
+            name: properName,
             email: email.toLowerCase(),
             passwordHash,
             role: defaultRole,
-            phone: '+91 98301 99999',
+            phone: (matchedDoc && matchedDoc.phone) || (matchedClinic && matchedClinic.phone) || '+91 98301 99999',
             createdAt: new Date()
           };
           memoryStore.users.push(user);

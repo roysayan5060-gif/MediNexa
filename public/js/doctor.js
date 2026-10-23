@@ -3,6 +3,9 @@ let editingDoctorId = null;
 let activePrescriptionAppointment = null;
 
 function loadDoctorPortalDashboard() {
+  if (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.role === 'doctor') {
+    DoctorSuite.setDoctorInfo(Auth.currentUser, Auth.currentProfile);
+  }
   DoctorSuite.init();
   loadDoctorPortalAppointments();
   loadDoctorPortalDoctorList();
@@ -542,6 +545,13 @@ async function reviewDoctorVerification(docId, status) {
 
 const DoctorSuite = {
   activeSubView: 'dashboard',
+  currentDoctor: {
+    name: 'Doctor',
+    specialty: 'General Medicine',
+    phone: '+91-9876543210',
+    timing: 'Mon-Sat, 9AM-1PM',
+    initials: 'DR'
+  },
   savedMedicines: [],
   selectedGender: 'Male',
   selectedFreq: { code: 'OD', label: 'once daily' },
@@ -555,7 +565,88 @@ const DoctorSuite = {
   walletBalance: 6573.50,
   spentToday: 0.00,
 
+  setDoctorInfo(user, profile) {
+    if (!user && !profile) return;
+    let name = (profile && profile.name) || (user && user.name) || 'Doctor';
+    if (!name.toLowerCase().startsWith('dr.') && !name.toLowerCase().startsWith('dr ')) {
+      name = 'Dr. ' + name;
+    }
+    const specialty = (profile && (profile.specialty || profile.specialization || profile.qualification)) || 'General Medicine';
+    const phone = (profile && profile.phone) || (user && user.phone) || '+91-9876543210';
+    const timing = (profile && (profile.available_hours || profile.chamber_timing)) || 'Mon-Sat, 9AM-1PM';
+
+    // Compute initials for avatar (e.g. "Dr. Marcus Vance" -> "MV")
+    const cleanName = name.replace(/^dr\.?\s+/i, '').trim();
+    const parts = cleanName.split(/\s+/).filter(Boolean);
+    let initials = 'DR';
+    if (parts.length >= 2) {
+      initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    } else if (parts.length === 1 && parts[0].length >= 2) {
+      initials = parts[0].substring(0, 2).toUpperCase();
+    }
+
+    this.currentDoctor = {
+      name,
+      specialty,
+      phone,
+      timing,
+      initials
+    };
+
+    this.applyDoctorInfo();
+  },
+
+  applyDoctorInfo() {
+    const doc = this.currentDoctor;
+    if (!doc) return;
+
+    // Greeting Banner
+    const greetEl = document.getElementById('dashboard-doctor-name');
+    if (greetEl) {
+      const hour = new Date().getHours();
+      const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+      greetEl.textContent = `Good ${timeOfDay}, ${doc.name}!`;
+    }
+
+    // Profile Screen Displays
+    const dispName = document.getElementById('profile-display-name');
+    if (dispName) dispName.textContent = doc.name;
+
+    const dispSpec = document.getElementById('profile-display-spec');
+    if (dispSpec) dispSpec.textContent = doc.specialty;
+
+    // Form Inputs
+    const inpName = document.getElementById('profile-input-name');
+    if (inpName) inpName.value = doc.name;
+
+    const inpSpec = document.getElementById('profile-input-specialty');
+    if (inpSpec) inpSpec.value = doc.specialty;
+
+    const inpPhone = document.getElementById('profile-input-phone');
+    if (inpPhone) inpPhone.value = doc.phone;
+
+    const inpTiming = document.getElementById('profile-input-timing');
+    if (inpTiming) inpTiming.value = doc.timing;
+
+    // WBMC Form Placeholder/Value
+    const docRegName = document.getElementById('doc-input-name');
+    if (docRegName && !docRegName.value) docRegName.value = doc.name;
+
+    // Avatar Initials
+    document.querySelectorAll('.doc-avatar-circle').forEach(av => {
+      av.innerHTML = `${doc.initials}<div class="doc-avatar-badge">📷</div>`;
+    });
+
+    // Confirm Modal Doctor Signature
+    const confirmDocSign = document.getElementById('confirm-sign-doctor');
+    if (confirmDocSign) confirmDocSign.textContent = doc.name;
+  },
+
   init() {
+    if (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.role === 'doctor') {
+      this.setDoctorInfo(Auth.currentUser, Auth.currentProfile);
+    }
+
     this.savedMedicines = [
       {
         name: 'Clonazepam',
@@ -922,7 +1013,7 @@ const DoctorSuite = {
     }
 
     const lang = document.getElementById('patient-input-language').value;
-    const docName = document.getElementById('profile-input-name') ? document.getElementById('profile-input-name').value : 'Dr. Priya Sharma';
+    const docName = (this.currentDoctor && this.currentDoctor.name && this.currentDoctor.name !== 'Doctor') ? this.currentDoctor.name : ((document.getElementById('profile-input-name') && document.getElementById('profile-input-name').value) || 'Doctor');
 
     document.getElementById('confirm-phone-display').textContent = phone;
     document.getElementById('confirm-greeting-text').innerHTML = `
@@ -1022,7 +1113,7 @@ const DoctorSuite = {
     const age = document.getElementById('patient-input-age').value.trim();
     const gender = this.selectedGender;
     const lang = document.getElementById('patient-input-language').value;
-    const docName = document.getElementById('profile-input-name') ? document.getElementById('profile-input-name').value : 'Dr. Priya Sharma';
+    const docName = (this.currentDoctor && this.currentDoctor.name && this.currentDoctor.name !== 'Doctor') ? this.currentDoctor.name : ((document.getElementById('profile-input-name') && document.getElementById('profile-input-name').value) || 'Doctor');
 
     const costInfo = this.updateCostBreakdown();
 
@@ -1031,6 +1122,7 @@ const DoctorSuite = {
       patient_phone: phone,
       patient_age: age,
       patient_gender: gender,
+      doctor_name: docName,
       language: lang,
       medicines: this.savedMedicines,
       toggles: {
@@ -1369,23 +1461,18 @@ const DoctorSuite = {
 
   async loadProfileData() {
     try {
-      const res = await fetch('/api/doctors/portal/profile');
+      if (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.role === 'doctor') {
+        this.setDoctorInfo(Auth.currentUser, Auth.currentProfile);
+        return;
+      }
+
+      const token = localStorage.getItem('medinexa_token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const res = await fetch('/api/doctors/portal/profile', { headers });
       const data = await res.json();
-
-      const setVal = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) {
-          if (el.tagName === 'INPUT') el.value = val;
-          else el.textContent = val;
-        }
-      };
-
-      setVal('profile-display-name', data.name);
-      setVal('profile-display-spec', data.specialization);
-      setVal('profile-input-name', data.name);
-      setVal('profile-input-specialty', data.specialization);
-      setVal('profile-input-phone', data.phone);
-      setVal('profile-input-timing', data.chamber_timing);
+      if (data && data.name) {
+        this.setDoctorInfo({ name: data.name, phone: data.phone }, { specialty: data.specialization, available_hours: data.chamber_timing });
+      }
     } catch (e) {
       console.warn('Error loading doctor profile', e);
     }
@@ -1406,9 +1493,15 @@ const DoctorSuite = {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save profile');
 
-      document.getElementById('profile-display-name').textContent = name;
-      document.getElementById('profile-display-spec').textContent = specialization;
-      document.getElementById('dashboard-doctor-name').textContent = `Good evening, ${name}!`;
+      this.setDoctorInfo({ name, phone }, { specialty: specialization, available_hours: chamber_timing });
+      if (typeof Auth !== 'undefined' && Auth.currentUser) {
+        Auth.currentUser.name = name;
+        if (Auth.currentProfile) {
+          Auth.currentProfile.name = name;
+          Auth.currentProfile.specialty = specialization;
+          Auth.currentProfile.phone = phone;
+        }
+      }
 
       showToast('Doctor Profile updated successfully!', 'success');
     } catch (err) {
