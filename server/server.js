@@ -63,13 +63,15 @@ app.get('*', (req, res) => {
 });
 
 // Start Express server
-const server = app.listen(PORT, () => {
-  console.log(`================================================================`);
-  console.log(`🩺 MediNexa — One Platform. Better Connected Care.`);
-  console.log(`🚀 Server listening on port: ${PORT}`);
-  console.log(`🌐 Web Platform URL: http://localhost:${PORT}`);
-  console.log(`🍃 Database Status: ${isMongoConnected() ? 'MongoDB Active' : 'Active Resilient Store'}`);
-  console.log(`================================================================`);
-});
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`================================================================`);
+    console.log(`🩺 MediNexa — One Platform. Better Connected Care.`);
+    console.log(`🚀 Server listening on port: ${PORT}`);
+    console.log(`🌐 Web Platform URL: http://localhost:${PORT}`);
+    console.log(`🍃 Database Status: ${isMongoConnected() ? 'MongoDB Active' : 'Active Resilient Store'}`);
+    console.log(`================================================================`);
+  });
+}
 
 module.exports = app;

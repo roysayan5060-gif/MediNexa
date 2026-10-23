@@ -12,6 +12,7 @@ const Auth = {
     const token = API.getToken();
     if (!token) {
       this.updateUIForLoggedOut();
+      switchView('welcome');
       return;
     }
 
@@ -20,6 +21,15 @@ const Auth = {
       this.currentUser = data.user;
       this.currentProfile = data.profile;
       this.updateUIForLoggedIn();
+
+      // Route to appropriate portal if activeView is welcome or default
+      if (this.currentUser.role === 'doctor') {
+        switchView('doctor-portal');
+      } else if (this.currentUser.role === 'clinic') {
+        switchView('clinic-portal');
+      } else {
+        switchView('patient-home');
+      }
     } catch (err) {
       this.logout();
     }
@@ -29,6 +39,8 @@ const Auth = {
     const user = this.currentUser;
     const authBtn = document.getElementById('btn-header-auth');
     const roleBadge = document.getElementById('role-badge');
+    const headerActions = document.getElementById('header-actions');
+    const mainNav = document.getElementById('main-nav-links');
 
     if (roleBadge) {
       roleBadge.textContent = `${user.role.toUpperCase()} MODE`;
@@ -39,6 +51,41 @@ const Auth = {
     if (authBtn) {
       authBtn.innerHTML = `<span>👤</span> ${user.name.split(' ')[0]} (Logout)`;
       authBtn.onclick = () => this.logout();
+    }
+
+    if (headerActions) {
+      headerActions.style.display = 'flex';
+    }
+
+    // Role-specific navigation links
+    const navPatientHome = document.getElementById('nav-btn-patient-home');
+    const navDoctors = document.getElementById('nav-btn-doctors');
+    const navAppointments = document.getElementById('nav-btn-appointments');
+    const navDocPortal = document.getElementById('nav-btn-doctor-portal');
+    const navClinicPortal = document.getElementById('nav-btn-clinic-portal');
+
+    if (user.role === 'doctor') {
+      if (navPatientHome) navPatientHome.style.display = 'none';
+      if (navDoctors) navDoctors.style.display = 'none';
+      if (navAppointments) navAppointments.style.display = 'none';
+      if (navDocPortal) navDocPortal.style.display = 'inline-flex';
+      if (navClinicPortal) navClinicPortal.style.display = 'none';
+    } else if (user.role === 'clinic') {
+      if (navPatientHome) navPatientHome.style.display = 'none';
+      if (navDoctors) navDoctors.style.display = 'none';
+      if (navAppointments) navAppointments.style.display = 'none';
+      if (navDocPortal) navDocPortal.style.display = 'none';
+      if (navClinicPortal) navClinicPortal.style.display = 'inline-flex';
+    } else {
+      if (navPatientHome) navPatientHome.style.display = 'inline-flex';
+      if (navDoctors) navDoctors.style.display = 'inline-flex';
+      if (navAppointments) navAppointments.style.display = 'inline-flex';
+      if (navDocPortal) navDocPortal.style.display = 'none';
+      if (navClinicPortal) navClinicPortal.style.display = 'none';
+    }
+
+    if (mainNav) {
+      mainNav.classList.remove('hidden');
     }
 
     // Update portal views if in doctor or clinic mode
@@ -57,6 +104,8 @@ const Auth = {
 
     const authBtn = document.getElementById('btn-header-auth');
     const roleBadge = document.getElementById('role-badge');
+    const headerActions = document.getElementById('header-actions');
+    const mainNav = document.getElementById('main-nav-links');
 
     if (roleBadge) {
       roleBadge.textContent = 'PATIENT VIEW';
@@ -67,6 +116,14 @@ const Auth = {
       authBtn.innerHTML = '<span>🔒</span> Login / Register';
       authBtn.onclick = () => this.openAuthModal('patient');
     }
+
+    if (headerActions) {
+      headerActions.style.display = 'none';
+    }
+
+    if (mainNav) {
+      mainNav.classList.add('hidden');
+    }
   },
 
   logout() {
@@ -75,7 +132,7 @@ const Auth = {
     this.currentProfile = null;
     this.updateUIForLoggedOut();
     showToast('You have been logged out successfully.', 'info');
-    switchView('home');
+    switchView('welcome');
   },
 
   openAuthModal(intendedRole = 'patient', isRegister = false) {
@@ -164,7 +221,7 @@ const Auth = {
           } else if (res.user.role === 'clinic') {
             switchView('clinic-portal');
           } else {
-            switchView('home');
+            switchView('patient-home');
           }
         } catch (err) {
           showToast(err.message, 'error');
@@ -219,7 +276,7 @@ const Auth = {
           } else if (res.user.role === 'clinic') {
             switchView('clinic-portal');
           } else {
-            switchView('home');
+            switchView('patient-home');
           }
         } catch (err) {
           showToast(err.message, 'error');

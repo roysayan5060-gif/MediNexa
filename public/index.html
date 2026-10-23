@@ -34,30 +34,30 @@
         </div>
       </div>
 
-      <!-- Core Navigation Buttons -->
-      <nav class="nav-links">
-        <button class="nav-btn active" data-view="home">
+      <!-- Core Navigation Buttons (Hidden on opening welcome screen, shown inside respective portals) -->
+      <nav class="nav-links hidden" id="main-nav-links">
+        <button class="nav-btn active" data-view="patient-home" id="nav-btn-patient-home">
           <span>🏠</span> Home / Ask Issues
         </button>
-        <button class="nav-btn" data-view="doctors">
+        <button class="nav-btn" data-view="doctors" id="nav-btn-doctors">
           <span>👨‍⚕️</span> Doctors & Fees
         </button>
-        <button class="nav-btn" data-view="appointments">
+        <button class="nav-btn" data-view="appointments" id="nav-btn-appointments">
           <span>📅</span> My Appointments
         </button>
-        <button class="nav-btn" data-view="doctor-portal">
+        <button class="nav-btn" data-view="doctor-portal" id="nav-btn-doctor-portal" style="display: none;">
           <span>🩺</span> Doctor Portal
         </button>
-        <button class="nav-btn" data-view="clinic-portal">
+        <button class="nav-btn" data-view="clinic-portal" id="nav-btn-clinic-portal" style="display: none;">
           <span>🏥</span> Clinic Portal
         </button>
       </nav>
 
-      <!-- User Session Actions -->
-      <div class="header-actions">
+      <!-- User Session Actions (Hidden on opening welcome screen, shown upon authentication) -->
+      <div class="header-actions" id="header-actions" style="display: none;">
         <span class="role-badge patient" id="role-badge">PATIENT VIEW</span>
         <button class="btn-header-auth" id="btn-header-auth">
-          <span>🔒</span> Login / Register
+          <span>🔒</span> Logout
         </button>
       </div>
     </div>
@@ -67,57 +67,92 @@
   <main class="main-wrapper">
 
     <!-- ============================================================== -->
-    <!-- VIEW 1: HOME PAGE — APPROVED MEDINEXA WELCOME SCREEN & TRIAGE -->
+    <!-- VIEW 1: CLEAN MINIMAL FIRST SCREEN — MEDINEXA WELCOME PAGE -->
+    <!-- Display ONLY branding, tagline, subtitle, and 3 role sign-in options -->
     <!-- ============================================================== -->
-    <section id="view-home" class="view-section active">
+    <section id="view-welcome" class="view-section active">
+      <div class="welcome-screen-pure">
+        <!-- Logo with Stethoscope and Medical Cross -->
+        <div class="welcome-logo-wrapper">
+          <svg class="welcome-logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="23" fill="#0f172a" stroke="#243049" stroke-width="2"/>
+            <path d="M14 11V18C14 23.5228 18.4772 28 24 28C29.5228 28 34 23.5228 34 18V11" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+            <path d="M24 28V34C24 36.2091 25.7909 38 28 38H31" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="34" cy="38" r="4.5" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
+            <path d="M34 36V40M32 38H36" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="14" cy="11" r="2" fill="#ef4444"/>
+            <circle cx="34" cy="11" r="2" fill="#ef4444"/>
+          </svg>
+        </div>
+
+        <!-- Welcome Heading -->
+        <h1 class="welcome-title">Welcome to MediNexa</h1>
+
+        <!-- Approved Tagline -->
+        <div class="welcome-tagline">One Platform. Better Connected Care.</div>
+
+        <!-- Short Subtitle -->
+        <p class="welcome-subtitle">“Your care, your doctors, your clinic — connected in one place.”</p>
+
+        <!-- Three Clear Role Sign-in Options -->
+        <div class="role-signin-options">
+          <!-- 1. Sign in as Patient -->
+          <button type="button" class="role-signin-btn patient-btn" onclick="selectRole('patient')">
+            <div class="btn-left">
+              <div class="btn-icon">👤</div>
+              <div>
+                <div class="btn-label">Sign in as Patient</div>
+                <div class="btn-sublabel">Consultations, doctors & prescriptions</div>
+              </div>
+            </div>
+            <span class="btn-arrow">&rarr;</span>
+          </button>
+
+          <!-- 2. Sign in as Doctor -->
+          <button type="button" class="role-signin-btn doctor-btn" onclick="selectRole('doctor')">
+            <div class="btn-left">
+              <div class="btn-icon">🩺</div>
+              <div>
+                <div class="btn-label">Sign in as Doctor</div>
+                <div class="btn-sublabel">Patient consultations, WBMC & WhatsApp Rx</div>
+              </div>
+            </div>
+            <span class="btn-arrow">&rarr;</span>
+          </button>
+
+          <!-- 3. Sign in as Clinic -->
+          <button type="button" class="role-signin-btn clinic-btn" onclick="selectRole('clinic')">
+            <div class="btn-left">
+              <div class="btn-icon">🏥</div>
+              <div>
+                <div class="btn-label">Sign in as Clinic</div>
+                <div class="btn-sublabel">Financial auditing, settlements & accounting</div>
+              </div>
+            </div>
+            <span class="btn-arrow">&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- VIEW 2: PATIENT PORTAL DASHBOARD (SHOWN ONLY AFTER SIGN IN) -->
+    <!-- ============================================================== -->
+    <section id="view-patient-home" class="view-section">
       
-      <!-- MediNexa Welcome Screen -->
-      <div class="welcome-hero">
-        <div class="hero-pill">✨ One Platform. Better Connected Care.</div>
-        <h2 class="hero-title">
-          Modern Healthcare Connected Across <span>Patients, Doctors & Clinics</span>
-        </h2>
-        <p class="hero-subtitle">
-          Experience accredited medical care with verified West Bengal Medical Council doctors, transparent clinic financial settlements, intelligent symptom guidance, and direct WhatsApp prescriptions.
-        </p>
-
-        <!-- 3 Role-Selection Cards (Opening existing auth/login flow without duplicate code) -->
-        <div class="role-selection-grid">
-          <!-- Card 1: Patient -->
-          <div class="role-card patient-card" onclick="selectRole('patient')">
-            <span class="role-card-badge">Patient Portal</span>
-            <div class="role-card-icon">👤</div>
-            <h3>Patient Care</h3>
-            <p>Describe your health concerns, find certified specialist doctors, book appointment slots, and pay securely via Razorpay.</p>
-            <div class="role-card-action">
-              <span>Sign In as Patient</span>
-              <span>&rarr;</span>
-            </div>
-          </div>
-
-          <!-- Card 2: Doctor -->
-          <div class="role-card doctor-card" onclick="selectRole('doctor')">
-            <span class="role-card-badge">Doctor Portal</span>
-            <div class="role-card-icon">🩺</div>
-            <h3>Doctor Practice</h3>
-            <p>Manage patient visits, verify your WBMC medical registration, formulate digital prescriptions, and share instantly via WhatsApp.</p>
-            <div class="role-card-action">
-              <span>Sign In as Doctor</span>
-              <span>&rarr;</span>
-            </div>
-          </div>
-
-          <!-- Card 3: Clinic -->
-          <div class="role-card clinic-card" onclick="selectRole('clinic')">
-            <span class="role-card-badge">Clinic Accounting</span>
-            <div class="role-card-icon">🏥</div>
-            <h3>Clinic Operations</h3>
-            <p>Access full financial auditing: total patient collections, verified receipts, gateway fees, bank settlements, and recorded expenses.</p>
-            <div class="role-card-action">
-              <span>Sign In as Clinic</span>
-              <span>&rarr;</span>
-            </div>
-          </div>
+      <!-- Patient Portal Header Banner -->
+      <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Patient Care Center</h2>
+          <p style="color: var(--text-secondary);">Ask about health concerns, book verified consultations, and manage medical care.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn-book" style="background: var(--bg-card); color: var(--text-white); border: 1px solid var(--border-color);" onclick="switchView('doctors')">
+            <span>👨‍⚕️</span> Browse All Doctors
+          </button>
+          <button class="btn-book" onclick="switchView('appointments')">
+            <span>📅</span> My Appointments
+          </button>
         </div>
       </div>
 

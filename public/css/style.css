@@ -123,7 +123,227 @@ body {
   padding: 0.35rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-color);
+  transition: opacity 0.2s ease;
 }
+
+.nav-links.hidden {
+  display: none !important;
+}
+
+/* ---------------- CLEAN FIRST SCREEN / WELCOME PAGE ---------------- */
+.welcome-screen-pure {
+  max-width: 680px;
+  margin: 3rem auto 2rem;
+  text-align: center;
+  padding: 3.5rem 2.5rem;
+  background: linear-gradient(180deg, rgba(21, 29, 48, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(239, 68, 68, 0.08);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.welcome-screen-pure::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
+  height: 200px;
+  background: radial-gradient(ellipse, rgba(239, 68, 68, 0.2) 0%, rgba(59, 130, 246, 0.12) 50%, transparent 75%);
+  pointer-events: none;
+}
+
+.welcome-logo-wrapper {
+  margin-bottom: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.25), 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.welcome-logo-svg {
+  width: 54px;
+  height: 54px;
+}
+
+.welcome-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--text-white);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.welcome-tagline {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-red);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.85rem;
+}
+
+.welcome-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+}
+
+/* 3 Clear Role Sign-in Options */
+.role-signin-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.role-signin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.05rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-white);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.role-signin-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.role-signin-btn .btn-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.role-signin-btn .btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.role-signin-btn .btn-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-white);
+  text-align: left;
+}
+
+.role-signin-btn .btn-sublabel {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.role-signin-btn .btn-arrow {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.role-signin-btn:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Option 1: Patient (Subtle Blue Accent) */
+.role-signin-btn.patient-btn {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.role-signin-btn.patient-btn .btn-icon {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+}
+.role-signin-btn.patient-btn:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), var(--bg-card));
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.25);
+}
+.role-signin-btn.patient-btn:hover .btn-arrow {
+  color: #60a5fa;
+}
+
+/* Option 2: Doctor (Subtle Red Accent) */
+.role-signin-btn.doctor-btn {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.role-signin-btn.doctor-btn .btn-icon {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+.role-signin-btn.doctor-btn:hover {
+  border-color: var(--primary-red);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), var(--bg-card));
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(239, 68, 68, 0.25);
+}
+.role-signin-btn.doctor-btn:hover .btn-arrow {
+  color: var(--primary-red);
+}
+
+/* Option 3: Clinic (Subtle Emerald/Teal Accent) */
+.role-signin-btn.clinic-btn {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.role-signin-btn.clinic-btn .btn-icon {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+.role-signin-btn.clinic-btn:hover {
+  border-color: #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), var(--bg-card));
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.25);
+}
+.role-signin-btn.clinic-btn:hover .btn-arrow {
+  color: #34d399;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .welcome-screen-pure {
+    padding: 2.25rem 1.25rem;
+    margin: 1.5rem auto 1rem;
+  }
+  .welcome-title {
+    font-size: 2rem;
+  }
+  .welcome-tagline {
+    font-size: 1.05rem;
+  }
+  .welcome-subtitle {
+    font-size: 0.95rem;
+  }
+  .role-signin-btn {
+    padding: 0.9rem 1.15rem;
+  }
+}
+
 
 .nav-btn {
   background: transparent;
