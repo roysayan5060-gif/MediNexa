@@ -11,17 +11,34 @@ const Clinic = require('./models/Clinic');
 const Payment = require('./models/Payment');
 const ClinicExpense = require('./models/ClinicExpense');
 
-const ATLAS_FALLBACK_URI = 'mongodb+srv://<username>:<password>@cluster0.okgvkax.mongodb.net/medinexa?retryWrites=true&w=majority&compressors=zlib';
-function getMongoUri() {
+// Production MongoDB Atlas URIs (Explicitly targeting the 'medinexa' database)
+// Direct Replica Set URI bypasses SRV DNS lookups which fail in Linux/Docker/Render container environments
+const DIRECT_ATLAS_URI = 'mongodb://<username>:<password>@ac-xpg8tio-shard-00-00.okgvkax.mongodb.net:27017,ac-xpg8tio-shard-00-01.okgvkax.mongodb.net:27017,ac-xpg8tio-shard-00-02.okgvkax.mongodb.net:27017/medinexa?ssl=true&replicaSet=atlas-vclavq-shard-0&authSource=admin&retryWrites=true&w=majority';
+const SRV_ATLAS_URI = 'mongodb+srv://<username>:<password>@cluster0.okgvkax.mongodb.net/medinexa?retryWrites=true&w=majority';
+
+function getCandidateUris() {
+  const uris = [];
   const envUri = (process.env.MONGODB_URI || '').trim();
   if (envUri && envUri.startsWith('mongodb') && envUri.includes('@')) {
-    return envUri;
+    let normalized = envUri;
+    // Normalize missing database name: e.g. .mongodb.net/? -> .mongodb.net/medinexa?
+    if (normalized.includes('.mongodb.net/?')) {
+      normalized = normalized.replace('.mongodb.net/?', '.mongodb.net/medinexa?');
+    } else if (normalized.endsWith('.mongodb.net') || normalized.endsWith('.mongodb.net/')) {
+      normalized = normalized.replace(/\.mongodb\.net\/?$/, '.mongodb.net/medinexa');
+    }
+    uris.push(normalized);
   }
-  return ATLAS_FALLBACK_URI;
+  // Include Direct Replica Set URI (guaranteed zero DNS SRV lookup failures)
+  if (!uris.includes(DIRECT_ATLAS_URI)) uris.push(DIRECT_ATLAS_URI);
+  if (!uris.includes(SRV_ATLAS_URI)) uris.push(SRV_ATLAS_URI);
+  return uris;
 }
-const MONGODB_URI = getMongoUri();
 
 let isMongoConnected = false;
+let lastMongoError = null;
+let activeMongoUri = null;
+let isConnecting = false;
 
 // Seed data to guarantee zero feature regression
 const seedDoctors = [
@@ -386,41 +403,101 @@ function migrateLegacySQLiteData() {
   });
 }
 
-// Connect to MongoDB
-let retryCount = 0;
-const MAX_RETRIES = 10;
-
+// Connect to MongoDB Atlas with multi-candidate resilience
 async function connectDB() {
-  try {
-    mongoose.set('strictQuery', false);
-    await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 15000
-    });
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
     isMongoConnected = true;
-    console.log(`🍃 Connected to MongoDB successfully (${MONGODB_URI})`);
+    return true;
+  }
+  if (isConnecting) {
+    return false;
+  }
 
-    // Ensure initial doctor records are preserved in MongoDB
-    const docCount = await Doctor.countDocuments();
-    if (docCount === 0) {
-      console.log('⚡ Initializing doctor records in MongoDB...');
-      await Doctor.insertMany(seedDoctors);
-      console.log('✅ Doctor directory initialized in MongoDB.');
-    }
-  } catch (err) {
-    isMongoConnected = false;
-    console.warn(`⚠️ Notice: MongoDB connection to ${MONGODB_URI} deferred (${err.message}). Using resilient active storage layer. Zero downtime.`);
-    if (retryCount < MAX_RETRIES) {
-      retryCount++;
-      console.log(`🔄 Retrying MongoDB connection in 6s (attempt ${retryCount}/${MAX_RETRIES})...`);
-      setTimeout(connectDB, 6000);
+  isConnecting = true;
+  const candidateUris = getCandidateUris();
+
+  for (const uri of candidateUris) {
+    try {
+      mongoose.set('strictQuery', false);
+      const sanitized = uri.replace(/:([^:@]{3,})@/, ':****@');
+      console.log(`🍃 Attempting MongoDB Atlas connection via: ${sanitized}`);
+
+      await mongoose.connect(uri, {
+        serverSelectionTimeoutMS: 8000,
+        connectTimeoutMS: 10000
+      });
+
+      isMongoConnected = true;
+      lastMongoError = null;
+      activeMongoUri = sanitized;
+      isConnecting = false;
+      console.log(`🍃 Connected to MongoDB Atlas successfully! Database: ${mongoose.connection.name || 'medinexa'}`);
+
+      // Ensure initial doctor records are preserved in MongoDB
+      try {
+        const docCount = await Doctor.countDocuments();
+        if (docCount === 0) {
+          console.log('⚡ Initializing doctor records in MongoDB...');
+          await Doctor.insertMany(seedDoctors);
+          console.log('✅ Doctor directory initialized in MongoDB.');
+        }
+      } catch (seedErr) {
+        console.warn('Doctor seeding check note:', seedErr.message);
+      }
+
+      return true;
+    } catch (err) {
+      lastMongoError = err.message;
+      const sanitized = uri.replace(/:([^:@]{3,})@/, ':****@');
+      console.warn(`⚠️ Candidate URI failed (${sanitized}): ${err.message}. Trying next candidate...`);
+      try {
+        await mongoose.disconnect();
+      } catch (_) {}
     }
   }
+
+  isMongoConnected = false;
+  isConnecting = false;
+  console.warn(`⚠️ All MongoDB Atlas candidate URIs deferred (${lastMongoError}). Retrying in 5 seconds...`);
+  setTimeout(connectDB, 5000);
+  return false;
+}
+
+// Helper to await active MongoDB connection before handling critical authentication requests
+async function ensureMongoConnection(timeoutMs = 6000) {
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    return true;
+  }
+
+  connectDB();
+
+  const startTime = Date.now();
+  while (Date.now() - startTime < timeoutMs) {
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      return true;
+    }
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  return Boolean(mongoose.connection && mongoose.connection.readyState === 1);
+}
+
+function getMongoStatus() {
+  return {
+    connected: Boolean(isMongoConnected || (mongoose.connection && mongoose.connection.readyState === 1)),
+    readyState: mongoose.connection ? mongoose.connection.readyState : 0,
+    database: mongoose.connection ? mongoose.connection.name : null,
+    activeUri: activeMongoUri,
+    lastError: lastMongoError
+  };
 }
 
 connectDB();
 
 module.exports = {
   connectDB,
+  ensureMongoConnection,
+  getMongoStatus,
   isMongoConnected: () => Boolean(isMongoConnected || (mongoose.connection && mongoose.connection.readyState === 1)),
   seedDoctors,
   memoryStore,

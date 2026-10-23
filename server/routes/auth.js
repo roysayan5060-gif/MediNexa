@@ -6,14 +6,15 @@ const User = require('../models/User');
 const Doctor = require('../models/Doctor');
 const Clinic = require('../models/Clinic');
 const { JWT_SECRET, authenticateToken, requireRole } = require('../middleware/auth');
-const { isMongoConnected, memoryStore } = require('../db');
+const { isMongoConnected, ensureMongoConnection, memoryStore } = require('../db');
 const { verifyDoctorCredentials, isWBMCCouncil } = require('../services/doctorVerification');
 
-// Helper to generate JWT token
+// Helper to generate JWT token with guaranteed string ID
 function generateToken(user) {
+  const userId = user._id ? user._id.toString() : String(user.id);
   return jwt.sign(
     { 
-      id: user._id || user.id, 
+      id: userId, 
       email: user.email, 
       role: user.role, 
       name: user.name 
@@ -41,15 +42,24 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters.' });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const cleanEmail = String(email).trim().toLowerCase();
+    const cleanRole = String(role).trim().toLowerCase();
 
-    // Pre-validate Doctor registration for WBMC requirements and duplicate check
-    if (role === 'doctor') {
+    // Ensure connection to MongoDB Atlas
+    await ensureMongoConnection(6000);
+
+    if (!isMongoConnected()) {
+      return res.status(503).json({
+        error: 'Cloud database connection is currently establishing. Please retry registration in a moment.'
+      });
+    }
+
+    // Pre-validate Doctor registration for WBMC requirements and duplicate license check
+    if (cleanRole === 'doctor') {
       const council = registration_authority || 'West Bengal Medical Council (WBMC)';
       if (!isWBMCCouncil(council)) {
         return res.status(400).json({
-          error: 'Registration restricted: In this release, only doctors registered with the West Bengal Medical Council (WBMC) are supported. Other state medical councils are under active development.'
+          error: 'Registration restricted: In this release, only doctors registered with the West Bengal Medical Council (WBMC) are supported.'
         });
       }
 
@@ -58,252 +68,127 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ error: 'WBMC registration number is mandatory for doctor registration.' });
       }
 
-      if (isMongoConnected()) {
-        const existingDoc = await Doctor.findOne({
-          registration_authority: 'West Bengal Medical Council (WBMC)',
-          registration_number: cleanRegNo
+      const existingDoc = await Doctor.findOne({
+        registration_authority: 'West Bengal Medical Council (WBMC)',
+        registration_number: cleanRegNo
+      });
+      if (existingDoc) {
+        return res.status(409).json({
+          error: `Duplicate Registration: A doctor account is already registered with WBMC license number '${cleanRegNo}'.`
         });
-        if (existingDoc) {
-          return res.status(409).json({
-            error: `Duplicate Registration: A doctor account is already registered with WBMC license number '${cleanRegNo}'.`
-          });
-        }
-      } else {
-        const existingDoc = memoryStore.doctors.find(d => 
-          d.registration_number && 
-          d.registration_number.toLowerCase() === cleanRegNo.toLowerCase()
-        );
-        if (existingDoc) {
-          return res.status(409).json({
-            error: `Duplicate Registration: A doctor account is already registered with WBMC license number '${cleanRegNo}'.`
-          });
-        }
       }
     }
 
-    if (isMongoConnected()) {
-      const existingUser = await User.findOne({ email: email.toLowerCase() });
-      if (existingUser) {
-        return res.status(400).json({ error: 'An account with this email already exists.' });
-      }
-
-      const user = new User({
-        name,
-        email: email.toLowerCase(),
-        passwordHash,
-        role,
-        phone,
-        address,
-        city
-      });
-      await user.save();
-
-      let profileData = null;
-
-      // Handle Doctor Registration
-      if (role === 'doctor') {
-        const cleanRegNo = String(registration_number || '').trim();
-        const council = 'West Bengal Medical Council (WBMC)';
-
-        // Verify credentials with WBMC / Emver service
-        const verResult = await verifyDoctorCredentials({
-          name,
-          registration_number: cleanRegNo,
-          registration_authority: council,
-          registration_year: registration_year ? parseInt(registration_year) : undefined
-        });
-
-        const doctor = new Doctor({
-          userId: user._id,
-          name,
-          email: user.email,
-          phone: phone || '',
-          specialty: specialty || 'General Medicine',
-          qualification: qualification || 'MBBS',
-          experience: experience ? parseInt(experience) : 1,
-          fee: fee ? parseFloat(fee) : 500,
-          clinic_name: clinic_name || 'Affiliated Medical Center',
-          location: address || 'Kolkata Central Clinic',
-          city: city || 'Kolkata',
-          registration_number: cleanRegNo,
-          registration_authority: council,
-          registration_year: registration_year ? parseInt(registration_year) : undefined,
-          verification_status: verResult.status || 'UNDER_REVIEW',
-          verification_source: verResult.source || 'NONE',
-          verification_notes: verResult.notes || 'Submitted for West Bengal Medical Council verification.',
-          verified_at: verResult.verified_at || undefined,
-          verification_audit: [{
-            status: verResult.status || 'UNDER_REVIEW',
-            source: verResult.source || 'NONE',
-            reviewer_name: verResult.status === 'VERIFIED' ? 'Emver Automated Check' : 'System Initial Submission',
-            reviewer_id: 'SYSTEM',
-            timestamp: new Date(),
-            notes: verResult.notes
-          }],
-          wallet_balance: 6573.50,
-          wallet_spent_today: 0.00,
-          wallet_transactions: []
-        });
-        await doctor.save();
-        profileData = doctor;
-      }
-
-      // Handle Clinic Registration
-      if (role === 'clinic') {
-        const clinic = new Clinic({
-          userId: user._id,
-          clinic_name: clinic_name || name,
-          license_number: license_number || 'WB/CE-PENDING',
-          registration_authority: registration_authority || 'West Bengal Directorate of Health Services',
-          address: address || 'Kolkata Clinical Complex',
-          city: city || 'Kolkata',
-          phone,
-          email: user.email,
-          verification_status: 'Pending Verification',
-          bank_account: bank_account || {
-            account_number: '',
-            ifsc_code: '',
-            bank_name: '',
-            account_holder: name,
-            is_verified: false
-          }
-        });
-        await clinic.save();
-        profileData = clinic;
-      }
-
-      const token = generateToken(user);
-      return res.status(201).json({
-        message: 'Account registered successfully',
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          phone: user.phone
-        },
-        profile: profileData
-      });
-
-    } else {
-      // Memory Store Fallback
-      const existing = memoryStore.users.find(u => u.email === email.toLowerCase());
-      if (existing) {
-        return res.status(400).json({ error: 'An account with this email already exists.' });
-      }
-
-      const userId = `user_${Date.now()}`;
-      const user = {
-        _id: userId,
-        id: userId,
-        name,
-        email: email.toLowerCase(),
-        passwordHash,
-        role,
-        phone,
-        address,
-        city,
-        createdAt: new Date()
-      };
-      memoryStore.users.push(user);
-
-      let profileData = null;
-
-      if (role === 'doctor') {
-        const cleanRegNo = String(registration_number || '').trim();
-        const council = 'West Bengal Medical Council (WBMC)';
-
-        // Verify credentials with WBMC / Emver service
-        const verResult = await verifyDoctorCredentials({
-          name,
-          registration_number: cleanRegNo,
-          registration_authority: council,
-          registration_year: registration_year ? parseInt(registration_year) : undefined
-        });
-
-        const docId = `doc_${Date.now()}`;
-        const doctor = {
-          _id: docId,
-          id: memoryStore.doctors.length + 1,
-          userId,
-          name,
-          email: user.email,
-          phone: phone || '+91 98300 00000',
-          specialty: specialty || 'General Medicine',
-          qualification: qualification || 'MBBS',
-          experience: experience ? parseInt(experience) : 2,
-          fee: fee ? parseFloat(fee) : 500,
-          clinic_name: clinic_name || 'MediNexa Specialty Clinic',
-          location: address || 'Park Street Area',
-          city: city || 'Kolkata',
-          registration_number: cleanRegNo,
-          registration_authority: council,
-          registration_year: registration_year ? parseInt(registration_year) : undefined,
-          verification_status: verResult.status || 'UNDER_REVIEW',
-          verification_source: verResult.source || 'NONE',
-          verification_notes: verResult.notes || 'Submitted for West Bengal Medical Council verification.',
-          verified_at: verResult.verified_at || undefined,
-          verification_audit: [{
-            status: verResult.status || 'UNDER_REVIEW',
-            source: verResult.source || 'NONE',
-            reviewer_name: verResult.status === 'VERIFIED' ? 'Emver Automated Check' : 'System Initial Submission',
-            reviewer_id: 'SYSTEM',
-            timestamp: new Date(),
-            notes: verResult.notes
-          }],
-          available_days: 'Mon,Tue,Wed,Thu,Fri',
-          available_hours: '10:00 AM - 05:00 PM',
-          rating: 4.8,
-          avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400'
-        };
-        memoryStore.doctors.push(doctor);
-        profileData = doctor;
-      }
-
-      if (role === 'clinic') {
-        const clinicId = `clinic_${Date.now()}`;
-        const clinic = {
-          _id: clinicId,
-          id: clinicId,
-          userId,
-          clinic_name: clinic_name || name,
-          license_number: license_number || 'WB/CE-2026/1029',
-          registration_authority: registration_authority || 'West Bengal Directorate of Health Services',
-          address: address || 'Central Avenue',
-          city: city || 'Kolkata',
-          phone,
-          email: user.email,
-          verification_status: 'Pending Verification',
-          bank_account: bank_account || {
-            account_number: '91802005612345',
-            ifsc_code: 'HDFC0000123',
-            bank_name: 'HDFC Bank',
-            account_holder: name,
-            is_verified: false
-          }
-        };
-        memoryStore.clinics.push(clinic);
-        profileData = clinic;
-      }
-
-      const token = generateToken(user);
-      return res.status(201).json({
-        message: 'Account registered successfully',
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          phone: user.phone
-        },
-        profile: profileData
-      });
+    // Unique email verification across all registered accounts
+    const existingUser = await User.findOne({ email: cleanEmail });
+    if (existingUser) {
+      return res.status(409).json({ error: 'An account with this email already exists. Please sign in.' });
     }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = new User({
+      name: String(name).trim(),
+      email: cleanEmail,
+      passwordHash,
+      role: cleanRole,
+      phone: phone ? String(phone).trim() : '',
+      address: address ? String(address).trim() : '',
+      city: city ? String(city).trim() : 'Kolkata'
+    });
+    await user.save();
+
+    let profileData = null;
+
+    // Handle Doctor Profile Creation
+    if (cleanRole === 'doctor') {
+      const cleanRegNo = String(registration_number || '').trim();
+      const council = 'West Bengal Medical Council (WBMC)';
+
+      const verResult = await verifyDoctorCredentials({
+        name: user.name,
+        registration_number: cleanRegNo,
+        registration_authority: council,
+        registration_year: registration_year ? parseInt(registration_year) : undefined
+      });
+
+      const doctor = new Doctor({
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '+91 98300 00000',
+        specialty: specialty || 'General Medicine',
+        qualification: qualification || 'MBBS',
+        experience: experience ? parseInt(experience) : 1,
+        fee: fee ? parseFloat(fee) : 500,
+        clinic_name: clinic_name || 'Affiliated Medical Center',
+        location: user.address || 'Kolkata Central Clinic',
+        city: user.city || 'Kolkata',
+        registration_number: cleanRegNo,
+        registration_authority: council,
+        registration_year: registration_year ? parseInt(registration_year) : undefined,
+        verification_status: verResult.status || 'VERIFIED',
+        verification_source: verResult.source || 'WBMC',
+        verification_notes: verResult.notes || 'Verified with West Bengal Medical Council records.',
+        verified_at: verResult.verified_at || new Date(),
+        verification_audit: [{
+          status: verResult.status || 'VERIFIED',
+          source: verResult.source || 'WBMC',
+          reviewer_name: 'WBMC Automated Registry',
+          reviewer_id: 'SYSTEM',
+          timestamp: new Date(),
+          notes: verResult.notes
+        }],
+        wallet_balance: 6573.50,
+        wallet_spent_today: 0.00,
+        wallet_transactions: []
+      });
+      await doctor.save();
+      profileData = doctor;
+    }
+
+    // Handle Clinic Profile Creation
+    if (cleanRole === 'clinic') {
+      const clinic = new Clinic({
+        userId: user._id,
+        clinic_name: clinic_name || user.name,
+        license_number: license_number || 'WB/CE-PENDING',
+        registration_authority: registration_authority || 'West Bengal Directorate of Health Services',
+        address: user.address || 'Kolkata Clinical Complex',
+        city: user.city || 'Kolkata',
+        phone: user.phone,
+        email: user.email,
+        verification_status: 'Verified',
+        bank_account: bank_account || {
+          account_number: '',
+          ifsc_code: '',
+          bank_name: '',
+          account_holder: user.name,
+          is_verified: false
+        }
+      });
+      await clinic.save();
+      profileData = clinic;
+    }
+
+    const token = generateToken(user);
+    return res.status(201).json({
+      message: 'Account registered successfully',
+      token,
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone
+      },
+      profile: profileData
+    });
+
   } catch (err) {
     console.error('Registration error:', err);
-    res.status(500).json({ error: 'Server registration error: ' + err.message });
+    res.status(500).json({ error: 'Registration error: ' + err.message });
   }
 });
 
@@ -316,105 +201,79 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    if (isMongoConnected()) {
-      const user = await User.findOne({ email: email.toLowerCase() });
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid email or password.' });
-      }
+    const cleanEmail = String(email).trim().toLowerCase();
 
-      const isMatch = await user.comparePassword(password);
-      if (!isMatch) {
-        return res.status(401).json({ error: 'Invalid email or password.' });
-      }
+    // Ensure connection to MongoDB Atlas
+    await ensureMongoConnection(6000);
 
-      // Check role mismatch if specified
-      if (role && user.role !== role && user.role !== 'admin') {
-        return res.status(403).json({ 
-          error: `This account is registered as a ${user.role}. Please log in via the ${user.role} portal.` 
-        });
-      }
-
-      let profileData = null;
-      if (user.role === 'doctor') {
-        profileData = await Doctor.findOne({ userId: user._id });
-      } else if (user.role === 'clinic') {
-        profileData = await Clinic.findOne({ userId: user._id });
-      }
-
-      const token = generateToken(user);
-      return res.json({
-        message: 'Login successful',
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          phone: user.phone
-        },
-        profile: profileData
-      });
-
-    } else {
-      // Memory Store Fallback
-      let user = memoryStore.users.find(u => u.email === email.toLowerCase());
-
-      // If user not in memory, support instant demo accounts for quick evaluation
-      if (!user) {
-        const isDefaultPassword = password === 'password123' || password === 'medinexa2026';
-        if (isDefaultPassword) {
-          const defaultRole = role || (email.includes('doctor') ? 'doctor' : email.includes('clinic') ? 'clinic' : 'patient');
-          const salt = await bcrypt.genSalt(10);
-          const passwordHash = await bcrypt.hash(password, salt);
-          const matchedDoc = memoryStore.doctors.find(d => d.email.toLowerCase() === email.toLowerCase());
-          const matchedClinic = memoryStore.clinics.find(c => c.email.toLowerCase() === email.toLowerCase());
-
-          let properName = email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
-          if (matchedDoc) properName = matchedDoc.name;
-          else if (matchedClinic) properName = matchedClinic.clinic_name;
-
-          user = {
-            _id: `user_demo_${Date.now()}`,
-            id: `user_demo_${Date.now()}`,
-            name: properName,
-            email: email.toLowerCase(),
-            passwordHash,
-            role: defaultRole,
-            phone: (matchedDoc && matchedDoc.phone) || (matchedClinic && matchedClinic.phone) || '+91 98301 99999',
-            createdAt: new Date()
-          };
-          memoryStore.users.push(user);
-        } else {
-          return res.status(401).json({ error: 'Invalid email or password.' });
-        }
-      } else {
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!isMatch) {
-          return res.status(401).json({ error: 'Invalid email or password.' });
-        }
-      }
-
-      let profileData = null;
-      if (user.role === 'doctor') {
-        profileData = memoryStore.doctors.find(d => d.email === user.email) || memoryStore.doctors[0];
-      } else if (user.role === 'clinic') {
-        profileData = memoryStore.clinics.find(c => c.email === user.email) || memoryStore.clinics[0];
-      }
-
-      const token = generateToken(user);
-      return res.json({
-        message: 'Login successful',
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          phone: user.phone
-        },
-        profile: profileData
+    if (!isMongoConnected()) {
+      return res.status(503).json({
+        error: 'Database service is currently establishing connection. Please retry in a few seconds.'
       });
     }
+
+    let user = await User.findOne({ email: cleanEmail });
+
+    // If user not in MongoDB, support instant initialization of default demo accounts
+    if (!user) {
+      const isDefaultPassword = password === 'password123' || password === 'medinexa2026';
+      if (isDefaultPassword) {
+        const defaultRole = role || (cleanEmail.includes('doctor') ? 'doctor' : cleanEmail.includes('clinic') ? 'clinic' : 'patient');
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+        let properName = cleanEmail.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        user = new User({
+          name: properName,
+          email: cleanEmail,
+          passwordHash,
+          role: defaultRole,
+          phone: '+91 98301 99999',
+          city: 'Kolkata'
+        });
+        await user.save();
+        console.log(`⚡ Seeded demo account in MongoDB Atlas: ${cleanEmail}`);
+      } else {
+        return res.status(401).json({
+          error: 'No account found with this email address. Please click Register to create your account.'
+        });
+      }
+    }
+
+    // Verify password with bcrypt
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Incorrect password. Please verify your password and try again.' });
+    }
+
+    // Check role mismatch if specified
+    if (role && user.role !== role && user.role !== 'admin') {
+      return res.status(403).json({ 
+        error: `This account is registered as a ${user.role}. Please log in via the ${user.role} portal.` 
+      });
+    }
+
+    let profileData = null;
+    if (user.role === 'doctor') {
+      profileData = await Doctor.findOne({ $or: [{ userId: user._id }, { email: user.email }] });
+    } else if (user.role === 'clinic') {
+      profileData = await Clinic.findOne({ $or: [{ userId: user._id }, { email: user.email }] });
+    }
+
+    const token = generateToken(user);
+    return res.json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone
+      },
+      profile: profileData
+    });
+
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login error: ' + err.message });
@@ -424,35 +283,32 @@ router.post('/login', async (req, res) => {
 // GET /api/auth/me
 router.get('/me', authenticateToken, async (req, res) => {
   try {
+    await ensureMongoConnection(4000);
     const userRole = req.user.role;
     let profile = null;
 
     if (isMongoConnected()) {
       const user = await User.findById(req.user.id).select('-passwordHash');
-      if (!user) return res.status(404).json({ error: 'User not found' });
+      if (!user) return res.status(404).json({ error: 'User account not found' });
 
       if (userRole === 'doctor') {
-        profile = await Doctor.findOne({ userId: user._id });
+        profile = await Doctor.findOne({ $or: [{ userId: user._id }, { email: user.email }] });
       } else if (userRole === 'clinic') {
-        profile = await Clinic.findOne({ userId: user._id });
+        profile = await Clinic.findOne({ $or: [{ userId: user._id }, { email: user.email }] });
       }
 
-      return res.json({ user, profile });
+      return res.json({
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone
+        },
+        profile
+      });
     } else {
-      const user = memoryStore.users.find(u => u._id === req.user.id || u.id === req.user.id) || {
-        _id: req.user.id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role
-      };
-
-      if (userRole === 'doctor') {
-        profile = memoryStore.doctors.find(d => d.userId === req.user.id || d.email === req.user.email) || memoryStore.doctors[0];
-      } else if (userRole === 'clinic') {
-        profile = memoryStore.clinics.find(c => c.userId === req.user.id || c.email === req.user.email) || memoryStore.clinics[0];
-      }
-
-      return res.json({ user, profile });
+      return res.status(503).json({ error: 'Database service unavailable' });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });

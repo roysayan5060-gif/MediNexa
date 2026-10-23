@@ -322,7 +322,17 @@ const Auth = {
             switchView('patient-home');
           }
         } catch (err) {
-          showToast(err.message, 'error');
+          if (err.message && err.message.toLowerCase().includes('no account found')) {
+            showToast(err.message, 'info');
+            const tabReg = document.getElementById('tab-auth-register');
+            if (tabReg) tabReg.click();
+            const regEmail = document.getElementById('reg-email');
+            if (regEmail) regEmail.value = email;
+            const regName = document.getElementById('reg-name');
+            if (regName) regName.focus();
+          } else {
+            showToast(err.message, 'error');
+          }
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Sign In to MediNexa';

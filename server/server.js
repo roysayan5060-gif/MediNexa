@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-const { isMongoConnected } = require('./db');
+const { isMongoConnected, getMongoStatus } = require('./db');
 const authRouter = require('./routes/auth');
 const doctorsRouter = require('./routes/doctors');
 const appointmentsRouter = require('./routes/appointments');
@@ -50,7 +50,8 @@ app.get('/api/health', (req, res) => {
     service: 'MediNexa Unified Healthcare API Engine',
     database: {
       mongoConnected: isMongoConnected(),
-      mode: isMongoConnected() ? 'MongoDB Atlas / Hosted' : 'Active Persistent Memory Store & SQLite Synced'
+      mode: isMongoConnected() ? 'MongoDB Atlas / Hosted' : 'Active Persistent Memory Store & SQLite Synced',
+      details: getMongoStatus ? getMongoStatus() : undefined
     },
     paymentGateway: {
       provider: 'Razorpay',
