@@ -1,3 +1,5 @@
+const DEFAULT_DOCTOR_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
+
 // Patient Side Functionality — Discovery, Symptom Triage, Booking, & Real Razorpay Payments
 
 async function loadFeaturedDoctorsHome() {
@@ -200,7 +202,7 @@ function renderDoctorCards(doctors, targetContainer) {
     card.className = 'doctor-card';
     card.innerHTML = `
       <div class="doctor-card-header">
-        <img class="doctor-avatar" src="${doc.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400'}" alt="${doc.name}" onerror="this.src='https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400'">
+        <img class="doctor-avatar" src="${doc.avatar || DEFAULT_DOCTOR_AVATAR}" alt="${doc.name}" onerror="this.onerror=null; this.src=DEFAULT_DOCTOR_AVATAR;">
         <div class="doctor-meta">
           <div class="doctor-name">${doc.name}</div>
           <span class="specialty-badge">${doc.specialty}</span>
@@ -250,7 +252,7 @@ async function openBookingModal(doctorId) {
     document.getElementById('modal-doctor-specialty').textContent = `${doctor.specialty} • ${doctor.clinic_name || 'MediNexa Clinic'}`;
     document.getElementById('modal-doctor-location').textContent = `📍 ${doctor.location}, ${doctor.city}`;
     document.getElementById('modal-doctor-fee').textContent = `Consultation Fee: ₹${doctor.fee}`;
-    document.getElementById('modal-doctor-avatar').src = doctor.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400';
+    const mAv = document.getElementById('modal-doctor-avatar'); if (mAv) { mAv.src = doctor.avatar || DEFAULT_DOCTOR_AVATAR; mAv.onerror = function() { this.onerror = null; this.src = DEFAULT_DOCTOR_AVATAR; }; }
     document.getElementById('booking-doc-id').value = doctor.id || doctor._id;
 
     // Prefill user details if logged in

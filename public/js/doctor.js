@@ -1,3 +1,5 @@
+const DEFAULT_DOCTOR_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
+
 // Doctor Portal Controller — Preserving All Working Features & Adding PDF Doctor Suite
 let editingDoctorId = null;
 let activePrescriptionAppointment = null;
@@ -411,7 +413,7 @@ async function loadDoctorPortalDoctorList() {
       row.className = 'appointment-item';
       row.innerHTML = `
         <div style="display: flex; gap: 1rem; align-items: center; flex: 1;">
-          <img src="${doc.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400'}" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
+          <img src="${doc.avatar || DEFAULT_DOCTOR_AVATAR}" onerror="this.onerror=null; this.src=DEFAULT_DOCTOR_AVATAR;" style="width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
           <div>
             <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-white);">${doc.name}</div>
             <div style="font-size: 0.85rem; color: var(--text-secondary);">${doc.specialty} • ${doc.qualification}</div>
