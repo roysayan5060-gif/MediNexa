@@ -1,0 +1,446 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor X - Smart Healthcare & Doctor Booking Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="header-container">
+      <div class="brand" id="brand-home-link">
+        <div class="brand-icon">X</div>
+        <div class="brand-text">
+          <h1>Doctor X</h1>
+          <span>Healthcare Connected</span>
+        </div>
+      </div>
+
+      <!-- Navigation for Patient's 4 core interfaces -->
+      <nav class="nav-links">
+        <button class="nav-btn active" data-view="home">
+          <span>🏠</span> Home / Ask Issues
+        </button>
+        <button class="nav-btn" data-view="doctors">
+          <span>👨‍⚕️</span> All Doctors & Fees
+        </button>
+        <button class="nav-btn" data-view="appointments">
+          <span>📅</span> My Appointments
+        </button>
+      </nav>
+
+      <!-- Role Switcher: Patient Side (Frontend) vs Doctor Side (Backend) -->
+      <div class="role-switcher">
+        <span class="badge-role patient" id="role-badge">Patient View</span>
+        <button class="btn-switch-portal" id="btn-toggle-portal">
+          <span>⚙️</span>
+          <span id="btn-switch-role-text">Doctor Portal (Backend)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Areas -->
+  <main class="main-wrapper">
+
+    <!-- ============================================== -->
+    <!-- INTERFACE 1: HOME PAGE & SYMPTOM SUGGESTION ENGINE -->
+    <!-- ============================================== -->
+    <section id="view-home" class="view-section active">
+      <div class="hero">
+        <div class="hero-content">
+          <div class="hero-pill">✨ Intelligent Medical Assistant</div>
+          <h2 class="hero-title">Feeling Unwell? Tell Doctor X What's Bothering You.</h2>
+          <p class="hero-subtitle">
+            Describe your health issues, symptoms, or concerns in natural words. Our triage assistant will analyze your condition and immediately suggest the right specialist doctors for you.
+          </p>
+
+          <!-- Symptom / Health Issue Input Box -->
+          <div class="symptom-box">
+            <form id="symptom-form">
+              <div class="symptom-input-wrapper">
+                <input 
+                  type="text" 
+                  id="symptom-input" 
+                  class="symptom-input" 
+                  placeholder="e.g. Chest pain with shortness of breath, severe skin rash, continuous migraine..."
+                  required
+                />
+                <button type="submit" class="btn-diagnose" id="btn-diagnose-submit">
+                  <span>🩺</span> Ask Doctor X
+                </button>
+              </div>
+            </form>
+            <div class="symptom-tags">
+              <span>Quick issues:</span>
+              <button class="tag-btn" data-symptom="Severe chest tightness and palpitations">Heart & Chest Pain</button>
+              <button class="tag-btn" data-symptom="Itchy red skin rash on arms">Skin Rash</button>
+              <button class="tag-btn" data-symptom="Throbbing migraine with dizziness">Migraine & Vertigo</button>
+              <button class="tag-btn" data-symptom="High fever and muscle ache">Fever & Flu</button>
+              <button class="tag-btn" data-symptom="Severe lower back pain and knee swelling">Joint & Spine Pain</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation Results (Revealed upon search) -->
+      <div id="recommendation-panel" class="recommendation-panel">
+        <div class="rec-header">
+          <div>
+            <span class="rec-tag" id="rec-specialty-badge">Recommended Specialty</span>
+            <p class="rec-explanation" id="rec-explanation"></p>
+          </div>
+        </div>
+        <h4 style="margin-bottom: 1rem; font-weight: 700;">Top Matched Doctors For You:</h4>
+        <div class="doctor-grid" id="rec-doctors-grid"></div>
+      </div>
+
+      <!-- 4 Core Navigation Cards -->
+      <div class="features-grid">
+        <div class="feature-card" onclick="switchView('doctors')">
+          <div class="feature-icon blue">🩺</div>
+          <h3>Find Specialist Doctors</h3>
+          <p>Browse all registered doctors across cities, view consultation fees, qualifications, and patient ratings.</p>
+        </div>
+        <div class="feature-card" onclick="document.getElementById('symptom-input').focus()">
+          <div class="feature-icon teal">💡</div>
+          <h3>Symptom Checker</h3>
+          <p>Describe your unhealthiness and get instant suggestions on medical fields and tailored doctors.</p>
+        </div>
+        <div class="feature-card" onclick="switchView('appointments')">
+          <div class="feature-icon amber">📅</div>
+          <h3>Easy Appointment Booking</h3>
+          <p>Pick doctor consultation time slots and follow up with doctor prescriptions and medical advice.</p>
+        </div>
+        <div class="feature-card" onclick="toggleRolePortal()">
+          <div class="feature-icon purple">💼</div>
+          <h3>Doctor Management Portal</h3>
+          <p>Dedicated backend for healthcare providers to input profiles, update fees, and manage patient visits.</p>
+        </div>
+      </div>
+
+      <!-- Featured / Top Rated Doctors Showcase -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h3 style="font-size: 1.4rem; font-weight: 800;">Top Rated Doctors on Doctor X</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Verified healthcare providers ready for consultation</p>
+        </div>
+        <button class="btn-book" style="background: transparent; color: var(--primary); border: 1px solid var(--primary);" onclick="switchView('doctors')">
+          View All Doctors &rarr;
+        </button>
+      </div>
+      <div class="doctor-grid" id="featured-doctors-grid"></div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- INTERFACE 2: ALL DOCTORS DIRECTORY (NAMES, FEES, LOCATIONS) -->
+    <!-- ============================================== -->
+    <section id="view-doctors" class="view-section">
+      <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.8rem; font-weight: 800;">Doctors Directory</h2>
+          <p style="color: var(--text-muted);">Compare doctor locations, consultation fees, and available hours</p>
+        </div>
+        <span class="badge-role patient" id="doctors-count-badge">Loading doctors...</span>
+      </div>
+
+      <!-- Filter and Search Bar -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Search Doctor or Clinic</label>
+          <input type="text" id="filter-search" class="filter-input" placeholder="Search by name, hospital, location...">
+        </div>
+        <div class="filter-group">
+          <label>Specialty</label>
+          <select id="filter-specialty" class="filter-select">
+            <option value="All">All Specialties</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Location / City</label>
+          <select id="filter-city" class="filter-select">
+            <option value="All">All Locations</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Max Fee ($)</label>
+          <input type="number" id="filter-fee" class="filter-input" placeholder="Any Fee" min="0">
+        </div>
+        <button class="btn-reset-filters" id="btn-reset-filters">Reset</button>
+      </div>
+
+      <!-- Doctors Catalog Grid -->
+      <div class="doctor-grid" id="all-doctors-grid"></div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- INTERFACE 3: PATIENT APPOINTMENTS TRACKER -->
+    <!-- ============================================== -->
+    <section id="view-appointments" class="view-section">
+      <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.8rem; font-weight: 800;">Scheduled Appointments</h2>
+          <p style="color: var(--text-muted);">View status, dates, clinic addresses, and doctor recommendations</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="text" id="search-apt-phone" class="filter-input" placeholder="Filter by phone number..." oninput="loadPatientAppointments()">
+        </div>
+      </div>
+
+      <div class="appointment-list" id="patient-appointments-list"></div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- INTERFACE 4 / BACKEND: DOCTOR PORTAL (DOCTOR'S SIDE) -->
+    <!-- ============================================== -->
+    <section id="view-doctor-portal" class="view-section">
+      <div class="doctor-portal-header">
+        <div class="portal-title">
+          <h2>Doctor's Management Portal (Backend)</h2>
+          <p>Register or update your doctor profile, set consultation fees and hours, and manage patient visits.</p>
+        </div>
+        <button class="btn-switch-portal" onclick="toggleRolePortal()">
+          Switch Back to Patient View
+        </button>
+      </div>
+
+      <!-- Doctor Portal Tabs -->
+      <div class="portal-tabs">
+        <button class="tab-btn active" data-target="portal-appointments">
+          📋 Patient Bookings & Consultations
+        </button>
+        <button class="tab-btn" data-target="portal-add-doctor">
+          ➕ Register / Edit Doctor Profile
+        </button>
+        <button class="tab-btn" data-target="portal-my-doctors">
+          👨‍⚕️ All Registered Providers
+        </button>
+      </div>
+
+      <!-- Subview 1: Patient Bookings -->
+      <div id="portal-appointments" class="portal-view active">
+        <div class="appointment-list" id="doctor-appointments-table"></div>
+      </div>
+
+      <!-- Subview 2: Doctor Input Form (Database Input) -->
+      <div id="portal-add-doctor" class="portal-view">
+        <div class="form-card">
+          <h3 id="form-doctor-title" style="margin-bottom: 1.5rem; font-size: 1.35rem; font-weight: 800;">
+            Register New Doctor Profile
+          </h3>
+          <form id="doctor-profile-form">
+            <div class="form-grid">
+              <div class="form-control">
+                <label>Doctor Full Name *</label>
+                <input type="text" id="doc-input-name" placeholder="e.g. Dr. Johnathan Reed" required>
+              </div>
+
+              <div class="form-control">
+                <label>Specialty *</label>
+                <select id="doc-input-specialty" required>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Dermatology">Dermatology</option>
+                  <option value="Neurology">Neurology</option>
+                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                  <option value="General Medicine">General Medicine</option>
+                  <option value="Psychiatry & Mental Health">Psychiatry & Mental Health</option>
+                  <option value="ENT & Otolaryngology">ENT & Otolaryngology</option>
+                </select>
+              </div>
+
+              <div class="form-control">
+                <label>Qualifications</label>
+                <input type="text" id="doc-input-qualification" placeholder="e.g. MBBS, MD, Board Certified">
+              </div>
+
+              <div class="form-control">
+                <label>Years of Clinical Experience</label>
+                <input type="number" id="doc-input-experience" placeholder="e.g. 12" min="1">
+              </div>
+
+              <div class="form-control">
+                <label>Consultation Fee ($) *</label>
+                <input type="number" id="doc-input-fee" placeholder="e.g. 75" min="0" required>
+              </div>
+
+              <div class="form-control">
+                <label>Clinic / Hospital Name</label>
+                <input type="text" id="doc-input-clinic" placeholder="e.g. St. Jude Wellness Center">
+              </div>
+
+              <div class="form-control">
+                <label>Street Address / Location *</label>
+                <input type="text" id="doc-input-location" placeholder="e.g. 500 Grand Avenue, Suite 2B" required>
+              </div>
+
+              <div class="form-control">
+                <label>City *</label>
+                <input type="text" id="doc-input-city" placeholder="e.g. New York" required>
+              </div>
+
+              <div class="form-control">
+                <label>Phone Contact</label>
+                <input type="text" id="doc-input-phone" placeholder="e.g. +1 (555) 019-2831">
+              </div>
+
+              <div class="form-control">
+                <label>Official Email</label>
+                <input type="email" id="doc-input-email" placeholder="e.g. doctor@doctorx.health">
+              </div>
+
+              <div class="form-control">
+                <label>Available Consultation Days</label>
+                <input type="text" id="doc-input-days" placeholder="e.g. Mon,Tue,Wed,Fri">
+              </div>
+
+              <div class="form-control">
+                <label>Available Hours</label>
+                <input type="text" id="doc-input-hours" placeholder="e.g. 09:00 AM - 04:00 PM">
+              </div>
+
+              <div class="form-control span-2">
+                <label>Profile Picture URL</label>
+                <input type="url" id="doc-input-avatar" placeholder="https://images.unsplash.com/photo-...">
+              </div>
+
+              <div class="form-control span-2">
+                <label>Doctor Bio / Background Overview</label>
+                <textarea id="doc-input-bio" rows="3" placeholder="Brief summary of clinical specialties, achievements, and patient care philosophies..."></textarea>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.75rem; display: flex; gap: 1rem;">
+              <button type="submit" class="btn-submit" id="btn-save-doctor">
+                Register Doctor Profile
+              </button>
+              <button type="button" class="btn-reset-filters" id="btn-cancel-doctor-edit" style="display: none;">
+                Cancel Edit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Subview 3: Provider Management List -->
+      <div id="portal-my-doctors" class="portal-view">
+        <div class="appointment-list" id="portal-doctors-list"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Appointment Booking Modal -->
+  <div class="modal-overlay" id="booking-modal">
+    <div class="modal-box">
+      <button class="modal-close" id="btn-close-modal">&times;</button>
+      
+      <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+        <img id="modal-doctor-avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+        <div>
+          <h3 id="modal-doctor-name" style="font-size: 1.25rem; font-weight: 800;"></h3>
+          <div id="modal-doctor-specialty" style="font-size: 0.85rem; color: var(--primary); font-weight: 700;"></div>
+          <div id="modal-doctor-location" style="font-size: 0.8rem; color: var(--text-muted);"></div>
+          <div id="modal-doctor-fee" style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-top: 2px;"></div>
+        </div>
+      </div>
+
+      <form id="booking-form">
+        <input type="hidden" id="booking-doc-id">
+        <div class="form-grid full">
+          <div class="form-control">
+            <label>Patient Full Name *</label>
+            <input type="text" id="apt-patient-name" placeholder="John Doe" required>
+          </div>
+
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Phone Number *</label>
+              <input type="tel" id="apt-patient-phone" placeholder="+1 (555) 000-0000" required>
+            </div>
+            <div class="form-control">
+              <label>Email Address</label>
+              <input type="email" id="apt-patient-email" placeholder="john@example.com">
+            </div>
+          </div>
+
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Patient Age</label>
+              <input type="number" id="apt-patient-age" placeholder="e.g. 32" min="1" max="120">
+            </div>
+            <div class="form-control">
+              <label>Gender</label>
+              <select id="apt-patient-gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Preferred Date *</label>
+              <input type="date" id="apt-date" required>
+            </div>
+            <div class="form-control">
+              <label>Preferred Time Slot *</label>
+              <select id="apt-time" required>
+                <option value="09:00 AM">09:00 AM</option>
+                <option value="10:30 AM">10:30 AM</option>
+                <option value="11:45 AM">11:45 AM</option>
+                <option value="02:00 PM">02:00 PM</option>
+                <option value="03:30 PM">03:30 PM</option>
+                <option value="04:45 PM">04:45 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label>Symptoms / Primary Health Concern *</label>
+            <textarea id="apt-symptoms" rows="3" placeholder="Describe your unhealthiness or reason for consultation..." required></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn-submit" id="btn-confirm-booking" style="width: 100%;">
+            Confirm & Book Appointment
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1.1rem;">X</div>
+        <div>
+          <div style="font-weight: 800; color: white;">Doctor X</div>
+          <div style="font-size: 0.75rem;">Digital Healthcare & Provider Management Platform</div>
+        </div>
+      </div>
+      <div style="font-size: 0.85rem;">
+        Patient Care Portal • Doctor Administration Backend • SQLite Database
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/patient.js"></script>
+  <script src="/js/doctor.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

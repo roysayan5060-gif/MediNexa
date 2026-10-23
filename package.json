@@ -1,0 +1,14 @@
+{
+  "name": "doctor-x",
+  "version": "1.0.0",
+  "description": "Doctor X - Healthcare Web Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.3",
+    "sqlite3": "^5.1.7"
+  }
+}
