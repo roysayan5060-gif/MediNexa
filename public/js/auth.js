@@ -1,0 +1,241 @@
+// MediNexa Authentication & Role Controller
+const Auth = {
+  currentUser: null,
+  currentProfile: null,
+
+  init() {
+    this.checkSession();
+    this.setupAuthModalEvents();
+  },
+
+  async checkSession() {
+    const token = API.getToken();
+    if (!token) {
+      this.updateUIForLoggedOut();
+      return;
+    }
+
+    try {
+      const data = await API.getMe();
+      this.currentUser = data.user;
+      this.currentProfile = data.profile;
+      this.updateUIForLoggedIn();
+    } catch (err) {
+      this.logout();
+    }
+  },
+
+  updateUIForLoggedIn() {
+    const user = this.currentUser;
+    const authBtn = document.getElementById('btn-header-auth');
+    const roleBadge = document.getElementById('role-badge');
+
+    if (roleBadge) {
+      roleBadge.textContent = `${user.role.toUpperCase()} MODE`;
+      roleBadge.className = `role-badge ${user.role}`;
+      roleBadge.style.display = 'inline-flex';
+    }
+
+    if (authBtn) {
+      authBtn.innerHTML = `<span>👤</span> ${user.name.split(' ')[0]} (Logout)`;
+      authBtn.onclick = () => this.logout();
+    }
+
+    // Update portal views if in doctor or clinic mode
+    if (user.role === 'doctor') {
+      const docBadge = document.getElementById('doctor-status-badge');
+      if (docBadge && this.currentProfile) {
+        docBadge.textContent = this.currentProfile.verification_status || 'WBMC Verified';
+      }
+    }
+  },
+
+  updateUIForLoggedOut() {
+    this.currentUser = null;
+    this.currentProfile = null;
+    localStorage.removeItem('medinexa_token');
+
+    const authBtn = document.getElementById('btn-header-auth');
+    const roleBadge = document.getElementById('role-badge');
+
+    if (roleBadge) {
+      roleBadge.textContent = 'PATIENT VIEW';
+      roleBadge.className = 'role-badge patient';
+    }
+
+    if (authBtn) {
+      authBtn.innerHTML = '<span>🔒</span> Login / Register';
+      authBtn.onclick = () => this.openAuthModal('patient');
+    }
+  },
+
+  logout() {
+    localStorage.removeItem('medinexa_token');
+    this.currentUser = null;
+    this.currentProfile = null;
+    this.updateUIForLoggedOut();
+    showToast('You have been logged out successfully.', 'info');
+    switchView('home');
+  },
+
+  openAuthModal(intendedRole = 'patient', isRegister = false) {
+    const modal = document.getElementById('auth-modal');
+    if (!modal) return;
+
+    document.getElementById('auth-role-select').value = intendedRole;
+    this.toggleRoleSpecificFields(intendedRole);
+
+    if (isRegister) {
+      document.getElementById('tab-auth-register').click();
+    } else {
+      document.getElementById('tab-auth-login').click();
+    }
+
+    modal.classList.add('active');
+  },
+
+  closeAuthModal() {
+    const modal = document.getElementById('auth-modal');
+    if (modal) modal.classList.remove('active');
+  },
+
+  setupAuthModalEvents() {
+    const modal = document.getElementById('auth-modal');
+    const closeBtn = document.getElementById('btn-close-auth-modal');
+    const tabLogin = document.getElementById('tab-auth-login');
+    const tabRegister = document.getElementById('tab-auth-register');
+    const formLogin = document.getElementById('form-auth-login');
+    const formRegister = document.getElementById('form-auth-register');
+    const roleSelect = document.getElementById('auth-role-select');
+
+    if (closeBtn) closeBtn.onclick = () => this.closeAuthModal();
+    if (modal) {
+      modal.onclick = (e) => {
+        if (e.target === modal) this.closeAuthModal();
+      };
+    }
+
+    if (tabLogin && tabRegister) {
+      tabLogin.onclick = () => {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        formLogin.style.display = 'block';
+        formRegister.style.display = 'none';
+      };
+
+      tabRegister.onclick = () => {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        formRegister.style.display = 'block';
+        formLogin.style.display = 'none';
+      };
+    }
+
+    if (roleSelect) {
+      roleSelect.onchange = (e) => {
+        this.toggleRoleSpecificFields(e.target.value);
+      };
+    }
+
+    // Login Form Submit
+    if (formLogin) {
+      formLogin.onsubmit = async (e) => {
+        e.preventDefault();
+        const submitBtn = formLogin.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verifying credentials...';
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        try {
+          const res = await API.login({ email, password });
+          localStorage.setItem('medinexa_token', res.token);
+          this.currentUser = res.user;
+          this.currentProfile = res.profile;
+          this.updateUIForLoggedIn();
+          this.closeAuthModal();
+          formLogin.reset();
+          showToast(`Welcome back, ${res.user.name}!`, 'success');
+
+          // Direct role redirection
+          if (res.user.role === 'doctor') {
+            switchView('doctor-portal');
+          } else if (res.user.role === 'clinic') {
+            switchView('clinic-portal');
+          } else {
+            switchView('home');
+          }
+        } catch (err) {
+          showToast(err.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In to MediNexa';
+        }
+      };
+    }
+
+    // Register Form Submit
+    if (formRegister) {
+      formRegister.onsubmit = async (e) => {
+        e.preventDefault();
+        const submitBtn = formRegister.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Registering account...';
+
+        const role = roleSelect.value;
+        const payload = {
+          name: document.getElementById('reg-name').value.trim(),
+          email: document.getElementById('reg-email').value.trim(),
+          password: document.getElementById('reg-password').value,
+          role,
+          phone: document.getElementById('reg-phone').value.trim(),
+          city: document.getElementById('reg-city').value.trim()
+        };
+
+        if (role === 'doctor') {
+          payload.specialty = document.getElementById('reg-doc-specialty').value;
+          payload.qualification = document.getElementById('reg-doc-qualification').value.trim();
+          payload.fee = document.getElementById('reg-doc-fee').value;
+          payload.registration_number = document.getElementById('reg-doc-regno').value.trim();
+          payload.registration_authority = document.getElementById('reg-doc-authority').value;
+        } else if (role === 'clinic') {
+          payload.clinic_name = document.getElementById('reg-clinic-name').value.trim() || payload.name;
+          payload.license_number = document.getElementById('reg-clinic-license').value.trim();
+        }
+
+        try {
+          const res = await API.register(payload);
+          localStorage.setItem('medinexa_token', res.token);
+          this.currentUser = res.user;
+          this.currentProfile = res.profile;
+          this.updateUIForLoggedIn();
+          this.closeAuthModal();
+          formRegister.reset();
+          showToast(`Account created successfully as ${res.user.role.toUpperCase()}!`, 'success');
+
+          if (res.user.role === 'doctor') {
+            switchView('doctor-portal');
+          } else if (res.user.role === 'clinic') {
+            switchView('clinic-portal');
+          } else {
+            switchView('home');
+          }
+        } catch (err) {
+          showToast(err.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create MediNexa Account';
+        }
+      };
+    }
+  },
+
+  toggleRoleSpecificFields(role) {
+    const docFields = document.getElementById('reg-doctor-fields');
+    const clinicFields = document.getElementById('reg-clinic-fields');
+
+    if (docFields) docFields.style.display = role === 'doctor' ? 'block' : 'none';
+    if (clinicFields) clinicFields.style.display = role === 'clinic' ? 'block' : 'none';
+  }
+};

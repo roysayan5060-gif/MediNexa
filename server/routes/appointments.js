@@ -1,109 +1,163 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const Appointment = require('../models/Appointment');
+const Doctor = require('../models/Doctor');
+const { isMongoConnected, memoryStore } = require('../db');
 
-// GET /api/appointments - Retrieve appointments (filter by doctor_id, patient_phone, or all)
-router.get('/', (req, res) => {
-  const { doctor_id, patient_phone } = req.query;
+// GET /api/appointments - Retrieve appointments with query filters
+router.get('/', async (req, res) => {
+  try {
+    const { patient_phone, doctor_id, status } = req.query;
 
-  let sql = `
-    SELECT 
-      a.*,
-      d.name as doctor_name,
-      d.specialty as doctor_specialty,
-      d.clinic_name,
-      d.location as doctor_location,
-      d.city as doctor_city,
-      d.fee as doctor_fee,
-      d.phone as doctor_phone
-    FROM appointments a
-    JOIN doctors d ON a.doctor_id = d.id
-  `;
+    if (isMongoConnected()) {
+      let query = {};
+      if (patient_phone) {
+        query.patient_phone = new RegExp(patient_phone.trim(), 'i');
+      }
+      if (doctor_id) {
+        query.doctor_id = doctor_id;
+      }
+      if (status && status !== 'All') {
+        query.status = status;
+      }
 
-  let conditions = [];
-  let params = [];
+      const appointments = await Appointment.find(query).sort({ created_at: -1 });
+      const mapped = appointments.map(a => ({
+        ...a.toObject(),
+        id: a.legacy_id || a._id.toString()
+      }));
+      return res.json(mapped);
 
-  if (doctor_id) {
-    conditions.push("a.doctor_id = ?");
-    params.push(doctor_id);
+    } else {
+      let results = [...memoryStore.appointments];
+
+      if (patient_phone) {
+        const q = patient_phone.trim().toLowerCase();
+        results = results.filter(a => a.patient_phone && a.patient_phone.toLowerCase().includes(q));
+      }
+
+      if (doctor_id) {
+        results = results.filter(a => a.doctor_id == doctor_id || (a.doctor_id && a.doctor_id.toString() === doctor_id.toString()));
+      }
+
+      if (status && status !== 'All') {
+        results = results.filter(a => a.status === status);
+      }
+
+      results.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      return res.json(results);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve appointments: ' + err.message });
   }
-
-  if (patient_phone) {
-    conditions.push("a.patient_phone LIKE ?");
-    params.push(`%${patient_phone}%`);
-  }
-
-  if (conditions.length > 0) {
-    sql += " WHERE " + conditions.join(" AND ");
-  }
-
-  sql += " ORDER BY a.id DESC";
-
-  db.all(sql, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
 });
 
-// POST /api/appointments - Book new appointment
-router.post('/', (req, res) => {
-  const {
-    doctor_id, patient_name, patient_phone, patient_email,
-    patient_age, patient_gender, symptoms, appointment_date, appointment_time
-  } = req.body;
-
-  if (!doctor_id || !patient_name || !patient_phone || !symptoms || !appointment_date || !appointment_time) {
-    return res.status(400).json({
-      error: 'Missing required appointment details (doctor, patient name, phone, symptoms, date, time).'
-    });
-  }
-
-  const sql = `
-    INSERT INTO appointments (
+// POST /api/appointments - Book a new consultation appointment
+router.post('/', async (req, res) => {
+  try {
+    const {
       doctor_id, patient_name, patient_phone, patient_email,
-      patient_age, patient_gender, symptoms, appointment_date, appointment_time, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Confirmed')
-  `;
+      patient_age, patient_gender, symptoms, appointment_date,
+      appointment_time, requires_payment
+    } = req.body;
 
-  const params = [
-    doctor_id, patient_name, patient_phone, patient_email || '',
-    patient_age ? Number(patient_age) : null, patient_gender || 'Other',
-    symptoms, appointment_date, appointment_time
-  ];
+    if (!doctor_id || !patient_name || !patient_phone || !symptoms || !appointment_date || !appointment_time) {
+      return res.status(400).json({ error: 'Doctor, patient name, phone, symptoms, date, and time slot are required.' });
+    }
 
-  db.run(sql, params, function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    const appointmentId = this.lastID;
+    let doctorInfo = null;
 
-    // Fetch full appointment object with doctor info
-    db.get(`
-      SELECT a.*, d.name as doctor_name, d.specialty as doctor_specialty, d.fee as doctor_fee, d.location as doctor_location
-      FROM appointments a
-      JOIN doctors d ON a.doctor_id = d.id
-      WHERE a.id = ?
-    `, [appointmentId], (fetchErr, row) => {
-      if (fetchErr) return res.status(500).json({ error: fetchErr.message });
-      res.status(201).json(row);
-    });
-  });
+    if (isMongoConnected()) {
+      if (doctor_id.toString().match(/^[0-9a-fA-F]{24}$/)) {
+        doctorInfo = await Doctor.findById(doctor_id);
+      }
+      if (!doctorInfo && !isNaN(doctor_id)) {
+        doctorInfo = await Doctor.findOne({ legacy_id: parseInt(doctor_id) });
+      }
+      if (!doctorInfo) {
+        doctorInfo = await Doctor.findOne();
+      }
+    } else {
+      doctorInfo = memoryStore.doctors.find(d => d._id === doctor_id || d.id == doctor_id) || memoryStore.doctors[0];
+    }
+
+    if (!doctorInfo) {
+      return res.status(404).json({ error: 'Doctor not found.' });
+    }
+
+    const appointmentRecord = {
+      doctor_id: doctorInfo._id || doctorInfo.id,
+      doctor_name: doctorInfo.name,
+      doctor_specialty: doctorInfo.specialty,
+      doctor_fee: doctorInfo.fee,
+      doctor_location: `${doctorInfo.location}, ${doctorInfo.city}`,
+      clinic_name: doctorInfo.clinic_name || 'MediNexa Clinic',
+      patient_name: patient_name.trim(),
+      patient_phone: patient_phone.trim(),
+      patient_email: patient_email ? patient_email.trim() : '',
+      patient_age: patient_age ? parseInt(patient_age) : null,
+      patient_gender: patient_gender || 'Not specified',
+      symptoms: symptoms.trim(),
+      appointment_date,
+      appointment_time,
+      status: requires_payment ? 'Pending Payment' : 'Confirmed',
+      payment_status: requires_payment ? 'pending' : 'verified',
+      doctor_notes: '',
+      created_at: new Date()
+    };
+
+    if (isMongoConnected()) {
+      const apt = new Appointment(appointmentRecord);
+      await apt.save();
+      return res.status(201).json({ ...apt.toObject(), id: apt._id.toString() });
+    } else {
+      const newApt = {
+        _id: `mem_apt_${Date.now()}`,
+        id: memoryStore.appointments.length + 1,
+        ...appointmentRecord
+      };
+      memoryStore.appointments.push(newApt);
+      return res.status(201).json(newApt);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to book appointment: ' + err.message });
+  }
 });
 
-// PATCH /api/appointments/:id/status - Update appointment status or notes (Doctor Portal side)
-router.patch('/:id/status', (req, res) => {
-  const { status, doctor_notes } = req.body;
+// PATCH /api/appointments/:id/status - Update appointment status or attach doctor notes
+router.patch('/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, doctor_notes } = req.body;
 
-  const sql = `
-    UPDATE appointments SET
-      status = COALESCE(?, status),
-      doctor_notes = COALESCE(?, doctor_notes)
-    WHERE id = ?
-  `;
+    if (isMongoConnected()) {
+      let updateFields = {};
+      if (status) updateFields.status = status;
+      if (doctor_notes !== undefined) updateFields.doctor_notes = doctor_notes;
 
-  db.run(sql, [status, doctor_notes, req.params.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: 'Appointment not found' });
-    res.json({ message: 'Appointment updated successfully.' });
-  });
+      let apt = null;
+      if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        apt = await Appointment.findByIdAndUpdate(id, updateFields, { new: true });
+      }
+      if (!apt && !isNaN(id)) {
+        apt = await Appointment.findOneAndUpdate({ legacy_id: parseInt(id) }, updateFields, { new: true });
+      }
+
+      if (!apt) return res.status(404).json({ error: 'Appointment not found' });
+      return res.json({ ...apt.toObject(), id: apt.legacy_id || apt._id.toString() });
+
+    } else {
+      const apt = memoryStore.appointments.find(a => a._id === id || a.id == id || a.legacy_id == id);
+      if (!apt) return res.status(404).json({ error: 'Appointment not found' });
+
+      if (status) apt.status = status;
+      if (doctor_notes !== undefined) apt.doctor_notes = doctor_notes;
+
+      return res.json(apt);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update appointment: ' + err.message });
+  }
 });
 
 module.exports = router;

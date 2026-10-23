@@ -1,6 +1,7 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const Doctor = require('../models/Doctor');
+const { isMongoConnected, memoryStore, sqliteDb } = require('../db');
 
 // Map common symptoms & keywords to medical specialties
 const SPECIALTY_RULES = [
@@ -39,69 +40,69 @@ const SPECIALTY_RULES = [
 ];
 
 // POST /api/recommend - Analyze patient text
-router.post('/', (req, res) => {
-  const { query } = req.body;
-  if (!query || !query.trim()) {
-    return res.status(400).json({ error: 'Please enter your symptoms or health issue.' });
-  }
+router.post('/', async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query || !query.trim()) {
+      return res.status(400).json({ error: 'Please enter your symptoms or health issue.' });
+    }
 
-  const cleanQuery = query.toLowerCase();
-  const matchedScores = {};
+    const cleanQuery = query.toLowerCase();
+    const matchedScores = {};
 
-  SPECIALTY_RULES.forEach(rule => {
-    let score = 0;
-    rule.keywords.forEach(kw => {
-      if (cleanQuery.includes(kw)) {
-        score += kw.split(' ').length > 1 ? 3 : 1; // multi-word matches carry higher weight
+    SPECIALTY_RULES.forEach(rule => {
+      let score = 0;
+      rule.keywords.forEach(kw => {
+        if (cleanQuery.includes(kw)) {
+          score += kw.split(' ').length > 1 ? 3 : 1; // multi-word matches carry higher weight
+        }
+      });
+      if (score > 0) {
+        matchedScores[rule.specialty] = score;
       }
     });
-    if (score > 0) {
-      matchedScores[rule.specialty] = score;
-    }
-  });
 
-  // Sort matched specialties by highest score
-  const sortedSpecialties = Object.entries(matchedScores)
-    .sort((a, b) => b[1] - a[1])
-    .map(entry => entry[0]);
+    const sortedSpecialties = Object.entries(matchedScores)
+      .sort((a, b) => b[1] - a[1])
+      .map(entry => entry[0]);
 
-  let targetSpecialty = sortedSpecialties[0] || 'General Medicine';
-  let isFallback = sortedSpecialties.length === 0;
+    let targetSpecialty = sortedSpecialties[0] || 'General Medicine';
+    let isFallback = sortedSpecialties.length === 0;
 
-  // Retrieve matching doctors
-  let sql = `SELECT * FROM doctors WHERE specialty LIKE ? ORDER BY rating DESC, fee ASC`;
-  let params = [`%${targetSpecialty}%`];
+    let matchedDoctors = [];
 
-  db.all(sql, params, (err, doctors) => {
-    if (err) {
-      return res.status(500).json({ error: 'Database query error', details: err.message });
-    }
+    if (isMongoConnected()) {
+      matchedDoctors = await Doctor.find({
+        specialty: new RegExp(targetSpecialty, 'i')
+      }).sort({ rating: -1, fee: 1 });
 
-    // If no direct doctors found in that specialty, fallback to all doctors
-    if (!doctors || doctors.length === 0) {
-      db.all(`SELECT * FROM doctors ORDER BY rating DESC LIMIT 4`, [], (fallbackErr, allDocs) => {
-        if (fallbackErr) return res.status(500).json({ error: fallbackErr.message });
-        return res.json({
-          detected_issue: query,
-          recommended_specialty: targetSpecialty,
-          is_fallback: true,
-          explanation: `We've matched your general symptoms with our primary healthcare practitioners.`,
-          doctors: allDocs
-        });
-      });
+      if (matchedDoctors.length === 0) {
+        matchedDoctors = await Doctor.find().sort({ rating: -1 }).limit(4);
+      }
+      matchedDoctors = matchedDoctors.map(d => ({ ...d.toObject(), id: d.legacy_id || d._id.toString() }));
     } else {
-      res.json({
-        detected_issue: query,
-        recommended_specialty: targetSpecialty,
-        other_possible_specialties: sortedSpecialties.slice(1),
-        is_fallback: isFallback,
-        explanation: isFallback 
-          ? `Based on your description, we recommend starting with a General Physician for a primary diagnosis.`
-          : `Based on your symptoms (${query}), consulting a specialist in ${targetSpecialty} is strongly recommended.`,
-        doctors
-      });
+      matchedDoctors = memoryStore.doctors.filter(d => 
+        d.specialty && d.specialty.toLowerCase().includes(targetSpecialty.toLowerCase())
+      );
+      if (matchedDoctors.length === 0) {
+        matchedDoctors = [...memoryStore.doctors].sort((a, b) => b.rating - a.rating).slice(0, 4);
+      }
     }
-  });
+
+    return res.json({
+      detected_issue: query,
+      recommended_specialty: targetSpecialty,
+      other_possible_specialties: sortedSpecialties.slice(1),
+      is_fallback: isFallback,
+      explanation: isFallback 
+        ? `Based on your description, we recommend starting with a General Physician for a primary clinical evaluation.`
+        : `Based on your symptoms ("${query}"), our triage engine recommends consulting a specialist in ${targetSpecialty}.`,
+      doctors: matchedDoctors
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Recommendation analysis error: ' + err.message });
+  }
 });
 
 module.exports = router;

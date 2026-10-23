@@ -1,13 +1,11 @@
-﻿// Global Application State & Controller
+// MediNexa Global Application State & Controller
 const State = {
-  activeView: 'home', // 'home', 'doctors', 'appointments', 'doctor-portal'
-  activePortalRole: 'patient', // 'patient' or 'doctor'
+  activeView: 'home', // 'home', 'doctors', 'appointments', 'doctor-portal', 'clinic-portal'
   selectedDoctorForBooking: null,
   activeFilterSpecialty: 'All',
   activeFilterCity: 'All',
   searchQuery: '',
   maxFee: '',
-  sortBy: 'rating',
   doctorsList: []
 };
 
@@ -53,32 +51,31 @@ function switchView(viewName) {
     loadPatientAppointments();
   } else if (viewName === 'doctor-portal') {
     loadDoctorPortalDashboard();
+  } else if (viewName === 'clinic-portal') {
+    ClinicApp.loadFinancialSummary();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Role Switcher between Patient Mode and Doctor's Portal (Backend)
-function toggleRolePortal() {
-  if (State.activePortalRole === 'patient') {
-    State.activePortalRole = 'doctor';
-    document.getElementById('role-badge').textContent = 'Doctor Mode (Backend)';
-    document.getElementById('role-badge').className = 'badge-role doctor';
-    document.getElementById('btn-switch-role-text').textContent = 'Switch to Patient Side';
-    switchView('doctor-portal');
-    showToast('Switched to Doctor Management Portal', 'info');
-  } else {
-    State.activePortalRole = 'patient';
-    document.getElementById('role-badge').textContent = 'Patient View';
-    document.getElementById('role-badge').className = 'badge-role patient';
-    document.getElementById('btn-switch-role-text').textContent = 'Doctor Portal (Admin)';
-    switchView('home');
-    showToast('Switched to Patient View', 'info');
+// Role Selection Handlers from Welcome Screen Cards
+function selectRole(role) {
+  // If user is already authenticated with this role, go directly to their portal
+  if (Auth.currentUser && (Auth.currentUser.role === role || Auth.currentUser.role === 'admin')) {
+    if (role === 'doctor') switchView('doctor-portal');
+    else if (role === 'clinic') switchView('clinic-portal');
+    else switchView('home');
+    return;
   }
+
+  // Open existing authentication interface for the chosen role
+  Auth.openAuthModal(role, false);
 }
 
-// Initialise App
+// Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
+  Auth.init();
+  ClinicApp.init();
   setupNavigationEvents();
   setupSymptomSearchEvents();
   setupFilterEvents();
@@ -95,6 +92,8 @@ function setupNavigationEvents() {
     });
   });
 
-  document.getElementById('btn-toggle-portal').addEventListener('click', toggleRolePortal);
-  document.getElementById('brand-home-link').addEventListener('click', () => switchView('home'));
+  const brandLink = document.getElementById('brand-home-link');
+  if (brandLink) {
+    brandLink.addEventListener('click', () => switchView('home'));
+  }
 }
