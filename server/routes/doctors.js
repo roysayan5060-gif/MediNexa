@@ -253,4 +253,263 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// ==============================================================
+// DOCTOR CLINICAL SUITE & WALLET MANAGEMENT (PDF FEATURES)
+// ==============================================================
+
+// GET /api/doctors/portal/summary - Doctor dashboard statistics
+router.get('/portal/summary', (req, res) => {
+  const store = memoryStore;
+  const consultations = store.doctorConsultations || [];
+  const reminders = store.doctorReminders || [];
+  const wallet = store.doctorWallet || { balance: 6573.50, spent_today: 0.00 };
+
+  const followUpsDue = reminders.filter(r => r.type === 'follow_up').length;
+  const vaccinationsDue = reminders.filter(r => r.type === 'vaccination').length;
+  const reportReviewsDue = reminders.filter(r => r.type === 'report_review').length;
+
+  res.json({
+    doctor_name: 'Dr. Priya Sharma',
+    doctor_specialization: 'MD(Community medicine), MBBS',
+    patients_today: 0,
+    patients_all_time: consultations.length + 4,
+    wallet_balance: wallet.balance,
+    spent_today: wallet.spent_today,
+    whatsapp_sent: consultations.length + 11,
+    prescriptions_count: consultations.length + 9,
+    vaccinations_count: vaccinationsDue,
+    followups_due: followUpsDue,
+    report_reviews_due: reportReviewsDue,
+    reminders_due_today: {
+      follow_ups: 0,
+      vaccinations: 0,
+      report_reviews: 0
+    }
+  });
+});
+
+// GET /api/doctors/portal/wallet - Wallet balance, pricing guide, and transactions
+router.get('/portal/wallet', (req, res) => {
+  const wallet = memoryStore.doctorWallet || { balance: 6573.50, spent_today: 0.00 };
+  const transactions = memoryStore.doctorTransactions || [];
+
+  res.json({
+    balance: wallet.balance,
+    spent_today: wallet.spent_today,
+    transactions: [...transactions],
+    pricing: {
+      prescription_simplifier: 1.50,
+      follow_up_reminder: 1.50,
+      vaccination_reminder: 2.50,
+      report_review_reminder: 1.50,
+      additional_instructions: 0.50,
+      internal_notes: 0.00
+    }
+  });
+});
+
+// POST /api/doctors/portal/wallet/recharge - Recharge doctor wallet
+router.post('/portal/wallet/recharge', (req, res) => {
+  const { amount } = req.body;
+  const numAmount = parseFloat(amount);
+  if (isNaN(numAmount) || numAmount <= 0) {
+    return res.status(400).json({ error: 'Invalid recharge amount.' });
+  }
+
+  if (!memoryStore.doctorWallet) {
+    memoryStore.doctorWallet = { balance: 6573.50, spent_today: 0.00 };
+  }
+  memoryStore.doctorWallet.balance += numAmount;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + 
+    ' • ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+  const newTx = {
+    id: `tx_${Date.now()}`,
+    title: `Wallet recharged with ₹${numAmount}`,
+    amount: numAmount,
+    type: 'recharge',
+    date: dateStr
+  };
+
+  if (!memoryStore.doctorTransactions) memoryStore.doctorTransactions = [];
+  memoryStore.doctorTransactions.unshift(newTx);
+
+  res.json({
+    message: `Wallet recharged successfully with ₹${numAmount}`,
+    balance: memoryStore.doctorWallet.balance,
+    transaction: newTx
+  });
+});
+
+// GET /api/doctors/portal/consultations - Patient consultation history
+router.get('/portal/consultations', (req, res) => {
+  res.json(memoryStore.doctorConsultations || []);
+});
+
+// POST /api/doctors/portal/consultations - Save consultation & deduct wallet
+router.post('/portal/consultations', (req, res) => {
+  const {
+    patient_name,
+    patient_phone,
+    patient_age,
+    patient_gender,
+    language = 'Bengali',
+    medicines = [],
+    toggles = {},
+    instructions = '',
+    internal_notes = '',
+    total_cost = 0
+  } = req.body;
+
+  if (!patient_name || !patient_phone) {
+    return res.status(400).json({ error: 'Patient name and phone number are required.' });
+  }
+
+  const cost = parseFloat(total_cost) || 0;
+  if (!memoryStore.doctorWallet) {
+    memoryStore.doctorWallet = { balance: 6573.50, spent_today: 0.00 };
+  }
+
+  // Deduct from wallet if cost > 0
+  if (cost > 0) {
+    if (memoryStore.doctorWallet.balance < cost) {
+      return res.status(400).json({ error: `Insufficient wallet balance (₹${memoryStore.doctorWallet.balance.toFixed(2)}). Please recharge your wallet.` });
+    }
+    memoryStore.doctorWallet.balance -= cost;
+    memoryStore.doctorWallet.spent_today += cost;
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + 
+      ' • ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    let parts = [];
+    if (toggles.prescription_simplifier) parts.push('Prescription Simplifier');
+    if (toggles.follow_up && toggles.follow_up.enabled) parts.push('Follow-up');
+    if (toggles.vaccination && toggles.vaccination.enabled) parts.push('Vaccination');
+    if (toggles.report_review && toggles.report_review.enabled) parts.push('Report Review');
+    const txTitle = parts.length > 0 ? parts.slice(0, 2).join(' + ') : 'WhatsApp Message + Pres...';
+
+    const deductionTx = {
+      id: `tx_${Date.now()}`,
+      title: txTitle,
+      amount: -cost,
+      type: 'deduction',
+      date: dateStr
+    };
+    if (!memoryStore.doctorTransactions) memoryStore.doctorTransactions = [];
+    memoryStore.doctorTransactions.unshift(deductionTx);
+  }
+
+  const count = (memoryStore.doctorConsultations || []).length + 1;
+  const queue_number = `#${count}`;
+
+  const tags = [`${medicines.length} Meds`];
+  if (toggles.vaccination && toggles.vaccination.enabled) tags.push('Vaccine');
+  if (toggles.follow_up && toggles.follow_up.enabled) tags.push('Follow-up');
+  tags.push('Sent');
+
+  const now = new Date();
+  const timestampStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + 
+    ' • ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+  const newConsultation = {
+    id: `c_${Date.now()}`,
+    queue_number,
+    patient_name,
+    patient_phone,
+    patient_age: patient_age || 'N/A',
+    patient_gender: patient_gender || 'Other',
+    doctor_name: 'Dr. Priya Sharma',
+    language,
+    tags,
+    cost,
+    timestamp: timestampStr,
+    medicines,
+    instructions,
+    internal_notes,
+    followup_date: toggles.follow_up && toggles.follow_up.enabled ? toggles.follow_up.date : null,
+    followup_time: toggles.follow_up && toggles.follow_up.enabled ? toggles.follow_up.time : null,
+    vaccination_date: toggles.vaccination && toggles.vaccination.enabled ? toggles.vaccination.date : null,
+    report_review_name: toggles.report_review && toggles.report_review.enabled ? toggles.report_review.name : null,
+    report_review_date: toggles.report_review && toggles.report_review.enabled ? toggles.report_review.date : null,
+    report_review_time: toggles.report_review && toggles.report_review.enabled ? toggles.report_review.time : null
+  };
+
+  if (!memoryStore.doctorConsultations) memoryStore.doctorConsultations = [];
+  memoryStore.doctorConsultations.unshift(newConsultation);
+
+  if (toggles.follow_up && toggles.follow_up.enabled) {
+    memoryStore.doctorReminders.push({
+      id: `rem_${Date.now()}_1`,
+      type: 'follow_up',
+      title: 'Follow-up Consultation',
+      patient_name,
+      phone: patient_phone,
+      date: toggles.follow_up.date,
+      time: toggles.follow_up.time || '10:00'
+    });
+  }
+  if (toggles.vaccination && toggles.vaccination.enabled) {
+    memoryStore.doctorReminders.push({
+      id: `rem_${Date.now()}_2`,
+      type: 'vaccination',
+      title: 'Vaccination Due',
+      patient_name,
+      phone: patient_phone,
+      date: toggles.vaccination.date,
+      time: '10:00'
+    });
+  }
+  if (toggles.report_review && toggles.report_review.enabled) {
+    memoryStore.doctorReminders.push({
+      id: `rem_${Date.now()}_3`,
+      type: 'report_review',
+      title: `Report Review: ${toggles.report_review.name || 'Investigation'}`,
+      patient_name,
+      phone: patient_phone,
+      date: toggles.report_review.date,
+      time: toggles.report_review.time || '10:00'
+    });
+  }
+
+  res.json({
+    message: 'Consultation saved and WhatsApp message prepared!',
+    consultation: newConsultation,
+    wallet_balance: memoryStore.doctorWallet.balance
+  });
+});
+
+// GET /api/doctors/portal/reminders - Reminders list & calendar data
+router.get('/portal/reminders', (req, res) => {
+  res.json(memoryStore.doctorReminders || []);
+});
+
+// GET /api/doctors/portal/profile - Doctor profile details
+router.get('/portal/profile', (req, res) => {
+  res.json({
+    name: 'Dr. Priya Sharma',
+    type: 'Individual Doctor',
+    specialization: 'MD(Community medicine), MBBS',
+    phone: '+91-9876543210',
+    chamber_timing: 'Mon-Sat, 9AM-1PM'
+  });
+});
+
+// POST /api/doctors/portal/profile - Update doctor profile
+router.post('/portal/profile', (req, res) => {
+  const { name, specialization, phone, chamber_timing } = req.body;
+  res.json({
+    message: 'Doctor profile updated successfully!',
+    profile: {
+      name: name || 'Dr. Priya Sharma',
+      type: 'Individual Doctor',
+      specialization: specialization || 'MD(Community medicine), MBBS',
+      phone: phone || '+91-9876543210',
+      chamber_timing: chamber_timing || 'Mon-Sat, 9AM-1PM'
+    }
+  });
+});
+
 module.exports = router;

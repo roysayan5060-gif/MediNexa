@@ -1,8 +1,9 @@
-// Doctor Portal Controller — Preserving All Working Features & Adding WhatsApp Rx Sharing
+// Doctor Portal Controller — Preserving All Working Features & Adding PDF Doctor Suite
 let editingDoctorId = null;
 let activePrescriptionAppointment = null;
 
 function loadDoctorPortalDashboard() {
+  DoctorSuite.init();
   loadDoctorPortalAppointments();
   loadDoctorPortalDoctorList();
   loadVerificationQueue();
@@ -10,6 +11,7 @@ function loadDoctorPortalDashboard() {
 }
 
 function setupDoctorPortalEvents() {
+  DoctorSuite.setupEvents();
   // Portal Sub-tabs
   document.querySelectorAll('.tab-btn[data-target^="portal-"]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -533,3 +535,884 @@ async function reviewDoctorVerification(docId, status) {
     showToast(err.message, 'error');
   }
 }
+
+// ==============================================================
+// DOCTOR CLINICAL SUITE CONTROLLER (PDF FEATURES IMPLEMENTATION)
+// ==============================================================
+
+const DoctorSuite = {
+  activeSubView: 'dashboard',
+  savedMedicines: [],
+  selectedGender: 'Male',
+  selectedFreq: { code: 'OD', label: 'once daily' },
+  selectedFood: { code: 'AC', label: 'before food' },
+  selectedTimeSlots: ['Early Morning'],
+  selectedDuration: '15 days',
+  taperPhases: [],
+  calendarDate: new Date(2026, 5, 1), // June 2026 default as in screenshot
+  selectedCalendarDate: '2026-06-30',
+  remindersCache: [],
+  walletBalance: 6573.50,
+  spentToday: 0.00,
+
+  init() {
+    this.savedMedicines = [
+      {
+        name: 'Clonazepam',
+        dose: '0.5',
+        unit: 'mg',
+        form: 'Tablet',
+        frequency: 'OD',
+        freq_label: 'once daily',
+        timing: 'PC',
+        food_label: 'after food',
+        time_slot: 'Bedtime',
+        duration: '3 days',
+        simplified: 'Clonazepam 0.5 mg tablet: Take once daily after food in the bedtime for 3 days'
+      },
+      {
+        name: 'Pantoprazole',
+        dose: '40',
+        unit: 'mg',
+        form: 'Tablet',
+        frequency: 'OD',
+        freq_label: 'once daily',
+        timing: 'AC',
+        food_label: 'before food',
+        time_slot: 'Early Morning',
+        duration: '15 days',
+        simplified: 'Pantoprazole 40 mg tablet: Take once daily before food in the early morning for 15 days'
+      }
+    ];
+
+    this.renderSavedMedicines();
+    this.updateCostBreakdown();
+    this.loadSummaryStats();
+    this.loadWalletData();
+    this.loadConsultationsHistory();
+    this.loadRemindersData();
+    this.loadProfileData();
+  },
+
+  setupEvents() {
+    // Gender Chips
+    document.querySelectorAll('#patient-gender-chips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#patient-gender-chips .chip-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.selectedGender = btn.dataset.gender;
+      });
+    });
+
+    // Frequency Chips
+    document.querySelectorAll('#med-freq-chips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#med-freq-chips .chip-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.selectedFreq = { code: btn.dataset.freq, label: btn.dataset.label };
+        const cap = document.getElementById('med-freq-caption');
+        if (cap) cap.textContent = btn.dataset.label;
+      });
+    });
+
+    // Food Timing Chips
+    document.querySelectorAll('#med-food-chips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#med-food-chips .chip-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.selectedFood = { code: btn.dataset.food, label: btn.dataset.label };
+        const cap = document.getElementById('med-food-caption');
+        if (cap) {
+          cap.textContent = btn.dataset.label;
+          cap.style.color = btn.dataset.food === 'None' ? '#94a3b8' : '#4ade80';
+        }
+      });
+    });
+
+    // Time Slots Chips
+    document.querySelectorAll('#med-timeslot-chips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        const activeSlots = [];
+        document.querySelectorAll('#med-timeslot-chips .chip-btn.active').forEach(b => {
+          activeSlots.push(b.dataset.slot);
+        });
+        this.selectedTimeSlots = activeSlots.length > 0 ? activeSlots : ['Morning'];
+      });
+    });
+
+    // Duration Chips
+    document.querySelectorAll('#med-duration-chips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#med-duration-chips .chip-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.selectedDuration = btn.dataset.dur;
+        const durInput = document.getElementById('med-input-duration');
+        if (durInput) durInput.value = btn.dataset.dur;
+      });
+    });
+
+    // Quick Profile Form Submit
+    const quickProfForm = document.getElementById('doc-quick-profile-form');
+    if (quickProfForm) {
+      quickProfForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.saveQuickProfile();
+      });
+    }
+  },
+
+  switchSubView(subview) {
+    this.activeSubView = subview;
+
+    // Toggle panels
+    document.querySelectorAll('.doc-panel').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(`doc-panel-${subview}`);
+    if (target) target.classList.add('active');
+
+    // Toggle bottom nav
+    document.querySelectorAll('.doc-bottom-nav .doc-nav-item').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.subview === subview);
+    });
+
+    if (subview === 'dashboard') {
+      this.loadSummaryStats();
+    } else if (subview === 'wallet') {
+      this.loadWalletData();
+    } else if (subview === 'history') {
+      this.loadConsultationsHistory();
+    } else if (subview === 'calendar') {
+      this.loadRemindersData();
+    } else if (subview === 'profile') {
+      this.loadProfileData();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  // Service Toggles Handlers
+  toggleTaperingSection() {
+    const isChecked = document.getElementById('toggle-tapering').checked;
+    const sec = document.getElementById('tapering-details');
+    if (sec) sec.style.display = isChecked ? 'block' : 'none';
+  },
+
+  addTaperPhase() {
+    const container = document.getElementById('taper-phases-list');
+    if (!container) return;
+    const phaseNum = container.children.length + 1;
+    const div = document.createElement('div');
+    div.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.35rem; align-items: center;';
+    div.innerHTML = `
+      <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 700;">Phase ${phaseNum}:</span>
+      <input type="text" placeholder="e.g. 20mg for 5 days" style="padding: 0.35rem; font-size: 0.8rem; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; flex: 1;">
+      <button type="button" style="background: transparent; border: none; color: #f87171; cursor: pointer;" onclick="this.parentElement.remove()">&times;</button>
+    `;
+    container.appendChild(div);
+  },
+
+  toggleFollowupDetails() {
+    const isChecked = document.getElementById('toggle-followup').checked;
+    const sec = document.getElementById('followup-details');
+    if (sec) sec.style.display = isChecked ? 'block' : 'none';
+    this.updateCostBreakdown();
+  },
+
+  toggleVaccinationDetails() {
+    const isChecked = document.getElementById('toggle-vaccination').checked;
+    const sec = document.getElementById('vaccination-details');
+    if (sec) sec.style.display = isChecked ? 'block' : 'none';
+    this.updateCostBreakdown();
+  },
+
+  toggleReportReviewDetails() {
+    const isChecked = document.getElementById('toggle-report-review').checked;
+    const sec = document.getElementById('report-review-details');
+    if (sec) sec.style.display = isChecked ? 'block' : 'none';
+    this.updateCostBreakdown();
+  },
+
+  toggleInstructionsDetails() {
+    const isChecked = document.getElementById('toggle-instructions').checked;
+    const sec = document.getElementById('instructions-details');
+    if (sec) sec.style.display = isChecked ? 'block' : 'none';
+    this.updateCostBreakdown();
+  },
+
+  toggleInternalNotesDetails() {
+    const isChecked = document.getElementById('toggle-internal-notes').checked;
+    const sec = document.getElementById('internal-notes-details');
+    if (sec) sec.style.display = isChecked ? 'block' : 'none';
+    this.updateCostBreakdown();
+  },
+
+  appendInstruction(text) {
+    const textarea = document.getElementById('instructions-textarea');
+    if (!textarea) return;
+    if (textarea.value.trim()) {
+      textarea.value += ' ' + text;
+    } else {
+      textarea.value = text;
+    }
+    this.updateCostBreakdown();
+  },
+
+  loadTemplateMedicines() {
+    const templates = [
+      { name: 'Pantoprazole', dose: '40', unit: 'mg', form: 'Tablet', freq: 'OD', freq_label: 'once daily', food: 'AC', food_label: 'before food', slot: 'Early Morning', dur: '15 days' },
+      { name: 'Paracetamol', dose: '650', unit: 'mg', form: 'Tablet', freq: 'SOS', freq_label: 'as needed', food: 'PC', food_label: 'after food', slot: 'Bedtime', dur: '3 days' },
+      { name: 'Amoxicillin', dose: '500', unit: 'mg', form: 'Capsule', freq: 'TDS', freq_label: 'thrice daily', food: 'PC', food_label: 'after food', slot: 'Morning', dur: '5 days' }
+    ];
+    this.savedMedicines = templates.map(t => ({
+      ...t,
+      frequency: t.freq,
+      timing: t.food,
+      time_slot: t.slot,
+      duration: t.dur,
+      simplified: `${t.name} ${t.dose} ${t.unit} ${t.form.toLowerCase()}: Take ${t.freq_label} ${t.food_label} in the ${t.slot.toLowerCase()} for ${t.dur}`
+    }));
+    this.renderSavedMedicines();
+    this.updateCostBreakdown();
+    showToast('Standard Clinical Prescription Template loaded!', 'success');
+  },
+
+  saveMedicineItem() {
+    const nameInput = document.getElementById('med-input-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if (!name) {
+      showToast('Please type a medicine name.', 'error');
+      return;
+    }
+
+    const form = document.getElementById('med-input-form').value;
+    const dose = document.getElementById('med-input-dose').value.trim() || '1';
+    const unit = document.getElementById('med-input-unit').value;
+    const duration = document.getElementById('med-input-duration').value.trim() || this.selectedDuration;
+    const notes = document.getElementById('med-input-notes').value.trim();
+
+    const freq = this.selectedFreq.code;
+    const freq_label = this.selectedFreq.label;
+    const food = this.selectedFood.code;
+    const food_label = this.selectedFood.label;
+    const time_slot = this.selectedTimeSlots.join(', ');
+
+    const simplified = `${name} ${dose} ${unit} ${form.toLowerCase()}: Take ${freq_label} ${food_label} in the ${time_slot.toLowerCase()} for ${duration}`;
+
+    this.savedMedicines.push({
+      name,
+      dose,
+      unit,
+      form,
+      frequency: freq,
+      freq_label,
+      timing: food,
+      food_label,
+      time_slot,
+      duration,
+      notes,
+      simplified
+    });
+
+    this.renderSavedMedicines();
+    this.updateCostBreakdown();
+
+    // Reset input
+    if (nameInput) nameInput.value = '';
+    document.getElementById('med-input-dose').value = '';
+    document.getElementById('med-input-notes').value = '';
+    showToast(`Added ${name} to prescription.`, 'success');
+  },
+
+  deleteMedicine(index) {
+    this.savedMedicines.splice(index, 1);
+    this.renderSavedMedicines();
+    this.updateCostBreakdown();
+  },
+
+  renderSavedMedicines() {
+    const container = document.getElementById('saved-medicines-container');
+    if (!container) return;
+
+    if (this.savedMedicines.length === 0) {
+      container.innerHTML = `
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; padding: 0.5rem 0;">
+          No medicines added yet. Use the form below to formulate medications.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.savedMedicines.map((m, idx) => `
+      <div class="saved-med-item">
+        <div style="flex: 1;">
+          <div class="saved-med-title">💊 ${m.name} ${m.dose} ${m.unit} (${m.form})</div>
+          <div class="saved-med-badges">${m.frequency} • ${m.freq_label} • ${m.food_label} • ${m.time_slot} • ${m.duration}</div>
+          <div class="saved-med-plain">${m.simplified}</div>
+          ${m.notes ? `<div style="font-size: 0.75rem; color: #fbbf24; margin-top: 0.25rem;">Note: ${m.notes}</div>` : ''}
+        </div>
+        <div style="display: flex; gap: 0.35rem;">
+          <button type="button" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem;" onclick="DoctorSuite.deleteMedicine(${idx})" title="Delete Medicine">
+            🗑️
+          </button>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  updateCostBreakdown() {
+    let total = 0.00;
+
+    const rxOn = document.getElementById('toggle-rx-simplifier') ? document.getElementById('toggle-rx-simplifier').checked : true;
+    const rxCost = (rxOn && this.savedMedicines.length > 0) ? 1.50 : 0.00;
+    total += rxCost;
+
+    const followOn = document.getElementById('toggle-followup') ? document.getElementById('toggle-followup').checked : false;
+    const followCost = followOn ? 1.50 : 0.00;
+    total += followCost;
+
+    const vaccOn = document.getElementById('toggle-vaccination') ? document.getElementById('toggle-vaccination').checked : false;
+    const vaccCost = vaccOn ? 2.50 : 0.00;
+    total += vaccCost;
+
+    const repOn = document.getElementById('toggle-report-review') ? document.getElementById('toggle-report-review').checked : false;
+    const repCost = repOn ? 1.50 : 0.00;
+    total += repCost;
+
+    const instOn = document.getElementById('toggle-instructions') ? document.getElementById('toggle-instructions').checked : false;
+    const instText = document.getElementById('instructions-textarea') ? document.getElementById('instructions-textarea').value.trim() : '';
+    const instCost = (instOn && instText.length > 0) ? 0.50 : 0.00;
+    total += instCost;
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = `₹${val.toFixed(2)}`;
+    };
+
+    setVal('cost-item-simplifier', rxCost);
+    setVal('cost-item-followup', followCost);
+    setVal('cost-item-vaccine', vaccCost);
+    setVal('cost-item-report', repCost);
+    setVal('cost-item-instructions', instCost);
+    setVal('cost-item-total', total);
+
+    return {
+      total,
+      breakdown: {
+        simplifier: rxCost,
+        followup: followCost,
+        vaccination: vaccCost,
+        report_review: repCost,
+        instructions: instCost
+      }
+    };
+  },
+
+  openConfirmSendModal() {
+    const name = document.getElementById('patient-input-name').value.trim();
+    const phone = document.getElementById('patient-input-phone').value.trim();
+    if (!name) {
+      showToast('Please enter the patient full name.', 'error');
+      document.getElementById('patient-input-name').focus();
+      return;
+    }
+    if (!phone) {
+      showToast('Please enter the patient WhatsApp phone number.', 'error');
+      document.getElementById('patient-input-phone').focus();
+      return;
+    }
+
+    const lang = document.getElementById('patient-input-language').value;
+    const docName = document.getElementById('profile-input-name') ? document.getElementById('profile-input-name').value : 'Dr. Priya Sharma';
+
+    document.getElementById('confirm-phone-display').textContent = phone;
+    document.getElementById('confirm-greeting-text').innerHTML = `
+      Hello <strong>${name}</strong>,<br>
+      Thank you for visiting <strong>${docName}</strong>.<br>
+      (Language: ${lang})
+    `;
+
+    // Medicines
+    const medsContainer = document.getElementById('confirm-medicines-text');
+    if (this.savedMedicines.length > 0) {
+      medsContainer.innerHTML = this.savedMedicines.map((m, i) => `
+        <div style="margin-bottom: 0.35rem;">
+          ${i + 1}. <strong>${m.name} ${m.dose} ${m.unit} ${m.form.toLowerCase()}</strong>: Take ${m.freq_label} ${m.food_label} in the ${m.time_slot.toLowerCase()} for ${m.duration}
+        </div>
+      `).join('');
+    } else {
+      medsContainer.innerHTML = `<span style="color: var(--text-muted);">No medications prescribed.</span>`;
+    }
+
+    // Instructions
+    const instOn = document.getElementById('toggle-instructions').checked;
+    const instText = document.getElementById('instructions-textarea').value.trim();
+    const instSec = document.getElementById('confirm-instructions-section');
+    if (instOn && instText) {
+      instSec.style.display = 'block';
+      document.getElementById('confirm-instructions-text').textContent = instText;
+    } else {
+      instSec.style.display = 'none';
+    }
+
+    // Followup
+    const followOn = document.getElementById('toggle-followup').checked;
+    const followSec = document.getElementById('confirm-followup-section');
+    if (followOn) {
+      followSec.style.display = 'block';
+      const fDate = document.getElementById('followup-date').value;
+      const fTime = document.getElementById('followup-time').value;
+      document.getElementById('confirm-followup-text').textContent = `${fDate} at ${fTime}`;
+    } else {
+      followSec.style.display = 'none';
+    }
+
+    // Vaccine
+    const vaccOn = document.getElementById('toggle-vaccination').checked;
+    const vaccSec = document.getElementById('confirm-vaccine-section');
+    if (vaccOn) {
+      vaccSec.style.display = 'block';
+      document.getElementById('confirm-vaccine-text').textContent = document.getElementById('vaccination-date').value;
+    } else {
+      vaccSec.style.display = 'none';
+    }
+
+    // Report Review
+    const repOn = document.getElementById('toggle-report-review').checked;
+    const repSec = document.getElementById('confirm-report-section');
+    if (repOn) {
+      repSec.style.display = 'block';
+      const rName = document.getElementById('report-name-input').value;
+      const rDate = document.getElementById('report-date-input').value;
+      const rTime = document.getElementById('report-time-input').value;
+      document.getElementById('confirm-report-text').textContent = `${rDate} at ${rTime} (${rName})`;
+    } else {
+      repSec.style.display = 'none';
+    }
+
+    document.getElementById('confirm-sign-doctor').textContent = docName;
+
+    // Cost Breakdown in Confirm Modal
+    const costInfo = this.updateCostBreakdown();
+    const costBox = document.getElementById('confirm-cost-breakdown-items');
+    costBox.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+        <span>Prescription Simplifier</span><span>₹${costInfo.breakdown.simplifier.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+        <span>Follow-up Reminder</span><span>₹${costInfo.breakdown.followup.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+        <span>Vaccination Reminder</span><span>₹${costInfo.breakdown.vaccination.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+        <span>Report Review Reminder</span><span>₹${costInfo.breakdown.report_review.toFixed(2)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+        <span>Additional Instructions</span><span>₹${costInfo.breakdown.instructions.toFixed(2)}</span>
+      </div>
+    `;
+    document.getElementById('confirm-total-cost-val').textContent = `₹${costInfo.total.toFixed(2)}`;
+
+    document.getElementById('modal-confirm-send').classList.add('active');
+  },
+
+  async executeSendWhatsApp() {
+    const name = document.getElementById('patient-input-name').value.trim();
+    const phone = document.getElementById('patient-input-phone').value.trim();
+    const age = document.getElementById('patient-input-age').value.trim();
+    const gender = this.selectedGender;
+    const lang = document.getElementById('patient-input-language').value;
+    const docName = document.getElementById('profile-input-name') ? document.getElementById('profile-input-name').value : 'Dr. Priya Sharma';
+
+    const costInfo = this.updateCostBreakdown();
+
+    const payload = {
+      patient_name: name,
+      patient_phone: phone,
+      patient_age: age,
+      patient_gender: gender,
+      language: lang,
+      medicines: this.savedMedicines,
+      toggles: {
+        prescription_simplifier: document.getElementById('toggle-rx-simplifier').checked,
+        follow_up: {
+          enabled: document.getElementById('toggle-followup').checked,
+          date: document.getElementById('followup-date').value,
+          time: document.getElementById('followup-time').value
+        },
+        vaccination: {
+          enabled: document.getElementById('toggle-vaccination').checked,
+          date: document.getElementById('vaccination-date').value
+        },
+        report_review: {
+          enabled: document.getElementById('toggle-report-review').checked,
+          name: document.getElementById('report-name-input').value,
+          date: document.getElementById('report-date-input').value,
+          time: document.getElementById('report-time-input').value
+        },
+        additional_instructions: {
+          enabled: document.getElementById('toggle-instructions').checked,
+          text: document.getElementById('instructions-textarea').value.trim()
+        },
+        internal_notes: {
+          enabled: document.getElementById('toggle-internal-notes').checked,
+          text: document.getElementById('internal-notes-textarea').value.trim()
+        }
+      },
+      instructions: document.getElementById('instructions-textarea').value.trim(),
+      internal_notes: document.getElementById('internal-notes-textarea').value.trim(),
+      total_cost: costInfo.total
+    };
+
+    try {
+      const res = await fetch('/api/doctors/portal/consultations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to record consultation');
+
+      document.getElementById('modal-confirm-send').classList.remove('active');
+      showToast(`Prescription saved! Wallet debited ₹${costInfo.total.toFixed(2)}`, 'success');
+
+      // Generate WhatsApp text
+      let cleanPhone = phone.replace(/[^0-9]/g, '');
+      if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+      let waMessage = `*Hello ${name},*\nThank you for visiting ${docName}.\n(Language: ${lang})\n\n`;
+      if (this.savedMedicines.length > 0) {
+        waMessage += `*📋 Prescription:*\n`;
+        this.savedMedicines.forEach((m, idx) => {
+          waMessage += `${idx + 1}. ${m.name} ${m.dose} ${m.unit} ${m.form.toLowerCase()}: Take ${m.freq_label} ${m.food_label} in the ${m.time_slot.toLowerCase()} for ${m.duration}\n`;
+        });
+        waMessage += '\n';
+      }
+
+      if (payload.toggles.additional_instructions.enabled && payload.instructions) {
+        waMessage += `*📝 Instructions:*\n${payload.instructions}\n\n`;
+      }
+      if (payload.toggles.follow_up.enabled) {
+        waMessage += `📅 *Follow-up:* ${payload.toggles.follow_up.date} at ${payload.toggles.follow_up.time}\n`;
+      }
+      if (payload.toggles.vaccination.enabled) {
+        waMessage += `💉 *Vaccination:* ${payload.toggles.vaccination.date}\n`;
+      }
+      if (payload.toggles.report_review.enabled) {
+        waMessage += `🔬 *Report Review:* ${payload.toggles.report_review.date} at ${payload.toggles.report_review.time} (${payload.toggles.report_review.name})\n`;
+      }
+
+      waMessage += `\nGet well soon! — *${docName}*`;
+
+      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
+      window.open(waUrl, '_blank');
+
+      // Refresh data and switch to history
+      this.loadSummaryStats();
+      this.loadWalletData();
+      this.loadConsultationsHistory();
+      this.loadRemindersData();
+      this.switchSubView('history');
+
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  },
+
+  async quickRecharge(amount) {
+    try {
+      const res = await fetch('/api/doctors/portal/wallet/recharge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Recharge failed');
+
+      showToast(`Wallet recharged with ₹${amount}.00!`, 'success');
+      this.loadWalletData();
+      this.loadSummaryStats();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  },
+
+  async loadSummaryStats() {
+    try {
+      const res = await fetch('/api/doctors/portal/summary');
+      const data = await res.json();
+
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+
+      setVal('metric-patients-today', data.patients_today);
+      setVal('metric-patients-all-time', `${data.patients_all_time} total all time`);
+      setVal('metric-wallet-balance', `₹${data.wallet_balance.toFixed(2)}`);
+      setVal('header-wallet-balance', `₹${data.wallet_balance.toFixed(2)}`);
+      setVal('metric-wallet-spent', `Spent today ₹${data.spent_today.toFixed(2)}`);
+      setVal('metric-whatsapp-sent', data.whatsapp_sent);
+      setVal('metric-prescriptions-count', data.prescriptions_count);
+      setVal('metric-vaccinations-count', data.vaccinations_count);
+      setVal('metric-followups-count', data.followups_due);
+
+      setVal('due-followups', data.reminders_due_today.follow_ups);
+      setVal('due-vaccines', data.reminders_due_today.vaccinations);
+      setVal('due-reports', data.reminders_due_today.report_reviews);
+    } catch (e) {
+      console.warn('Error loading summary stats', e);
+    }
+  },
+
+  async loadWalletData() {
+    try {
+      const res = await fetch('/api/doctors/portal/wallet');
+      const data = await res.json();
+
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+
+      setVal('wallet-panel-balance', `₹${data.balance.toFixed(2)}`);
+      setVal('wallet-panel-spent', `Spent today: ₹${data.spent_today.toFixed(2)}`);
+
+      const list = document.getElementById('wallet-transactions-list');
+      if (list) {
+        if (data.transactions.length === 0) {
+          list.innerHTML = `<div style="color:var(--text-muted); padding:1rem 0;">No transactions recorded yet.</div>`;
+          return;
+        }
+
+        list.innerHTML = data.transactions.map(tx => `
+          <div class="tx-item">
+            <div class="tx-left">
+              <div class="tx-icon ${tx.type}">${tx.type === 'recharge' ? '↗' : '↘'}</div>
+              <div>
+                <div class="tx-title">${tx.title}</div>
+                <div class="tx-date">${tx.date}</div>
+              </div>
+            </div>
+            <div class="tx-amount ${tx.type === 'recharge' ? 'positive' : 'negative'}">
+              ${tx.type === 'recharge' ? '+' : ''}₹${Math.abs(tx.amount).toFixed(2)}
+            </div>
+          </div>
+        `).join('');
+      }
+    } catch (e) {
+      console.warn('Error loading wallet data', e);
+    }
+  },
+
+  async loadConsultationsHistory() {
+    try {
+      const res = await fetch('/api/doctors/portal/consultations');
+      const data = await res.json();
+
+      const badge = document.getElementById('history-count-badge');
+      if (badge) badge.textContent = `${data.length} Consultations`;
+
+      const list = document.getElementById('doc-consultations-history-list');
+      if (!list) return;
+
+      if (data.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <h3>No Consultations Logged</h3>
+            <p>Formulate your first prescription to generate WhatsApp messages and patient logs.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = data.map(c => `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-white);">${c.patient_name}</span>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #38bdf8;">${c.queue_number || ''}</span>
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                ${c.patient_age ? `${c.patient_age} / ` : ''}${c.patient_gender} &nbsp;•&nbsp; <span style="color: #60a5fa;">${c.doctor_name}</span>
+                &nbsp;•&nbsp; <span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">${c.language}</span>
+              </div>
+            </div>
+            <div style="font-weight: 800; font-size: 1.15rem; color: #38bdf8;">
+              ₹${c.cost ? c.cost.toFixed(2) : '3.00'} &gt;
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin: 0.65rem 0; flex-wrap: wrap;">
+            ${(c.tags || ['2 Meds', 'Sent']).map(t => `
+              <span style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8; font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px;">
+                ${t === 'Vaccine' ? '💉 ' : t === 'Sent' ? '💬 ' : '💊 '}${t}
+              </span>
+            `).join('')}
+          </div>
+
+          <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem;">
+            <span>🕒</span> ${c.timestamp}
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.warn('Error loading consultations history', e);
+    }
+  },
+
+  async loadRemindersData() {
+    try {
+      const res = await fetch('/api/doctors/portal/reminders');
+      const data = await res.json();
+      this.remindersCache = data;
+      this.renderCalendar();
+    } catch (e) {
+      console.warn('Error loading reminders', e);
+    }
+  },
+
+  renderCalendar() {
+    const year = this.calendarDate.getFullYear();
+    const month = this.calendarDate.getMonth();
+
+    const titleEl = document.getElementById('calendar-month-title');
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    if (titleEl) titleEl.textContent = `${monthNames[month]} ${year}`;
+
+    const daysGrid = document.getElementById('calendar-days-grid');
+    if (!daysGrid) return;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    daysGrid.innerHTML = '';
+
+    // Empty slots before first day
+    for (let i = 0; i < firstDay; i++) {
+      const blank = document.createElement('div');
+      blank.className = 'cal-cell';
+      blank.style.opacity = '0.2';
+      daysGrid.appendChild(blank);
+    }
+
+    // Days of current month
+    for (let day = 1; day <= totalDays; day++) {
+      const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell';
+      if (dayStr === this.selectedCalendarDate) cell.classList.add('active-date');
+
+      // Match reminders on this date
+      const matches = this.remindersCache.filter(r => r.date === dayStr);
+
+      let dotsHtml = '';
+      if (matches.length > 0) {
+        dotsHtml = `<div class="cal-dots">${matches.map(m => `<span class="cal-dot ${m.type}"></span>`).join('')}</div>`;
+      }
+
+      cell.innerHTML = `<span>${day}</span>${dotsHtml}`;
+      cell.onclick = () => this.selectCalendarDate(dayStr);
+      daysGrid.appendChild(cell);
+    }
+
+    this.renderUpcomingReminders();
+  },
+
+  changeCalendarMonth(delta) {
+    this.calendarDate.setMonth(this.calendarDate.getMonth() + delta);
+    this.renderCalendar();
+  },
+
+  goToCurrentDate() {
+    this.calendarDate = new Date(2026, 5, 1); // June 2026
+    this.selectedCalendarDate = '2026-06-30';
+    this.renderCalendar();
+  },
+
+  selectCalendarDate(dayStr) {
+    this.selectedCalendarDate = dayStr;
+    const lbl = document.getElementById('calendar-selected-date-label');
+    if (lbl) lbl.textContent = dayStr;
+    this.renderCalendar();
+  },
+
+  renderUpcomingReminders() {
+    const list = document.getElementById('calendar-upcoming-reminders-list');
+    if (!list) return;
+
+    const matches = this.remindersCache.filter(r => !this.selectedCalendarDate || r.date === this.selectedCalendarDate);
+
+    if (matches.length === 0) {
+      list.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem; padding: 0.5rem 0;">No upcoming reminders for this date.</div>`;
+      return;
+    }
+
+    list.innerHTML = matches.map(r => `
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 700; color: var(--text-white); font-size: 0.92rem;">
+            ${r.type === 'vaccination' ? '💉' : r.type === 'report_review' ? '🔬' : '📅'} ${r.title}
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
+            Patient: <strong>${r.patient_name}</strong> (${r.phone})
+          </div>
+        </div>
+        <div style="text-align: right; font-size: 0.8rem; color: #38bdf8; font-weight: 700;">
+          ${r.time || '10:00'}
+        </div>
+      </div>
+    `).join('');
+  },
+
+  async loadProfileData() {
+    try {
+      const res = await fetch('/api/doctors/portal/profile');
+      const data = await res.json();
+
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (el.tagName === 'INPUT') el.value = val;
+          else el.textContent = val;
+        }
+      };
+
+      setVal('profile-display-name', data.name);
+      setVal('profile-display-spec', data.specialization);
+      setVal('profile-input-name', data.name);
+      setVal('profile-input-specialty', data.specialization);
+      setVal('profile-input-phone', data.phone);
+      setVal('profile-input-timing', data.chamber_timing);
+    } catch (e) {
+      console.warn('Error loading doctor profile', e);
+    }
+  },
+
+  async saveQuickProfile() {
+    const name = document.getElementById('profile-input-name').value.trim();
+    const specialization = document.getElementById('profile-input-specialty').value.trim();
+    const phone = document.getElementById('profile-input-phone').value.trim();
+    const chamber_timing = document.getElementById('profile-input-timing').value.trim();
+
+    try {
+      const res = await fetch('/api/doctors/portal/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, specialization, phone, chamber_timing })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to save profile');
+
+      document.getElementById('profile-display-name').textContent = name;
+      document.getElementById('profile-display-spec').textContent = specialization;
+      document.getElementById('dashboard-doctor-name').textContent = `Good evening, ${name}!`;
+
+      showToast('Doctor Profile updated successfully!', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  }
+};

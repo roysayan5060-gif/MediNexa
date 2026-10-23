@@ -237,7 +237,99 @@ const memoryStore = {
       description: 'Govt certified hazardous medical waste incineration service'
     }
   ],
-  clinicSettlements: []
+  clinicSettlements: [],
+
+  // Dedicated Doctor Suite features (Wallet, Transactions, Consultations, Reminders)
+  doctorWallet: {
+    balance: 6573.50,
+    spent_today: 0.00
+  },
+  doctorTransactions: [
+    { id: 'tx_1', title: 'Wallet recharged with ₹500', amount: 500.00, type: 'recharge', date: 'May 25, 2026 • 3:39 PM' },
+    { id: 'tx_2', title: 'Prescription Simplifier + Follow-up', amount: -3.50, type: 'deduction', date: 'May 16, 2026 • 5:33 PM' },
+    { id: 'tx_3', title: 'Prescription Simplifier + Follow-up', amount: -3.50, type: 'deduction', date: 'May 16, 2026 • 5:33 PM' },
+    { id: 'tx_4', title: 'WhatsApp Message + Prescription', amount: -3.00, type: 'deduction', date: 'May 4, 2026 • 3:02 PM' },
+    { id: 'tx_5', title: 'WhatsApp Message + Vaccination', amount: -4.50, type: 'deduction', date: 'May 4, 2026 • 3:01 PM' },
+    { id: 'tx_6', title: 'Wallet recharged with ₹1000', amount: 1000.00, type: 'recharge', date: 'May 2, 2026 • 11:44 PM' },
+    { id: 'tx_7', title: 'WhatsApp Message + Prescription', amount: -3.00, type: 'deduction', date: 'May 2, 2026 • 11:42 PM' },
+    { id: 'tx_8', title: 'Wallet recharged with ₹1000', amount: 1000.00, type: 'recharge', date: 'May 2, 2026 • 10:58 AM' },
+    { id: 'tx_9', title: 'Wallet recharged with ₹300', amount: 300.00, type: 'recharge', date: 'May 2, 2026 • 10:58 AM' },
+    { id: 'tx_10', title: 'WhatsApp Message + Vaccination', amount: -4.50, type: 'deduction', date: 'May 2, 2026 • 10:57 AM' },
+    { id: 'tx_11', title: 'Wallet recharged with ₹1000', amount: 1000.00, type: 'recharge', date: 'May 1, 2026 • 10:50 PM' },
+    { id: 'tx_12', title: 'Wallet recharged with ₹100', amount: 100.00, type: 'recharge', date: 'May 1, 2026 • 10:50 PM' },
+    { id: 'tx_13', title: 'Wallet recharged with ₹100', amount: 100.00, type: 'recharge', date: 'May 1, 2026 • 9:30 PM' },
+    { id: 'tx_14', title: 'Wallet recharged with ₹100', amount: 100.00, type: 'recharge', date: 'May 1, 2026 • 9:30 PM' },
+    { id: 'tx_15', title: 'WhatsApp Message + Vaccination', amount: -4.50, type: 'deduction', date: 'May 1, 2026 • 5:11 PM' }
+  ],
+  doctorConsultations: [
+    {
+      id: 'c_3',
+      queue_number: '#3',
+      patient_name: 'Atanu',
+      patient_phone: '9876543212',
+      patient_age: 21,
+      patient_gender: 'male',
+      doctor_name: 'Dr. Priya Sharma',
+      language: 'Bengali',
+      tags: ['2 Meds', 'Sent'],
+      cost: 3.00,
+      timestamp: 'May 2, 2026 • 11:42 PM',
+      medicines: [
+        { name: 'Clonazepam', dose: '0.5', unit: 'mg', form: 'Tablet', frequency: 'OD', timing: 'PC', time_slot: 'Bedtime', duration: '3 days', simplified: 'Clonazepam 0.5 mg tablet: Take once daily after food in the bedtime for 3 days' },
+        { name: 'Pantoprazole', dose: '40', unit: 'mg', form: 'Tablet', frequency: 'OD', timing: 'AC', time_slot: 'Early Morning', duration: '15 days', simplified: 'Pantoprazole 40 mg tablet: Take once daily before food in the early morning for 15 days' }
+      ],
+      instructions: 'Take light meals. Drink plenty of water.',
+      internal_notes: 'Patient feels anxious about work.'
+    },
+    {
+      id: 'c_2',
+      queue_number: '#2',
+      patient_name: 'Atri',
+      patient_phone: '9876543211',
+      patient_age: 26,
+      patient_gender: 'male',
+      doctor_name: 'Dr. Priya Sharma',
+      language: 'English',
+      tags: ['1 Med', 'Vaccine', 'Sent'],
+      cost: 4.50,
+      timestamp: 'May 2, 2026 • 10:57 AM',
+      medicines: [
+        { name: 'Amoxicillin', dose: '500', unit: 'mg', form: 'Capsule', frequency: 'TDS', timing: 'PC', time_slot: 'Morning', duration: '5 days', simplified: 'Amoxicillin 500 mg capsule: Take thrice daily after food in the morning, noon, and night for 5 days' }
+      ],
+      instructions: 'Complete antibiotic course.',
+      vaccination_date: '2026-06-30'
+    },
+    {
+      id: 'c_1',
+      queue_number: '#1',
+      patient_name: 'Satadru',
+      patient_phone: '9876543210',
+      patient_age: 21,
+      patient_gender: 'male',
+      doctor_name: 'Dr. Priya Sharma',
+      language: 'Bengali',
+      tags: ['2 Meds', 'Vaccine', 'Sent'],
+      cost: 4.50,
+      timestamp: 'May 1, 2026 • 5:11 PM',
+      medicines: [
+        { name: 'Pantoprazole', dose: '40', unit: 'mg', form: 'Tablet', frequency: 'OD', timing: 'AC', time_slot: 'Early Morning', duration: '15 days', simplified: 'Pantoprazole 40 mg tablet: Take once daily before food in the early morning for 15 days' },
+        { name: 'Paracetamol', dose: '650', unit: 'mg', form: 'Tablet', frequency: 'SOS', timing: 'PC', time_slot: 'Bedtime', duration: '3 days', simplified: 'Paracetamol 650 mg tablet: Take as needed after food for 3 days' }
+      ],
+      instructions: "Don't take tea or coffee spicy foods ... Drink more water",
+      vaccination_date: '2026-06-30',
+      followup_date: '2026-06-30',
+      followup_time: '10:00',
+      report_review_name: 'CBC, Blood Sugar',
+      report_review_date: '2026-06-26',
+      report_review_time: '10:00'
+    }
+  ],
+  doctorReminders: [
+    { id: 'rem_1', type: 'follow_up', title: 'Follow-up Consultation', patient_name: 'Satadru', phone: '9876543210', date: '2026-06-30', time: '10:00' },
+    { id: 'rem_2', type: 'vaccination', title: 'Vaccination Due', patient_name: 'Satadru', phone: '9876543210', date: '2026-06-30', time: '11:00' },
+    { id: 'rem_3', type: 'vaccination', title: 'Vaccination Due', patient_name: 'Atri', phone: '9876543211', date: '2026-06-30', time: '12:00' },
+    { id: 'rem_4', type: 'report_review', title: 'Report Review: CBC, Blood Sugar', patient_name: 'Satadru', phone: '9876543210', date: '2026-06-26', time: '10:00' }
+  ]
 };
 
 // SQLite legacy DB path

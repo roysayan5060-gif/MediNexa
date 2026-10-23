@@ -128,7 +128,43 @@ const server = app.listen(PORT, async () => {
     console.log(' - Doctor Payments Due / Liabilities:', finRes.data.summary.doctor_payments_due);
     console.log(' - Available Surplus Funds:', finRes.data.summary.available_funds);
 
-    console.log('\n🎉 ALL 10 TESTS PASSED WITH 100% SUCCESS!');
+    console.log('\n--- 11. Testing Doctor Suite Summary: GET /api/doctors/portal/summary ---');
+    const docSum = await makeRequest('GET', '/api/doctors/portal/summary');
+    console.log('Status:', docSum.status, 'Wallet Balance:', docSum.data.wallet_balance, 'Patients Total:', docSum.data.patients_all_time);
+    if (docSum.status !== 200) throw new Error('Doctor summary failed');
+
+    console.log('\n--- 12. Testing Doctor Wallet & Quick Recharge: POST /api/doctors/portal/wallet/recharge ---');
+    const rechargeRes = await makeRequest('POST', '/api/doctors/portal/wallet/recharge', { amount: 500 });
+    console.log('Status:', rechargeRes.status, 'New Balance:', rechargeRes.data.balance, 'Tx:', rechargeRes.data.transaction.title);
+    if (rechargeRes.status !== 200) throw new Error('Recharge failed');
+
+    console.log('\n--- 13. Testing Doctor Consultation & Pay-As-You-Go Deduction: POST /api/doctors/portal/consultations ---');
+    const consultRes = await makeRequest('POST', '/api/doctors/portal/consultations', {
+      patient_name: 'Rohit Verma',
+      patient_phone: '9830012345',
+      patient_age: 32,
+      patient_gender: 'Male',
+      language: 'Bengali',
+      medicines: [
+        { name: 'Pantoprazole', dose: '40', unit: 'mg', form: 'Tablet', frequency: 'OD', timing: 'AC', duration: '15 days' }
+      ],
+      toggles: {
+        prescription_simplifier: true,
+        follow_up: { enabled: true, date: '2026-06-30', time: '10:00' },
+        vaccination: { enabled: false },
+        report_review: { enabled: false }
+      },
+      total_cost: 3.00
+    });
+    console.log('Status:', consultRes.status, 'Queue #:', consultRes.data.consultation.queue_number, 'Remaining Balance:', consultRes.data.wallet_balance);
+    if (consultRes.status !== 200) throw new Error('Consultation recording failed');
+
+    console.log('\n--- 14. Testing Doctor Calendar Reminders: GET /api/doctors/portal/reminders ---');
+    const remRes = await makeRequest('GET', '/api/doctors/portal/reminders');
+    console.log('Status:', remRes.status, 'Total Reminders:', remRes.data.length, 'First Reminder:', remRes.data[0].title);
+    if (remRes.status !== 200) throw new Error('Reminders check failed');
+
+    console.log('\n🎉 ALL 14 TESTS PASSED WITH 100% SUCCESS!');
     process.exit(0);
 
   } catch (err) {

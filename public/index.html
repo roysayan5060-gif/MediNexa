@@ -272,171 +272,929 @@
     </section>
 
     <!-- ============================================================== -->
-    <!-- VIEW 4: DOCTOR MANAGEMENT PORTAL (BACKEND / PRESERVED) -->
-    <!-- ============================================================== -->
     <section id="view-doctor-portal" class="view-section">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-        <div>
-          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Doctor Clinical Portal</h2>
-          <p style="color: var(--text-secondary);">Manage incoming patient consultations, formulate digital prescriptions, and manage medical registration.</p>
+      <div class="doc-suite-wrapper">
+        
+        <!-- Doctor Header & WBMC Status -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Doctor Clinical Suite</h2>
+            <p style="color: var(--text-secondary);" id="doc-greeting-subtitle">Here is your clinic activity today.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <span class="role-badge doctor" id="doctor-status-badge">WBMC Verified</span>
+            <button class="btn-book" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0.4rem 0.85rem; font-size: 0.85rem;" onclick="DoctorSuite.switchSubView('wallet')">
+              👛 <span id="header-wallet-balance">₹6,573.50</span>
+            </button>
+          </div>
         </div>
-        <div style="display: flex; gap: 0.75rem; align-items: center;">
-          <span class="role-badge doctor" id="doctor-status-badge">WBMC Verified</span>
+
+        <!-- ========================================== -->
+        <!-- SUB-PANEL 1: DASHBOARD (PDF Pages 34, 37) -->
+        <!-- ========================================== -->
+        <div id="doc-panel-dashboard" class="doc-panel active">
+          
+          <!-- Welcome Greeting Banner -->
+          <div style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-white);" id="dashboard-doctor-name">
+              Good evening, Dr. Priya Sharma!
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.92rem;">Here is your clinic activity today.</p>
+          </div>
+
+          <!-- 4 Core Metric Cards (Page 37) -->
+          <div class="doc-metrics-row">
+            <div class="doc-stat-card">
+              <div class="doc-stat-icon blue">👥</div>
+              <div>
+                <div class="doc-stat-val" id="metric-patients-today">0</div>
+                <div class="doc-stat-label">Patients Today</div>
+                <div class="doc-stat-sub" id="metric-patients-all-time">7 total all time</div>
+              </div>
+            </div>
+
+            <div class="doc-stat-card" style="cursor: pointer;" onclick="DoctorSuite.switchSubView('wallet')">
+              <div class="doc-stat-icon green">👛</div>
+              <div>
+                <div class="doc-stat-val" id="metric-wallet-balance">₹6,573.50</div>
+                <div class="doc-stat-label">Wallet Balance</div>
+                <div class="doc-stat-sub" id="metric-wallet-spent">Spent today ₹0.00</div>
+              </div>
+            </div>
+
+            <div class="doc-stat-card">
+              <div class="doc-stat-icon purple">💬</div>
+              <div>
+                <div class="doc-stat-val" id="metric-whatsapp-sent">14</div>
+                <div class="doc-stat-label">WhatsApp Sent</div>
+                <div class="doc-stat-sub">Delivered via WA</div>
+              </div>
+            </div>
+
+            <div class="doc-stat-card">
+              <div class="doc-stat-icon orange">💊</div>
+              <div>
+                <div class="doc-stat-val" id="metric-prescriptions-count">12</div>
+                <div class="doc-stat-label">Prescriptions</div>
+                <div class="doc-stat-sub">Formulated & Shared</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Metric Cards (Page 34) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="doc-stat-card" style="padding: 1rem;">
+              <div class="doc-stat-icon orange" style="width: 40px; height: 40px; font-size: 1.15rem;">💉</div>
+              <div>
+                <div class="doc-stat-val" id="metric-vaccinations-count" style="font-size: 1.3rem;">4</div>
+                <div class="doc-stat-label">Vaccinations</div>
+              </div>
+            </div>
+            <div class="doc-stat-card" style="padding: 1rem;">
+              <div class="doc-stat-icon green" style="width: 40px; height: 40px; font-size: 1.15rem;">📅</div>
+              <div>
+                <div class="doc-stat-val" id="metric-followups-count" style="font-size: 1.3rem;">3</div>
+                <div class="doc-stat-label">Follow-ups Due</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reminders Due Today Card (Page 34) -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+              <span>📋</span>
+              <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-white); text-transform: uppercase; letter-spacing: 0.04em;">
+                Reminders Due Today
+              </h4>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; color: var(--text-secondary);">
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <span>📅</span> Follow-ups due today
+                </div>
+                <span style="font-weight: 700; color: var(--text-muted);" id="due-followups">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; color: var(--text-secondary);">
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <span>💉</span> Vaccinations due today
+                </div>
+                <span style="font-weight: 700; color: var(--text-muted);" id="due-vaccines">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; color: var(--text-secondary);">
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <span>🔬</span> Report reviews due today
+                </div>
+                <span style="font-weight: 700; color: var(--text-muted);" id="due-reports">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reminder Calendar Banner (Page 34) -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="DoctorSuite.switchSubView('calendar')">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #60a5fa;">
+                📅
+              </div>
+              <div>
+                <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-white); margin-bottom: 0.2rem;">Reminder Calendar</h4>
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">View and manage all follow-ups, vaccinations and report reminders</p>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 0.9rem; font-weight: 700; color: #38bdf8;">0 today &rarr;</span>
+            </div>
+          </div>
+
+          <!-- Big Action Button: Add New Patient (Page 34) -->
+          <div style="margin-bottom: 2rem;">
+            <button type="button" class="btn-submit" style="width: 100%; padding: 1.15rem; font-size: 1.1rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);" onclick="DoctorSuite.switchSubView('add-patient')">
+              <span>👤+</span> Add New Patient
+            </button>
+          </div>
+
+          <!-- Preserved Collapsible: Patient Bookings & WBMC Verification Queue -->
+          <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <div class="portal-tabs" style="margin-bottom: 1rem;">
+              <button class="tab-btn active" data-target="portal-appointments">
+                📋 Patient Appointments Queue
+              </button>
+              <button class="tab-btn" data-target="portal-verification">
+                🛡️ WBMC Credential Review
+              </button>
+            </div>
+            <div id="portal-appointments" class="portal-view active">
+              <div class="appointment-list" id="doctor-appointments-table"></div>
+            </div>
+            <div id="portal-verification" class="portal-view">
+              <div class="appointment-list" id="verification-queue-list"></div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Doctor Portal Tabs -->
-      <div class="portal-tabs">
-        <button class="tab-btn active" data-target="portal-appointments">
-          📋 Patient Bookings & Prescriptions
-        </button>
-        <button class="tab-btn" data-target="portal-add-doctor">
-          ➕ Register / Edit Doctor Profile
-        </button>
-        <button class="tab-btn" data-target="portal-my-doctors">
-          👨‍⚕️ Registered Providers
-        </button>
-        <button class="tab-btn" data-target="portal-verification">
-          🛡️ WBMC Verification Review
-        </button>
-      </div>
+        <!-- ============================================================== -->
+        <!-- SUB-PANEL 2: ADD PATIENT & PRESCRIPTION BUILDER (PDF Pages 2, 4, 7, 8, 9, 11, 14, 26, 30, 31, 38) -->
+        <!-- ============================================================== -->
+        <div id="doc-panel-add-patient" class="doc-panel">
+          
+          <!-- Back to Dashboard -->
+          <div style="margin-bottom: 1.25rem;">
+            <button type="button" class="cal-nav-btn" onclick="DoctorSuite.switchSubView('dashboard')">
+              &larr; Back to Dashboard
+            </button>
+          </div>
 
-      <!-- Subview 1: Patient Bookings -->
-      <div id="portal-appointments" class="portal-view active">
-        <div class="appointment-list" id="doctor-appointments-table"></div>
-      </div>
+          <!-- 1. Patient Information (Page 26, 38) -->
+          <div class="form-card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-white); margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.04em;">
+              Patient Info
+            </h3>
+            
+            <div class="form-control" style="margin-bottom: 1rem;">
+              <label>FULL NAME *</label>
+              <input type="text" id="patient-input-name" placeholder="Patient name" required>
+            </div>
 
-      <!-- Subview 2: Doctor Input Form (Database Input) -->
-      <div id="portal-add-doctor" class="portal-view">
-        <div class="form-card">
-          <h3 id="form-doctor-title" style="margin-bottom: 1.5rem; font-size: 1.35rem; font-weight: 800; color: var(--text-white);">
-            Register New Doctor Profile
+            <div class="form-control" style="margin-bottom: 1rem;">
+              <label>WHATSAPP NUMBER *</label>
+              <input type="tel" id="patient-input-phone" placeholder="9876543210 or +919876543210" required>
+            </div>
+
+            <div class="form-grid" style="gap: 1rem; margin-bottom: 1rem;">
+              <div class="form-control">
+                <label>AGE *</label>
+                <input type="number" id="patient-input-age" placeholder="Age" min="1" max="120" required>
+              </div>
+
+              <div class="form-control">
+                <label>GENDER *</label>
+                <div class="chip-group" id="patient-gender-chips">
+                  <button type="button" class="chip-btn active" data-gender="Male">Male</button>
+                  <button type="button" class="chip-btn" data-gender="Female">Female</button>
+                  <button type="button" class="chip-btn" data-gender="Other">Other</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Message Language Selector (Page 24, 26) -->
+            <div class="form-control">
+              <label>MESSAGE LANGUAGE</label>
+              <select id="patient-input-language" class="filter-select">
+                <option value="English">English</option>
+                <option value="Bengali" selected>Bengali</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Assamese">Assamese</option>
+                <option value="Odia">Odia</option>
+                <option value="Kannada">Kannada</option>
+                <option value="Malayalam">Malayalam</option>
+                <option value="Urdu">Urdu</option>
+                <option value="Nepali">Nepali</option>
+                <option value="Santali">Santali</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 2. Prescription Simplifier Toggle & Medicine Builder (Pages 2, 7, 20, 27, 28) -->
+          <div class="service-toggle-card">
+            <div class="service-toggle-header">
+              <div class="service-toggle-info">
+                <span class="service-toggle-icon">💊</span>
+                <div>
+                  <div class="service-toggle-title">Prescription Simplifier</div>
+                  <div class="service-toggle-price">₹1.50 • per use (if medicine saved)</div>
+                </div>
+              </div>
+              <label class="ios-switch">
+                <input type="checkbox" id="toggle-rx-simplifier" checked onchange="DoctorSuite.updateCostBreakdown()">
+                <span class="ios-slider"></span>
+              </label>
+            </div>
+
+            <!-- Saved Medicines List -->
+            <div id="saved-medicines-container" style="margin-top: 1.25rem;">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Medicine Formulation Form -->
+            <div id="medicine-input-section" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border-color);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-size: 0.8rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">ADD MEDICINE</span>
+                <button type="button" style="background: transparent; border: none; color: #60a5fa; font-size: 0.85rem; font-weight: 600; cursor: pointer;" onclick="DoctorSuite.loadTemplateMedicines()">
+                  📖 Template v
+                </button>
+              </div>
+
+              <!-- Medicine Search / Name -->
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <input type="text" id="med-input-name" placeholder="🔍 Type medicine name (e.g. Pantoprazole, Clonazepam)...">
+              </div>
+
+              <!-- Form, Dose, Unit -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                <div class="form-control">
+                  <label>FORM</label>
+                  <select id="med-input-form" class="filter-select">
+                    <option value="Tablet">Tablet</option>
+                    <option value="Capsule">Capsule</option>
+                    <option value="Syrup">Syrup</option>
+                    <option value="Injection">Injection</option>
+                    <option value="Ointment">Ointment</option>
+                    <option value="Drops">Drops</option>
+                  </select>
+                </div>
+                <div class="form-control">
+                  <label>DOSE</label>
+                  <input type="text" id="med-input-dose" placeholder="e.g. 40">
+                </div>
+                <div class="form-control">
+                  <label>UNIT</label>
+                  <select id="med-input-unit" class="filter-select">
+                    <option value="mg">mg</option>
+                    <option value="ml">ml</option>
+                    <option value="gm">gm</option>
+                    <option value="puffs">puffs</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Tapering Schedule (Pages 2, 28) -->
+              <div style="margin-bottom: 1.25rem; background: rgba(15, 23, 42, 0.6); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-white);">Tapering Schedule</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">For steroids, psych meds, neuro meds</div>
+                  </div>
+                  <label class="ios-switch">
+                    <input type="checkbox" id="toggle-tapering" onchange="DoctorSuite.toggleTaperingSection()">
+                    <span class="ios-slider"></span>
+                  </label>
+                </div>
+                <div id="tapering-details" style="display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed rgba(255, 255, 255, 0.1);">
+                  <div class="form-control" style="margin-bottom: 0.5rem;">
+                    <label>TAPERING START DATE *</label>
+                    <input type="date" id="taper-start-date" class="filter-input">
+                  </div>
+                  <button type="button" class="btn-book" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.85rem; width: 100%; border: 1px dashed #38bdf8;" onclick="DoctorSuite.addTaperPhase()">
+                    + Add Taper Phase
+                  </button>
+                  <div id="taper-phases-list" style="margin-top: 0.5rem;"></div>
+                </div>
+              </div>
+
+              <!-- Frequency Chips (Pages 2, 12, 18) -->
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>FREQUENCY *</label>
+                <div class="chip-group" id="med-freq-chips">
+                  <button type="button" class="chip-btn active" data-freq="OD" data-label="once daily">OD</button>
+                  <button type="button" class="chip-btn" data-freq="BD" data-label="twice daily">BD</button>
+                  <button type="button" class="chip-btn" data-freq="TDS" data-label="thrice daily">TDS</button>
+                  <button type="button" class="chip-btn" data-freq="QID" data-label="four times daily">QID</button>
+                  <button type="button" class="chip-btn" data-freq="HS" data-label="at bedtime">HS</button>
+                  <button type="button" class="chip-btn" data-freq="SOS" data-label="as needed">SOS</button>
+                  <button type="button" class="chip-btn" data-freq="PRN" data-label="when required">PRN</button>
+                </div>
+                <div class="chip-caption" id="med-freq-caption">once daily</div>
+              </div>
+
+              <!-- Food Timing (Pages 2, 12, 27) -->
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>FOOD TIMING</label>
+                <div class="chip-group" id="med-food-chips">
+                  <button type="button" class="chip-btn food-pc" data-food="PC" data-label="after food">PC</button>
+                  <button type="button" class="chip-btn food-ac active" data-food="AC" data-label="before food">AC</button>
+                  <button type="button" class="chip-btn" data-food="None" data-label="no food restrictions">None</button>
+                </div>
+                <div class="chip-caption" id="med-food-caption" style="color: #4ade80;">before food</div>
+              </div>
+
+              <!-- Time Slots (Pages 2, 4, 12, 27) -->
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>TIME SLOTS</label>
+                <div class="chip-group" id="med-timeslot-chips">
+                  <button type="button" class="chip-btn timeslot active" data-slot="Early Morning" data-range="5–7 AM">Early Morning 5–7 AM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Morning" data-range="7–10 AM">Morning 7–10 AM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Noon" data-range="12–2 PM">Noon 12–2 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Afternoon" data-range="2–5 PM">Afternoon 2–5 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Evening" data-range="5–7 PM">Evening 5–7 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Night" data-range="8–10 PM">Night 8–10 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Bedtime" data-range="Before sleep">Bedtime Before sleep</button>
+                </div>
+              </div>
+
+              <!-- Duration Chips (Pages 4, 12, 27) -->
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>DURATION *</label>
+                <input type="text" id="med-input-duration" placeholder="e.g. 15 days, 1 month..." value="15 days" style="margin-bottom: 0.5rem;">
+                <div class="chip-group" id="med-duration-chips">
+                  <button type="button" class="chip-btn" data-dur="3 days">3 days</button>
+                  <button type="button" class="chip-btn" data-dur="5 days">5 days</button>
+                  <button type="button" class="chip-btn" data-dur="7 days">7 days</button>
+                  <button type="button" class="chip-btn" data-dur="10 days">10 days</button>
+                  <button type="button" class="chip-btn active" data-dur="15 days">15 days</button>
+                  <button type="button" class="chip-btn" data-dur="1 month">1 month</button>
+                  <button type="button" class="chip-btn" data-dur="2 months">2 months</button>
+                </div>
+              </div>
+
+              <!-- Notes (Optional) (Pages 4, 13) -->
+              <div class="form-control" style="margin-bottom: 1.25rem;">
+                <label>NOTES (OPTIONAL)</label>
+                <input type="text" id="med-input-notes" placeholder="Any extra note for this medicine...">
+              </div>
+
+              <!-- Save Medicine Button -->
+              <button type="button" class="btn-submit" style="width: 100%; border-radius: var(--radius-md); background: linear-gradient(135deg, #059669 0%, #10b981 100%); font-weight: 700;" onclick="DoctorSuite.saveMedicineItem()">
+                + Save Medicine
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Service Reminders (Pages 6, 8, 14, 15, 16, 29, 30, 31) -->
+          
+          <!-- Follow-up Reminder (Page 6) -->
+          <div class="service-toggle-card">
+            <div class="service-toggle-header">
+              <div class="service-toggle-info">
+                <span class="service-toggle-icon">📅</span>
+                <div>
+                  <div class="service-toggle-title">Follow-up Reminder</div>
+                  <div class="service-toggle-price">₹1.50 • per use</div>
+                </div>
+              </div>
+              <label class="ios-switch">
+                <input type="checkbox" id="toggle-followup" onchange="DoctorSuite.toggleFollowupDetails()">
+                <span class="ios-slider"></span>
+              </label>
+            </div>
+            <div id="followup-details" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <div class="form-control">
+                  <label>DATE</label>
+                  <input type="date" id="followup-date" class="filter-input" value="2026-06-30">
+                </div>
+                <div class="form-control">
+                  <label>TIME</label>
+                  <input type="time" id="followup-time" class="filter-input" value="10:00">
+                </div>
+              </div>
+              <div style="font-size: 0.75rem; color: #4ade80;">📅 Reminder sent 24 hours before</div>
+            </div>
+          </div>
+
+          <!-- Vaccination Reminder (Page 8) -->
+          <div class="service-toggle-card">
+            <div class="service-toggle-header">
+              <div class="service-toggle-info">
+                <span class="service-toggle-icon">💉</span>
+                <div>
+                  <div class="service-toggle-title">Vaccination Reminder</div>
+                  <div class="service-toggle-price">₹2.50 • per use</div>
+                </div>
+              </div>
+              <label class="ios-switch">
+                <input type="checkbox" id="toggle-vaccination" onchange="DoctorSuite.toggleVaccinationDetails()">
+                <span class="ios-slider"></span>
+              </label>
+            </div>
+            <div id="vaccination-details" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+              <div class="form-control" style="margin-bottom: 0.5rem;">
+                <label>VACCINATION DATE</label>
+                <input type="date" id="vaccination-date" class="filter-input" value="2026-06-30">
+              </div>
+              <div style="font-size: 0.75rem; color: #fb923c;">💉 Reminder sent 24 hours before</div>
+            </div>
+          </div>
+
+          <!-- Report Review Reminder (Pages 14, 15, 29) -->
+          <div class="service-toggle-card">
+            <div class="service-toggle-header">
+              <div class="service-toggle-info">
+                <span class="service-toggle-icon">🔬</span>
+                <div>
+                  <div class="service-toggle-title">Report Review Reminder</div>
+                  <div class="service-toggle-price">₹1.50 • per use</div>
+                </div>
+              </div>
+              <label class="ios-switch">
+                <input type="checkbox" id="toggle-report-review" onchange="DoctorSuite.toggleReportReviewDetails()">
+                <span class="ios-slider"></span>
+              </label>
+            </div>
+            <div id="report-review-details" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+              <div class="form-control" style="margin-bottom: 0.75rem;">
+                <label>REPORT / INVESTIGATION NAME</label>
+                <input type="text" id="report-name-input" placeholder="e.g. CBC, X-Ray, ECG, Blood Sugar..." value="CBC, X-Ray, Blood Sugar">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <div class="form-control">
+                  <label>DATE</label>
+                  <input type="date" id="report-date-input" class="filter-input" value="2026-06-26">
+                </div>
+                <div class="form-control">
+                  <label>TIME</label>
+                  <input type="time" id="report-time-input" class="filter-input" value="10:00">
+                </div>
+              </div>
+              <div style="font-size: 0.75rem; color: #38bdf8;">🔬 Reminder: Please bring your report for review</div>
+            </div>
+          </div>
+
+          <!-- Additional Instructions (Pages 9, 16, 30) -->
+          <div class="service-toggle-card">
+            <div class="service-toggle-header">
+              <div class="service-toggle-info">
+                <span class="service-toggle-icon">📝</span>
+                <div>
+                  <div class="service-toggle-title">Additional Instructions</div>
+                  <div class="service-toggle-price">₹0.50 • if text entered</div>
+                </div>
+              </div>
+              <label class="ios-switch">
+                <input type="checkbox" id="toggle-instructions" onchange="DoctorSuite.toggleInstructionsDetails()">
+                <span class="ios-slider"></span>
+              </label>
+            </div>
+            <div id="instructions-details" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+              <div class="form-control" style="margin-bottom: 0.75rem;">
+                <textarea id="instructions-textarea" rows="2" placeholder="Add any extra advice or instructions for the patient...">Don't take tea or coffee spicy foods ... Drink more water</textarea>
+              </div>
+              <div class="chip-group" id="quick-instructions-chips">
+                <button type="button" class="chip-btn" onclick="DoctorSuite.appendInstruction('Drink more water')">Drink more water</button>
+                <button type="button" class="chip-btn" onclick="DoctorSuite.appendInstruction('Avoid oily food')">Avoid oily food</button>
+                <button type="button" class="chip-btn" onclick="DoctorSuite.appendInstruction('Take rest')">Take rest</button>
+                <button type="button" class="chip-btn" onclick="DoctorSuite.appendInstruction('Bring previous reports')">Bring previous reports</button>
+                <button type="button" class="chip-btn" onclick="DoctorSuite.appendInstruction('Continue medicine as advised')">Continue medicine as advised</button>
+                <button type="button" class="chip-btn" onclick="DoctorSuite.appendInstruction('Come earlier if symptoms worsen')">Come earlier if symptoms worsen</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Internal Notes (Free, Not sent to patient) (Pages 11, 30, 31, 36) -->
+          <div class="service-toggle-card">
+            <div class="service-toggle-header">
+              <div class="service-toggle-info">
+                <span class="service-toggle-icon">🔒</span>
+                <div>
+                  <div class="service-toggle-title">Internal Notes</div>
+                  <div class="service-toggle-price">Free • not sent to patient</div>
+                </div>
+              </div>
+              <label class="ios-switch">
+                <input type="checkbox" id="toggle-internal-notes" onchange="DoctorSuite.toggleInternalNotesDetails()">
+                <span class="ios-slider"></span>
+              </label>
+            </div>
+            <div id="internal-notes-details" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color);">
+              <div class="form-control" style="margin-bottom: 0.5rem;">
+                <textarea id="internal-notes-textarea" rows="2" placeholder="Private note for clinic/doctor. Not sent to patient."></textarea>
+              </div>
+              <div style="font-size: 0.75rem; color: #fbbf24;">🔒 This note will NOT appear in the WhatsApp message.</div>
+            </div>
+          </div>
+
+          <!-- 4. Dynamic Cost Breakdown (Pages 5, 11, 17, 32, 36) -->
+          <div class="cost-breakdown-box">
+            <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+              COST BREAKDOWN
+            </h4>
+            <div class="cost-row">
+              <span>Prescription Simplifier</span>
+              <span id="cost-item-simplifier">₹1.50</span>
+            </div>
+            <div class="cost-row">
+              <span>Follow-up Reminder</span>
+              <span id="cost-item-followup">₹0.00</span>
+            </div>
+            <div class="cost-row">
+              <span>Vaccination Reminder</span>
+              <span id="cost-item-vaccine">₹0.00</span>
+            </div>
+            <div class="cost-row">
+              <span>Report Review Reminder</span>
+              <span id="cost-item-report">₹0.00</span>
+            </div>
+            <div class="cost-row">
+              <span>Additional Instructions</span>
+              <span id="cost-item-instructions">₹0.00</span>
+            </div>
+            <div class="cost-row">
+              <span>Internal Notes</span>
+              <span style="color: #4ade80;">Free</span>
+            </div>
+            <div class="cost-row total-row">
+              <span>Total</span>
+              <span class="cost-val" id="cost-item-total">₹1.50</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 0.4rem;">
+              Pay only for what you use.
+            </div>
+          </div>
+
+          <!-- Action Button: Open Confirm & Send Modal -->
+          <button type="button" class="btn-submit" style="width: 100%; padding: 1.15rem; font-size: 1.1rem; border-radius: var(--radius-lg); background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); font-weight: 800; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);" onclick="DoctorSuite.openConfirmSendModal()">
+            Confirm & Send via WhatsApp &rarr;
+          </button>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SUB-PANEL 3: CONSULTATION HISTORY (PDF Page 21) -->
+        <!-- ============================================================== -->
+        <div id="doc-panel-history" class="doc-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-white);">Patient Consultation Log</h3>
+            <span class="role-badge doctor" id="history-count-badge">3 Consultations</span>
+          </div>
+
+          <div id="doc-consultations-history-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <!-- Dynamically populated from backend / memoryStore -->
+          </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SUB-PANEL 4: WALLET & RECHARGE (PDF Pages 1, 22, 23, 25) -->
+        <!-- ============================================================== -->
+        <div id="doc-panel-wallet" class="doc-panel">
+          <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-white); margin-bottom: 1rem;">
+            Doctor Wallet & Transactions
           </h3>
-          <form id="doctor-profile-form">
-            <div class="form-grid">
-              <div class="form-control">
-                <label>Doctor Full Name *</label>
-                <input type="text" id="doc-input-name" placeholder="e.g. Dr. Sourav Banerjee" required>
-              </div>
 
-              <div class="form-control">
-                <label>Specialty *</label>
-                <select id="doc-input-specialty" required>
-                  <option value="Cardiology">Cardiology</option>
-                  <option value="Dermatology">Dermatology</option>
-                  <option value="Neurology">Neurology</option>
-                  <option value="Orthopedics">Orthopedics</option>
-                  <option value="Pediatrics">Pediatrics</option>
-                  <option value="General Medicine">General Medicine</option>
-                  <option value="Psychiatry & Mental Health">Psychiatry & Mental Health</option>
-                  <option value="ENT & Otolaryngology">ENT & Otolaryngology</option>
-                </select>
-              </div>
+          <!-- Wallet Balance Card -->
+          <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">CURRENT WALLET BALANCE</div>
+              <div style="font-size: 2.2rem; font-weight: 800; color: #38bdf8; line-height: 1.2; margin: 0.25rem 0;" id="wallet-panel-balance">₹6,573.50</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);" id="wallet-panel-spent">Spent today: ₹0.00</div>
+            </div>
+            <div style="font-size: 2.5rem;">👛</div>
+          </div>
 
-              <!-- West Bengal Medical Council Verification Fields -->
-              <div class="form-control">
-                <label>Medical Registration Number (WBMC / NMC) *</label>
-                <input type="text" id="doc-input-regno" placeholder="e.g. WBMC-74921" required>
+          <!-- Quick Recharge Options (Page 22) -->
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-white); margin-bottom: 0.5rem;">Quick Recharge</h4>
+            <div class="recharge-grid">
+              <div class="recharge-card" onclick="DoctorSuite.quickRecharge(100)">
+                <div class="recharge-amt">₹100</div>
+                <div class="recharge-sub">Tap to recharge</div>
               </div>
-
-              <div class="form-control">
-                <label>Registration Authority *</label>
-                <select id="doc-input-authority" required>
-                  <option value="West Bengal Medical Council (WBMC)">West Bengal Medical Council (WBMC)</option>
-                  <option value="National Medical Commission (NMC/MCI)">National Medical Commission (NMC/MCI)</option>
-                  <option value="Other State Medical Council">Other State Medical Council</option>
-                </select>
+              <div class="recharge-card" onclick="DoctorSuite.quickRecharge(300)">
+                <div class="recharge-amt">₹300</div>
+                <div class="recharge-sub">Tap to recharge</div>
               </div>
-
-              <div class="form-control">
-                <label>Qualifications</label>
-                <input type="text" id="doc-input-qualification" placeholder="e.g. MBBS, MD (Calcutta Medical College)">
+              <div class="recharge-card" onclick="DoctorSuite.quickRecharge(500)">
+                <div class="recharge-amt">₹500</div>
+                <div class="recharge-sub">Tap to recharge</div>
               </div>
-
-              <div class="form-control">
-                <label>Years of Clinical Experience</label>
-                <input type="number" id="doc-input-experience" placeholder="e.g. 12" min="1">
-              </div>
-
-              <div class="form-control">
-                <label>Consultation Fee (₹) *</label>
-                <input type="number" id="doc-input-fee" placeholder="e.g. 700" min="0" required>
-              </div>
-
-              <div class="form-control">
-                <label>Affiliated Clinic / Hospital Name</label>
-                <input type="text" id="doc-input-clinic" placeholder="e.g. Metropolis Healthcare & Polyclinic">
-              </div>
-
-              <div class="form-control">
-                <label>Street Address / Chamber Location *</label>
-                <input type="text" id="doc-input-location" placeholder="e.g. 128 Park Street, 2nd Floor" required>
-              </div>
-
-              <div class="form-control">
-                <label>City *</label>
-                <input type="text" id="doc-input-city" placeholder="e.g. Kolkata" required>
-              </div>
-
-              <div class="form-control">
-                <label>Phone Contact</label>
-                <input type="text" id="doc-input-phone" placeholder="e.g. +91 98301 23456">
-              </div>
-
-              <div class="form-control">
-                <label>Official Email</label>
-                <input type="email" id="doc-input-email" placeholder="e.g. doctor@medinexa.health">
-              </div>
-
-              <div class="form-control">
-                <label>Available Consultation Days</label>
-                <input type="text" id="doc-input-days" placeholder="e.g. Mon,Tue,Wed,Fri">
-              </div>
-
-              <div class="form-control">
-                <label>Available Hours</label>
-                <input type="text" id="doc-input-hours" placeholder="e.g. 09:00 AM - 02:00 PM">
-              </div>
-
-              <div class="form-control span-2">
-                <label>Profile Picture URL</label>
-                <input type="url" id="doc-input-avatar" placeholder="https://images.unsplash.com/photo-...">
-              </div>
-
-              <div class="form-control span-2">
-                <label>Doctor Bio / Clinical Expertise Overview</label>
-                <textarea id="doc-input-bio" rows="3" placeholder="Brief summary of clinical specialties, achievements, and patient care philosophies..."></textarea>
+              <div class="recharge-card" onclick="DoctorSuite.quickRecharge(1000)">
+                <div class="recharge-amt">₹1000</div>
+                <div class="recharge-sub">Tap to recharge</div>
               </div>
             </div>
+          </div>
 
-            <div style="margin-top: 1.75rem; display: flex; gap: 1rem;">
-              <button type="submit" class="btn-submit" id="btn-save-doctor">
-                Register Doctor Profile
-              </button>
-              <button type="button" class="btn-reset-filters" id="btn-cancel-doctor-edit" style="display: none;">
-                Cancel Edit
-              </button>
+          <!-- Feature Pricing Table (Pages 22, 25) -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+              <span>⚡</span>
+              <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-white);">Feature Pricing</h4>
             </div>
-          </form>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span><strong style="color: #60a5fa;">₹1.50</strong> &nbsp; Prescription Simplifier</span>
+                <span>per use</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span><strong style="color: #4ade80;">₹1.50</strong> &nbsp; Follow-up Reminder</span>
+                <span>per use</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span><strong style="color: #fb923c;">₹2.50</strong> &nbsp; Vaccination Reminder</span>
+                <span>per use</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span><strong style="color: #c084fc;">₹1.50</strong> &nbsp; Report Review Reminder</span>
+                <span>per use</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span><strong style="color: #f43f5e;">₹0.50</strong> &nbsp; Additional Instructions</span>
+                <span>per use</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span><strong style="color: #38bdf8;">Free</strong> &nbsp; Internal Notes</span>
+                <span>Free</span>
+              </div>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
+              No monthly fee. Pay only for what you use.
+            </div>
+          </div>
+
+          <!-- Transaction History (Pages 1, 23, 25) -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem;">
+              <span>📉</span>
+              <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-white);">Transaction History</h4>
+            </div>
+            <div id="wallet-transactions-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
         </div>
+
+        <!-- ============================================================== -->
+        <!-- SUB-PANEL 5: REMINDER CALENDAR (PDF Pages 34, 39) -->
+        <!-- ============================================================== -->
+        <div id="doc-panel-calendar" class="doc-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-white);">Reminder Calendar</h3>
+            <button type="button" class="cal-nav-btn" onclick="DoctorSuite.goToCurrentDate()">Today</button>
+          </div>
+
+          <div class="calendar-widget">
+            <div class="calendar-header">
+              <button type="button" class="cal-nav-btn" onclick="DoctorSuite.changeCalendarMonth(-1)">&larr;</button>
+              <h4 style="font-weight: 800; color: var(--text-white); font-size: 1.1rem;" id="calendar-month-title">June 2026</h4>
+              <button type="button" class="cal-nav-btn" onclick="DoctorSuite.changeCalendarMonth(1)">&rarr;</button>
+            </div>
+
+            <!-- Day Labels -->
+            <div class="cal-grid" style="margin-bottom: 0.5rem;">
+              <div class="cal-day-label">Su</div>
+              <div class="cal-day-label">Mo</div>
+              <div class="cal-day-label">Tu</div>
+              <div class="cal-day-label">We</div>
+              <div class="cal-day-label">Th</div>
+              <div class="cal-day-label">Fr</div>
+              <div class="cal-day-label">Sa</div>
+            </div>
+
+            <!-- Days Grid -->
+            <div class="cal-grid" id="calendar-days-grid">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Legend (Page 39) -->
+            <div style="display: flex; justify-content: center; gap: 1.25rem; margin-top: 1.25rem; font-size: 0.78rem; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.85rem; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span class="cal-dot follow_up"></span> Follow-up
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span class="cal-dot vaccination"></span> Vaccination
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.35rem;">
+                <span class="cal-dot report_review"></span> Report Review
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Reminders for Selected Date -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+            <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.85rem;">
+              UPCOMING REMINDERS (<span id="calendar-selected-date-label">June 2026</span>)
+            </h4>
+            <div id="calendar-upcoming-reminders-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- SUB-PANEL 6: DOCTOR PROFILE (PDF Pages 3, 19) -->
+        <!-- ============================================================== -->
+        <div id="doc-panel-profile" class="doc-panel">
+          
+          <div class="doc-profile-avatar-box">
+            <div class="doc-avatar-circle">
+              DR
+              <div class="doc-avatar-badge">📷</div>
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-white); margin-top: 0.75rem;" id="profile-display-name">
+              Dr. Priya Sharma
+            </h3>
+            <span class="role-badge doctor" style="margin-top: 0.35rem; display: inline-flex;">Individual Doctor</span>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;" id="profile-display-spec">
+              MD(Community medicine), MBBS
+            </p>
+          </div>
+
+          <div class="form-card" style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem;">
+              DOCTOR DETAILS
+            </h4>
+            
+            <form id="doc-quick-profile-form">
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>DOCTOR NAME *</label>
+                <input type="text" id="profile-input-name" value="Dr. Priya Sharma" required>
+              </div>
+
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>SPECIALIZATION</label>
+                <input type="text" id="profile-input-specialty" value="MD(Community medicine), MBBS" required>
+              </div>
+
+              <div class="form-control" style="margin-bottom: 1rem;">
+                <label>PHONE NUMBER</label>
+                <input type="tel" id="profile-input-phone" value="+91-9876543210" required>
+              </div>
+
+              <div class="form-control" style="margin-bottom: 1.25rem;">
+                <label>CHAMBER TIMING</label>
+                <input type="text" id="profile-input-timing" value="Mon-Sat, 9AM-1PM" required>
+              </div>
+
+              <button type="submit" class="btn-submit" style="width: 100%; border-radius: var(--radius-md); font-weight: 700;">
+                Save Profile
+              </button>
+            </form>
+          </div>
+
+          <!-- Preserved Full Registration Editor Accordion -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
+            <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-white); margin-bottom: 0.5rem;">
+              Institutional Profile & WBMC Credential Registration
+            </h4>
+            <p style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 1rem;">
+              Update fees, chamber address, WBMC registration numbers, and bio visible to patients.
+            </p>
+            <form id="doctor-profile-form">
+              <div class="form-grid">
+                <div class="form-control">
+                  <label>Full Name *</label>
+                  <input type="text" id="doc-input-name" placeholder="Dr. Priya Sharma" required>
+                </div>
+                <div class="form-control">
+                  <label>Specialty *</label>
+                  <select id="doc-input-specialty" required>
+                    <option value="General Medicine">General Medicine</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Orthopedics">Orthopedics</option>
+                    <option value="Pediatrics">Pediatrics</option>
+                  </select>
+                </div>
+                <div class="form-control">
+                  <label>WBMC Registration Number *</label>
+                  <input type="text" id="doc-input-regno" placeholder="WBMC-74921" required>
+                </div>
+                <div class="form-control">
+                  <label>Consultation Fee (₹) *</label>
+                  <input type="number" id="doc-input-fee" placeholder="500" required>
+                </div>
+                <div class="form-control span-2">
+                  <label>Chamber Street Address *</label>
+                  <input type="text" id="doc-input-location" placeholder="128 Park Street, Kolkata" required>
+                </div>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button type="submit" class="btn-submit" id="btn-save-doctor">Save Full Profile</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Subview 3: Provider Management List -->
-      <div id="portal-my-doctors" class="portal-view">
-        <div class="appointment-list" id="portal-doctors-list"></div>
-      </div>
-
-      <!-- Subview 4: West Bengal Medical Council Verification Review Queue -->
-      <div id="portal-verification" class="portal-view">
-        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
-          <h3 style="color: var(--text-white); font-weight: 800; margin-bottom: 0.5rem;">West Bengal Medical Council (WBMC) Credential Review</h3>
-          <p style="color: var(--text-secondary); font-size: 0.88rem;">
-            Per regulatory guidelines, medical registration numbers must be verified before displaying the verified badge. Unverified submissions remain pending until manual review is completed.
-          </p>
-        </div>
-        <div class="appointment-list" id="verification-queue-list"></div>
-      </div>
+      <!-- ============================================================== -->
+      <!-- DOCTOR BOTTOM NAVIGATION BAR (PDF Pages 2, 7, 13, 19, 21, 22, 25, 31, 34, 37, 39) -->
+      <!-- ============================================================== -->
+      <nav class="doc-bottom-nav">
+        <button type="button" class="doc-nav-item active" data-subview="dashboard" onclick="DoctorSuite.switchSubView('dashboard')">
+          <span class="nav-icon">⊞</span>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="doc-nav-item" data-subview="add-patient" onclick="DoctorSuite.switchSubView('add-patient')">
+          <span class="nav-icon">👤+</span>
+          <span>Add Patient</span>
+        </button>
+        <button type="button" class="doc-nav-item" data-subview="history" onclick="DoctorSuite.switchSubView('history')">
+          <span class="nav-icon">📋</span>
+          <span>History</span>
+        </button>
+        <button type="button" class="doc-nav-item" data-subview="wallet" onclick="DoctorSuite.switchSubView('wallet')">
+          <span class="nav-icon">👛</span>
+          <span>Wallet</span>
+        </button>
+        <button type="button" class="doc-nav-item" data-subview="profile" onclick="DoctorSuite.switchSubView('profile')">
+          <span class="nav-icon">👤</span>
+          <span>Profile</span>
+        </button>
+      </nav>
     </section>
+
+    <!-- ============================================================== -->
+    <!-- MODAL: CONFIRM & SEND WHATSAPP MESSAGE (PDF Pages 5, 10) -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay" id="modal-confirm-send">
+      <div class="modal-box" style="max-width: 520px;">
+        <button class="modal-close" onclick="document.getElementById('modal-confirm-send').classList.remove('active')">&times;</button>
+        
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
+          <span style="font-size: 1.5rem; color: #22c55e;">💬</span>
+          <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-white);">Confirm & Send</h3>
+        </div>
+
+        <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.75rem;">
+          SEND TO: <span id="confirm-phone-display" style="color: #38bdf8;">1234567890</span>
+        </div>
+
+        <!-- WhatsApp Chat Preview (Page 10) -->
+        <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; font-size: 0.92rem; line-height: 1.5; color: var(--text-white); margin-bottom: 1.25rem; max-height: 340px; overflow-y: auto;">
+          <div id="confirm-greeting-text" style="margin-bottom: 0.75rem;">
+            Hello Patient,<br>Thank you for visiting Dr. Priya Sharma.<br>(Language: Bengali)
+          </div>
+
+          <div style="margin-bottom: 0.75rem;">
+            <strong>📋 Prescription:</strong>
+            <div id="confirm-medicines-text" style="margin-top: 0.35rem;">
+              <!-- 1. Pantoprazole 40 mg tablet... -->
+            </div>
+          </div>
+
+          <div id="confirm-instructions-section" style="margin-bottom: 0.75rem;">
+            <strong>📝 Instructions:</strong>
+            <div id="confirm-instructions-text" style="margin-top: 0.25rem; color: var(--text-secondary);"></div>
+          </div>
+
+          <div id="confirm-followup-section" style="margin-bottom: 0.4rem; color: #4ade80;">
+            📅 <strong>Follow-up:</strong> <span id="confirm-followup-text"></span>
+          </div>
+
+          <div id="confirm-vaccine-section" style="margin-bottom: 0.4rem; color: #fb923c;">
+            💉 <strong>Vaccination:</strong> <span id="confirm-vaccine-text"></span>
+          </div>
+
+          <div id="confirm-report-section" style="margin-bottom: 0.75rem; color: #38bdf8;">
+            🔬 <strong>Report Review:</strong> <span id="confirm-report-text"></span>
+          </div>
+
+          <div style="font-style: italic; color: var(--text-muted); margin-top: 0.75rem; border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 0.5rem;">
+            Get well soon! — <span id="confirm-sign-doctor">Dr. Priya Sharma</span>
+          </div>
+        </div>
+
+        <!-- Cost Breakdown in Confirm Modal (Page 5) -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">
+            COST BREAKDOWN
+          </div>
+          <div id="confirm-cost-breakdown-items"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem; font-weight: 800; font-size: 1.15rem; color: var(--text-white);">
+            <span>Total</span>
+            <span style="color: #38bdf8;" id="confirm-total-cost-val">₹7.50</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="btn-reset-filters" style="flex: 1;" onclick="document.getElementById('modal-confirm-send').classList.remove('active')">
+            Cancel
+          </button>
+          <button type="button" class="btn-submit" style="flex: 2; background: #16a34a; font-weight: 800;" onclick="DoctorSuite.executeSendWhatsApp()">
+            📲 Confirm & Send via WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ============================================================== -->
     <!-- VIEW 5: CLINIC FINANCIAL MANAGEMENT PORTAL (12 METRICS) -->
