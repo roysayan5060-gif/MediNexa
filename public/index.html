@@ -1819,6 +1819,9 @@
 
           <!-- Doctor Specific Fields -->
           <div id="reg-doctor-fields" style="display: none;">
+            <div style="background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; padding: 0.65rem 0.85rem; border-radius: 6px; margin: 0.5rem 0 0.75rem 0; font-size: 0.82rem; color: #93c5fd; line-height: 1.4;">
+              🛡️ <strong>West Bengal Medical Council Verification Only:</strong> MediNexa currently verifies and supports allopathic medical practitioners registered with the <strong>West Bengal Medical Council (WBMC)</strong>. Registrations from other state councils cannot be verified automatically and will be rejected.
+            </div>
             <div class="form-grid" style="gap: 1rem; margin-top: 0.5rem;">
               <div class="form-control">
                 <label>Specialty *</label>
@@ -1844,16 +1847,21 @@
             </div>
             <div class="form-grid" style="gap: 1rem; margin-top: 0.5rem;">
               <div class="form-control">
-                <label>Medical Registration No *</label>
-                <input type="text" id="reg-doc-regno" placeholder="e.g. WBMC-83192">
+                <label>WBMC Registration Number *</label>
+                <input type="text" id="reg-doc-regno" placeholder="e.g. 74921 or WBMC-74921">
+                <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.2rem;">Exact string as registered. Leading zeros are preserved.</small>
               </div>
               <div class="form-control">
-                <label>Authority *</label>
-                <select id="reg-doc-authority">
-                  <option value="West Bengal Medical Council (WBMC)">West Bengal Medical Council (WBMC)</option>
-                  <option value="National Medical Commission (NMC/MCI)">National Medical Commission (NMC/MCI)</option>
-                </select>
+                <label>Registration Year</label>
+                <input type="number" id="reg-doc-year" placeholder="e.g. 2018" min="1950" max="2026">
               </div>
+            </div>
+            <div class="form-control" style="margin-top: 0.5rem;">
+              <label>Registration Authority *</label>
+              <select id="reg-doc-authority">
+                <option value="West Bengal Medical Council (WBMC)" selected>West Bengal Medical Council (WBMC)</option>
+                <option value="Other State Council" disabled>Other State Medical Councils (Not supported in this release)</option>
+              </select>
             </div>
           </div>
 

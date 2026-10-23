@@ -320,6 +320,8 @@ const Auth = {
           payload.fee = document.getElementById('reg-doc-fee').value;
           payload.registration_number = document.getElementById('reg-doc-regno').value.trim();
           payload.registration_authority = document.getElementById('reg-doc-authority').value;
+          const yearVal = document.getElementById('reg-doc-year') ? document.getElementById('reg-doc-year').value.trim() : '';
+          if (yearVal) payload.registration_year = parseInt(yearVal);
         } else if (role === 'clinic') {
           payload.clinic_name = document.getElementById('reg-clinic-name').value.trim() || payload.name;
           payload.license_number = document.getElementById('reg-clinic-license').value.trim();
