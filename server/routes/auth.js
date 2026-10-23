@@ -139,7 +139,10 @@ router.post('/register', async (req, res) => {
             reviewer_id: 'SYSTEM',
             timestamp: new Date(),
             notes: verResult.notes
-          }]
+          }],
+          wallet_balance: 6573.50,
+          wallet_spent_today: 0.00,
+          wallet_transactions: []
         });
         await doctor.save();
         profileData = doctor;

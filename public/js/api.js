@@ -56,7 +56,11 @@ const API = {
     const res = await fetch(`${this.baseUrl}/api/auth/me`, {
       headers: this.getAuthHeaders()
     });
-    if (!res.ok) throw new Error('Session invalid');
+    if (!res.ok) {
+      const err = new Error(res.status === 401 || res.status === 403 ? 'Session invalid' : 'Server temporary error');
+      err.status = res.status;
+      throw err;
+    }
     return await res.json();
   },
 

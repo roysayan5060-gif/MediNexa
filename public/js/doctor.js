@@ -633,6 +633,17 @@ const DoctorSuite = {
     return base + path;
   },
 
+  async portalFetch(path, options = {}) {
+    const base = (typeof API !== 'undefined' && API.baseUrl) ? API.baseUrl : '';
+    const token = localStorage.getItem('medinexa_token');
+    const headers = Object.assign(
+      { 'Content-Type': 'application/json' },
+      token ? { 'Authorization': `Bearer ${token}` } : {},
+      options.headers || {}
+    );
+    return fetch(base + path, Object.assign({}, options, { headers }));
+  },
+
   setDoctorInfo(user, profile) {
     if (!user && !profile) return;
     let name = (profile && profile.name) || (user && user.name) || 'Doctor';
@@ -1194,40 +1205,46 @@ const DoctorSuite = {
       language: lang,
       medicines: this.savedMedicines,
       toggles: {
-        prescription_simplifier: document.getElementById('toggle-rx-simplifier').checked,
+        prescription_simplifier: document.getElementById('toggle-rx-simplifier') ? document.getElementById('toggle-rx-simplifier').checked : true,
         follow_up: {
-          enabled: document.getElementById('toggle-followup').checked,
-          date: document.getElementById('followup-date').value,
-          time: document.getElementById('followup-time').value
+          enabled: document.getElementById('toggle-followup') ? document.getElementById('toggle-followup').checked : false,
+          date: document.getElementById('followup-date') ? document.getElementById('followup-date').value : '',
+          time: document.getElementById('followup-time') ? document.getElementById('followup-time').value : ''
         },
         vaccination: {
-          enabled: document.getElementById('toggle-vaccination').checked,
-          date: document.getElementById('vaccination-date').value
+          enabled: document.getElementById('toggle-vaccination') ? document.getElementById('toggle-vaccination').checked : false,
+          date: document.getElementById('vaccination-date') ? document.getElementById('vaccination-date').value : ''
         },
         report_review: {
-          enabled: document.getElementById('toggle-report-review').checked,
-          name: document.getElementById('report-name-input').value,
-          date: document.getElementById('report-date-input').value,
-          time: document.getElementById('report-time-input').value
+          enabled: document.getElementById('toggle-report-review') ? document.getElementById('toggle-report-review').checked : false,
+          name: document.getElementById('report-name-input') ? document.getElementById('report-name-input').value : '',
+          date: document.getElementById('report-date-input') ? document.getElementById('report-date-input').value : '',
+          time: document.getElementById('report-time-input') ? document.getElementById('report-time-input').value : ''
         },
         additional_instructions: {
-          enabled: document.getElementById('toggle-instructions').checked,
-          text: document.getElementById('instructions-textarea').value.trim()
+          enabled: document.getElementById('toggle-instructions') ? document.getElementById('toggle-instructions').checked : false,
+          text: document.getElementById('instructions-textarea') ? document.getElementById('instructions-textarea').value.trim() : ''
         },
         internal_notes: {
-          enabled: document.getElementById('toggle-internal-notes').checked,
-          text: document.getElementById('internal-notes-textarea').value.trim()
+          enabled: document.getElementById('toggle-internal-notes') ? document.getElementById('toggle-internal-notes').checked : false,
+          text: document.getElementById('internal-notes-textarea') ? document.getElementById('internal-notes-textarea').value.trim() : ''
         }
       },
-      instructions: document.getElementById('instructions-textarea').value.trim(),
-      internal_notes: document.getElementById('internal-notes-textarea').value.trim(),
+      instructions: document.getElementById('instructions-textarea') ? document.getElementById('instructions-textarea').value.trim() : '',
+      internal_notes: document.getElementById('internal-notes-textarea') ? document.getElementById('internal-notes-textarea').value.trim() : '',
       total_cost: costInfo.total
     };
 
+    const confirmBtn = document.querySelector('#modal-confirm-send .btn-submit');
+    const origBtnText = confirmBtn ? confirmBtn.textContent : '';
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Saving Consultation...';
+    }
+
     try {
-      const res = await fetch(this.apiUrl('/api/doctors/portal/consultations'), {
+      const res = await this.portalFetch('/api/doctors/portal/consultations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
@@ -1235,6 +1252,10 @@ const DoctorSuite = {
 
       document.getElementById('modal-confirm-send').classList.remove('active');
       showToast(`Prescription saved! Wallet debited ₹${costInfo.total.toFixed(2)}`, 'success');
+
+      if (data.wallet_balance !== undefined) {
+        this.walletBalance = data.wallet_balance;
+      }
 
       // Generate WhatsApp text
       let cleanPhone = phone.replace(/[^0-9]/g, '');
@@ -1267,31 +1288,53 @@ const DoctorSuite = {
       const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
       window.open(waUrl, '_blank');
 
+      // Clear the Add Patient form for next entry
+      const nameInput = document.getElementById('patient-input-name');
+      if (nameInput) nameInput.value = '';
+      const phoneInput = document.getElementById('patient-input-phone');
+      if (phoneInput) phoneInput.value = '';
+      const ageInput = document.getElementById('patient-input-age');
+      if (ageInput) ageInput.value = '';
+      const instArea = document.getElementById('instructions-textarea');
+      if (instArea) instArea.value = '';
+      const notesArea = document.getElementById('internal-notes-textarea');
+      if (notesArea) notesArea.value = '';
+
+      // Reset saved medicines to default template
+      this.loadTemplateMedicines();
+
       // Refresh data and switch to history
-      this.loadSummaryStats();
-      this.loadWalletData();
-      this.loadConsultationsHistory();
-      this.loadRemindersData();
+      await Promise.all([
+        this.loadSummaryStats(),
+        this.loadWalletData(),
+        this.loadConsultationsHistory(),
+        this.loadRemindersData()
+      ]);
       this.switchSubView('history');
 
     } catch (err) {
       showToast(err.message, 'error');
+    } finally {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = origBtnText;
+      }
     }
   },
 
   async quickRecharge(amount) {
     try {
-      const res = await fetch(this.apiUrl('/api/doctors/portal/wallet/recharge'), {
+      const res = await this.portalFetch('/api/doctors/portal/wallet/recharge', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Recharge failed');
 
-      showToast(`Wallet recharged with ₹${amount}.00!`, 'success');
-      this.loadWalletData();
-      this.loadSummaryStats();
+      showToast(`Wallet recharged with ₹${amount}.00! Balance: ₹${data.balance.toFixed(2)}`, 'success');
+      this.walletBalance = data.balance;
+      await this.loadWalletData();
+      await this.loadSummaryStats();
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -1301,10 +1344,12 @@ const DoctorSuite = {
     try {
       const docName = (this.currentDoctor && this.currentDoctor.name !== 'Doctor') ? this.currentDoctor.name : '';
       const path = docName ? `/api/doctors/portal/summary?doctor_name=${encodeURIComponent(docName)}` : '/api/doctors/portal/summary';
-      const token = localStorage.getItem('medinexa_token');
-      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch(this.apiUrl(path), { headers });
+      const res = await this.portalFetch(path);
       const data = await res.json();
+      if (!res.ok) return;
+
+      this.walletBalance = data.wallet_balance || 0;
+      this.spentToday = data.spent_today || 0;
 
       const setVal = (id, val) => {
         const el = document.getElementById(id);
@@ -1321,9 +1366,11 @@ const DoctorSuite = {
       setVal('metric-vaccinations-count', data.vaccinations_count);
       setVal('metric-followups-count', data.followups_due);
 
-      setVal('due-followups', data.reminders_due_today.follow_ups);
-      setVal('due-vaccines', data.reminders_due_today.vaccinations);
-      setVal('due-reports', data.reminders_due_today.report_reviews);
+      if (data.reminders_due_today) {
+        setVal('due-followups', data.reminders_due_today.follow_ups);
+        setVal('due-vaccines', data.reminders_due_today.vaccinations);
+        setVal('due-reports', data.reminders_due_today.report_reviews);
+      }
     } catch (e) {
       console.warn('Error loading summary stats', e);
     }
@@ -1331,8 +1378,12 @@ const DoctorSuite = {
 
   async loadWalletData() {
     try {
-      const res = await fetch(this.apiUrl('/api/doctors/portal/wallet'));
+      const res = await this.portalFetch('/api/doctors/portal/wallet');
       const data = await res.json();
+      if (!res.ok) return;
+
+      this.walletBalance = data.balance || 0;
+      this.spentToday = data.spent_today || 0;
 
       const setVal = (id, val) => {
         const el = document.getElementById(id);
@@ -1340,11 +1391,13 @@ const DoctorSuite = {
       };
 
       setVal('wallet-panel-balance', `₹${data.balance.toFixed(2)}`);
+      setVal('metric-wallet-balance', `₹${data.balance.toFixed(2)}`);
+      setVal('header-wallet-balance', `₹${data.balance.toFixed(2)}`);
       setVal('wallet-panel-spent', `Spent today: ₹${data.spent_today.toFixed(2)}`);
 
       const list = document.getElementById('wallet-transactions-list');
       if (list) {
-        if (data.transactions.length === 0) {
+        if (!data.transactions || data.transactions.length === 0) {
           list.innerHTML = `<div style="color:var(--text-muted); padding:1rem 0;">No transactions recorded yet.</div>`;
           return;
         }
@@ -1371,8 +1424,9 @@ const DoctorSuite = {
 
   async loadConsultationsHistory() {
     try {
-      const res = await fetch(this.apiUrl('/api/doctors/portal/consultations'));
+      const res = await this.portalFetch('/api/doctors/portal/consultations');
       const data = await res.json();
+      if (!res.ok) return;
 
       const badge = document.getElementById('history-count-badge');
       if (badge) badge.textContent = `${data.length} Consultations`;
@@ -1380,7 +1434,7 @@ const DoctorSuite = {
       const list = document.getElementById('doc-consultations-history-list');
       if (!list) return;
 
-      if (data.length === 0) {
+      if (!Array.isArray(data) || data.length === 0) {
         list.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">📋</div>
@@ -1405,12 +1459,12 @@ const DoctorSuite = {
               </div>
             </div>
             <div style="font-weight: 800; font-size: 1.15rem; color: #38bdf8;">
-              ₹${c.cost ? c.cost.toFixed(2) : '3.00'} &gt;
+              ₹${c.cost ? c.cost.toFixed(2) : '0.00'} &gt;
             </div>
           </div>
 
           <div style="display: flex; gap: 0.5rem; margin: 0.65rem 0; flex-wrap: wrap;">
-            ${(c.tags || ['2 Meds', 'Sent']).map(t => `
+            ${(c.tags || ['Prescription', 'Sent']).map(t => `
               <span style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8; font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 4px;">
                 ${t === 'Vaccine' ? '💉 ' : t === 'Sent' ? '💬 ' : '💊 '}${t}
               </span>
@@ -1429,9 +1483,10 @@ const DoctorSuite = {
 
   async loadRemindersData() {
     try {
-      const res = await fetch(this.apiUrl('/api/doctors/portal/reminders'));
+      const res = await this.portalFetch('/api/doctors/portal/reminders');
       const data = await res.json();
-      this.remindersCache = data;
+      if (!res.ok) return;
+      this.remindersCache = Array.isArray(data) ? data : [];
       this.renderCalendar();
     } catch (e) {
       console.warn('Error loading reminders', e);
@@ -1535,12 +1590,9 @@ const DoctorSuite = {
     try {
       if (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.role === 'doctor') {
         this.setDoctorInfo(Auth.currentUser, Auth.currentProfile);
-        return;
       }
 
-      const token = localStorage.getItem('medinexa_token');
-      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch(this.apiUrl('/api/doctors/portal/profile'), { headers });
+      const res = await this.portalFetch('/api/doctors/portal/profile');
       const data = await res.json();
       if (data && data.name) {
         this.setDoctorInfo({ name: data.name, phone: data.phone }, { specialty: data.specialization, available_hours: data.chamber_timing });
@@ -1557,9 +1609,8 @@ const DoctorSuite = {
     const chamber_timing = document.getElementById('profile-input-timing').value.trim();
 
     try {
-      const res = await fetch(this.apiUrl('/api/doctors/portal/profile'), {
+      const res = await this.portalFetch('/api/doctors/portal/profile', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, specialization, phone, chamber_timing })
       });
       const data = await res.json();

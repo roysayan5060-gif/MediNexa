@@ -11,7 +11,8 @@ const Clinic = require('./models/Clinic');
 const Payment = require('./models/Payment');
 const ClinicExpense = require('./models/ClinicExpense');
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/medinexa';
+const ATLAS_FALLBACK_URI = 'mongodb+srv://<username>:<password>@cluster0.okgvkax.mongodb.net/medinexa?retryWrites=true&w=majority&compressors=zlib';
+const MONGODB_URI = process.env.MONGODB_URI || ATLAS_FALLBACK_URI;
 
 let isMongoConnected = false;
 

@@ -50,6 +50,19 @@ const doctorSchema = new mongoose.Schema({
   pending_payout: { type: Number, default: 0 },
   completed_payouts: { type: Number, default: 0 },
 
+  // Clinical Suite Wallet & Transactions
+  wallet_balance: { type: Number, default: 6573.50 },
+  wallet_spent_today: { type: Number, default: 0.00 },
+  wallet_last_reset: { type: Date, default: Date.now },
+  wallet_transactions: [{
+    id: { type: String },
+    title: { type: String },
+    amount: { type: Number },
+    type: { type: String, enum: ['recharge', 'deduction', 'debit', 'usage'], default: 'deduction' },
+    date: { type: String },
+    createdAt: { type: Date, default: Date.now }
+  }],
+
   legacy_id: { type: Number }, // For seamless SQLite backward-compatibility
   created_at: { type: Date, default: Date.now }
 });

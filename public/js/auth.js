@@ -16,10 +16,33 @@ const Auth = {
       return;
     }
 
+    // Immediately restore cached session so app opens without delay or blank screen
+    const cachedUser = localStorage.getItem('medinexa_user');
+    const cachedProfile = localStorage.getItem('medinexa_profile');
+    if (cachedUser) {
+      try {
+        this.currentUser = JSON.parse(cachedUser);
+        if (cachedProfile) this.currentProfile = JSON.parse(cachedProfile);
+        this.updateUIForLoggedIn();
+        if (this.currentUser.role === 'doctor') {
+          switchView('doctor-portal');
+        } else if (this.currentUser.role === 'clinic') {
+          switchView('clinic-portal');
+        } else {
+          switchView('patient-home');
+        }
+      } catch (e) {
+        console.warn('Error parsing cached user', e);
+      }
+    }
+
+    // Verify session with backend
     try {
       const data = await API.getMe();
       this.currentUser = data.user;
       this.currentProfile = data.profile;
+      localStorage.setItem('medinexa_user', JSON.stringify(data.user));
+      if (data.profile) localStorage.setItem('medinexa_profile', JSON.stringify(data.profile));
       this.updateUIForLoggedIn();
 
       // Route to appropriate portal if activeView is welcome or default
@@ -31,7 +54,14 @@ const Auth = {
         switchView('patient-home');
       }
     } catch (err) {
-      this.logout();
+      // ONLY log out if the server explicitly rejected the token (401 / 403)
+      if (err.status === 401 || err.status === 403 || err.message === 'Session invalid') {
+        console.warn('Session expired or invalidated by server.');
+        this.logout();
+      } else {
+        // Network blip, server waking up, or offline: keep user logged in with cached credentials!
+        console.warn('Backend server temporary status during checkSession:', err.message);
+      }
     }
   },
 
@@ -135,6 +165,8 @@ const Auth = {
 
   logout() {
     localStorage.removeItem('medinexa_token');
+    localStorage.removeItem('medinexa_user');
+    localStorage.removeItem('medinexa_profile');
     this.currentUser = null;
     this.currentProfile = null;
     this.updateUIForLoggedOut();
@@ -272,6 +304,8 @@ const Auth = {
         try {
           const res = await API.login({ email, password });
           localStorage.setItem('medinexa_token', res.token);
+          localStorage.setItem('medinexa_user', JSON.stringify(res.user));
+          if (res.profile) localStorage.setItem('medinexa_profile', JSON.stringify(res.profile));
           this.currentUser = res.user;
           this.currentProfile = res.profile;
           this.updateUIForLoggedIn();
@@ -330,6 +364,8 @@ const Auth = {
         try {
           const res = await API.register(payload);
           localStorage.setItem('medinexa_token', res.token);
+          localStorage.setItem('medinexa_user', JSON.stringify(res.user));
+          if (res.profile) localStorage.setItem('medinexa_profile', JSON.stringify(res.profile));
           this.currentUser = res.user;
           this.currentProfile = res.profile;
           this.updateUIForLoggedIn();
@@ -345,7 +381,17 @@ const Auth = {
             switchView('patient-home');
           }
         } catch (err) {
-          showToast(err.message, 'error');
+          if (err.message && err.message.toLowerCase().includes('already exists')) {
+            showToast('An account with this email already exists! Switched to Sign In.', 'info');
+            const tabLogin = document.getElementById('tab-auth-login');
+            if (tabLogin) tabLogin.click();
+            const logEmail = document.getElementById('login-email');
+            if (logEmail) logEmail.value = payload.email;
+            const logPass = document.getElementById('login-password');
+            if (logPass) logPass.focus();
+          } else {
+            showToast(err.message, 'error');
+          }
         } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Create MediNexa Account';
