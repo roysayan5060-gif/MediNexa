@@ -1,21 +1,54 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
 const { isMongoConnected, memoryStore } = require('../db');
+const { JWT_SECRET } = require('../middleware/auth');
 
-// GET /api/appointments - Retrieve appointments with query filters
+// Helper to extract authenticated user from Authorization header if present
+function getAuthUser(req) {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      return jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
+// GET /api/appointments - Retrieve appointments with query filters and doctor scoping
 router.get('/', async (req, res) => {
   try {
     const { patient_phone, doctor_id, status } = req.query;
+    const authUser = getAuthUser(req);
 
     if (isMongoConnected()) {
       let query = {};
+
+      // If requested by an authenticated doctor, scope STRICTLY to this doctor
+      if (authUser && authUser.role === 'doctor') {
+        const doc = await Doctor.findOne({ userId: authUser.id }) ||
+                    await Doctor.findById(authUser.id).catch(() => null) ||
+                    await Doctor.findOne({ email: authUser.email ? authUser.email.toLowerCase() : '' }) ||
+                    await Doctor.findOne({ name: authUser.name });
+        
+        if (doc) {
+          const docConditions = [{ doctor_id: doc._id }, { doctor_name: doc.name }];
+          if (doc.legacy_id) docConditions.push({ doctor_id: doc.legacy_id });
+          query.$or = docConditions;
+        } else {
+          // If no doctor profile exists yet for this user, query by doctor name
+          query.doctor_name = authUser.name;
+        }
+      } else if (doctor_id) {
+        query.doctor_id = doctor_id;
+      }
+
       if (patient_phone) {
         query.patient_phone = new RegExp(patient_phone.trim(), 'i');
-      }
-      if (doctor_id) {
-        query.doctor_id = doctor_id;
       }
       if (status && status !== 'All') {
         query.status = status;
@@ -31,13 +64,29 @@ router.get('/', async (req, res) => {
     } else {
       let results = [...memoryStore.appointments];
 
+      // If requested by an authenticated doctor, scope to this doctor
+      if (authUser && authUser.role === 'doctor') {
+        const doc = memoryStore.doctors.find(d => 
+          d.userId === authUser.id || 
+          d.email === authUser.email || 
+          d.name === authUser.name
+        );
+        if (doc) {
+          results = results.filter(a => 
+            (doc._id && a.doctor_id == doc._id) ||
+            (doc.id && a.doctor_id == doc.id) ||
+            (a.doctor_name && a.doctor_name.toLowerCase() === doc.name.toLowerCase())
+          );
+        } else {
+          results = results.filter(a => a.doctor_name && a.doctor_name.toLowerCase() === authUser.name.toLowerCase());
+        }
+      } else if (doctor_id) {
+        results = results.filter(a => a.doctor_id == doctor_id || (a.doctor_id && a.doctor_id.toString() === doctor_id.toString()));
+      }
+
       if (patient_phone) {
         const q = patient_phone.trim().toLowerCase();
         results = results.filter(a => a.patient_phone && a.patient_phone.toLowerCase().includes(q));
-      }
-
-      if (doctor_id) {
-        results = results.filter(a => a.doctor_id == doctor_id || (a.doctor_id && a.doctor_id.toString() === doctor_id.toString()));
       }
 
       if (status && status !== 'All') {

@@ -789,15 +789,18 @@ router.post('/portal/profile', async (req, res) => {
       if (chamber_timing) doc.available_hours = chamber_timing.trim();
       await doc.save();
 
+      const profObj = {
+        name: doc.name,
+        type: 'Individual Doctor',
+        specialization: doc.specialty,
+        phone: doc.phone,
+        chamber_timing: doc.available_hours
+      };
+
       return res.json({
         message: 'Doctor profile updated successfully in cloud database!',
-        profile: {
-          name: doc.name,
-          type: 'Individual Doctor',
-          specialization: doc.specialty,
-          phone: doc.phone,
-          chamber_timing: doc.available_hours
-        }
+        profile: profObj,
+        ...profObj
       });
     }
 
@@ -811,7 +814,8 @@ router.post('/portal/profile', async (req, res) => {
     memoryStore.doctorProfile = updated;
     res.json({
       message: 'Doctor profile updated successfully!',
-      profile: updated
+      profile: updated,
+      ...updated
     });
   } catch (err) {
     console.error('Error in POST /portal/profile:', err);

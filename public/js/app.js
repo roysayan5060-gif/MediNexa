@@ -61,6 +61,13 @@ function switchView(viewName) {
   } else if (viewName === 'doctors') {
     loadDoctorsDirectory();
   } else if (viewName === 'appointments') {
+    if (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.role === 'doctor') {
+      switchView('doctor-portal');
+      if (typeof DoctorSuite !== 'undefined') {
+        DoctorSuite.switchSubView('appointments');
+      }
+      return;
+    }
     loadPatientAppointments();
   } else if (viewName === 'doctor-portal') {
     loadDoctorPortalDashboard();

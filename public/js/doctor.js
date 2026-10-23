@@ -5,6 +5,9 @@ let editingDoctorId = null;
 let activePrescriptionAppointment = null;
 
 function loadDoctorPortalDashboard() {
+  if (typeof window !== 'undefined' && typeof DoctorSuite !== 'undefined') {
+    window.DoctorSuite = DoctorSuite;
+  }
   if (typeof Auth !== 'undefined' && Auth.currentUser && Auth.currentUser.role === 'doctor') {
     DoctorSuite.setDoctorInfo(Auth.currentUser, Auth.currentProfile);
   }
@@ -16,6 +19,9 @@ function loadDoctorPortalDashboard() {
 }
 
 function setupDoctorPortalEvents() {
+  if (typeof window !== 'undefined' && typeof DoctorSuite !== 'undefined') {
+    window.DoctorSuite = DoctorSuite;
+  }
   DoctorSuite.setupEvents();
   // Portal Sub-tabs
   document.querySelectorAll('.tab-btn[data-target^="portal-"]').forEach(btn => {
@@ -627,6 +633,9 @@ const DoctorSuite = {
   remindersCache: [],
   walletBalance: 6573.50,
   spentToday: 0.00,
+  appointmentsCache: [],
+  selectedAppointmentStatusFilter: 'All',
+  appointmentSearchQuery: '',
 
   apiUrl(path) {
     const base = (typeof API !== 'undefined' && API.baseUrl) ? API.baseUrl : '';
@@ -762,9 +771,47 @@ const DoctorSuite = {
     this.loadConsultationsHistory();
     this.loadRemindersData();
     this.loadProfileData();
+    this.loadAppointmentsData();
   },
 
   setupEvents() {
+    // Bottom Navigation Items
+    document.querySelectorAll('.doc-bottom-nav .doc-nav-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const subview = btn.dataset.subview;
+        if (subview) {
+          e.preventDefault();
+          this.switchSubView(subview);
+        }
+      });
+    });
+
+    // Dashboard Quick Navigation Cards
+    document.querySelectorAll('.doc-stat-card[data-subview]').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const subview = card.dataset.subview;
+        if (subview) {
+          e.preventDefault();
+          this.switchSubView(subview);
+        }
+      });
+    });
+
+    // Search and Filter for Dedicated Appointments Queue
+    const aptSearchInput = document.getElementById('doc-apt-search-input');
+    if (aptSearchInput) {
+      aptSearchInput.addEventListener('input', () => this.filterAppointments());
+    }
+
+    // Appointment Status Filter Chips
+    document.querySelectorAll('#doc-apt-filter-chips .chip-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const status = btn.dataset.status;
+        if (status) this.setAppointmentStatusFilter(status);
+      });
+    });
+
     // Gender Chips
     document.querySelectorAll('#patient-gender-chips .chip-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -847,6 +894,8 @@ const DoctorSuite = {
 
     if (subview === 'dashboard') {
       this.loadSummaryStats();
+    } else if (subview === 'appointments') {
+      this.loadAppointmentsData();
     } else if (subview === 'wallet') {
       this.loadWalletData();
     } else if (subview === 'history') {
@@ -1594,8 +1643,9 @@ const DoctorSuite = {
 
       const res = await this.portalFetch('/api/doctors/portal/profile');
       const data = await res.json();
-      if (data && data.name) {
-        this.setDoctorInfo({ name: data.name, phone: data.phone }, { specialty: data.specialization, available_hours: data.chamber_timing });
+      const profile = (data && data.profile) || data;
+      if (profile && profile.name) {
+        this.setDoctorInfo({ name: profile.name, phone: profile.phone }, { specialty: profile.specialization, available_hours: profile.chamber_timing });
       }
     } catch (e) {
       console.warn('Error loading doctor profile', e);
@@ -1630,5 +1680,280 @@ const DoctorSuite = {
     } catch (err) {
       showToast(err.message, 'error');
     }
+  },
+
+  // Dedicated Appointments Queue Handlers
+  async loadAppointmentsData() {
+    const list = document.getElementById('doc-dedicated-appointments-list');
+    if (list) list.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading patient appointments...</div>';
+
+    try {
+      const res = await this.portalFetch('/api/appointments');
+      if (!res.ok) throw new Error('Failed to retrieve appointments');
+      const data = await res.json();
+      this.appointmentsCache = Array.isArray(data) ? data : [];
+      this.renderDedicatedAppointments();
+    } catch (err) {
+      console.error('Error loading appointments:', err);
+      if (list) list.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load appointments: ${err.message}</div>`;
+    }
+  },
+
+  setAppointmentStatusFilter(status) {
+    this.selectedAppointmentStatusFilter = status;
+    document.querySelectorAll('#doc-apt-filter-chips .chip-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.status === status);
+    });
+    this.renderDedicatedAppointments();
+  },
+
+  filterAppointments() {
+    const inp = document.getElementById('doc-apt-search-input');
+    this.appointmentSearchQuery = inp ? inp.value.trim().toLowerCase() : '';
+    this.renderDedicatedAppointments();
+  },
+
+  renderDedicatedAppointments() {
+    const container = document.getElementById('doc-dedicated-appointments-list');
+    if (!container) return;
+
+    let filtered = [...this.appointmentsCache];
+
+    if (this.selectedAppointmentStatusFilter && this.selectedAppointmentStatusFilter !== 'All') {
+      filtered = filtered.filter(a => a.status === this.selectedAppointmentStatusFilter);
+    }
+
+    if (this.appointmentSearchQuery) {
+      const q = this.appointmentSearchQuery;
+      filtered = filtered.filter(a => 
+        (a.patient_name && a.patient_name.toLowerCase().includes(q)) ||
+        (a.patient_phone && a.patient_phone.toLowerCase().includes(q)) ||
+        (a.symptoms && a.symptoms.toLowerCase().includes(q)) ||
+        (a.date && a.date.toLowerCase().includes(q))
+      );
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="padding: 2.5rem 1rem;">
+          <div class="empty-state-icon">📋</div>
+          <h3 style="color: var(--text-white);">No Appointments Found</h3>
+          <p style="color: var(--text-secondary); max-width: 420px; margin: 0.5rem auto 1rem;">
+            ${this.selectedAppointmentStatusFilter !== 'All' || this.appointmentSearchQuery ? 'No appointments match your active filter.' : 'When patients book consultations on MediNexa, their details appear here in real-time.'}
+          </p>
+          <button type="button" class="btn-book" style="margin: 0 auto; display: inline-block;" onclick="DoctorSuite.switchSubView('add-patient')">
+            + Add Walk-in Patient
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(apt => {
+      const aptId = apt.id || apt._id;
+      const statusClass = (apt.status || 'confirmed').toLowerCase().replace(/\s+/g, '-');
+      const isConfirmed = apt.status === 'Confirmed';
+      const isCompleted = apt.status === 'Completed';
+
+      return `
+        <div class="appointment-item" style="border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-white);">
+                👤 ${apt.patient_name}
+              </div>
+              <div style="font-size: 0.85rem; color: #38bdf8; font-weight: 600; margin-top: 0.2rem;">
+                📞 ${apt.patient_phone} ${apt.patient_email ? `• ✉️ ${apt.patient_email}` : ''}
+              </div>
+            </div>
+            <div>
+              <span class="status-badge ${statusClass}">${apt.status}</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary); background: rgba(15, 23, 42, 0.5); padding: 0.65rem 0.85rem; border-radius: var(--radius-md);">
+            <div>📅 <strong>Date:</strong> ${apt.date || 'Today'}</div>
+            <div>⏰ <strong>Slot:</strong> ${apt.time_slot || 'Regular Chamber'}</div>
+            ${apt.fee ? `<div>💰 <strong>Fee:</strong> ₹${apt.fee}</div>` : ''}
+          </div>
+
+          ${apt.symptoms ? `
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+              <strong>Reported Symptoms / Reason:</strong> ${apt.symptoms}
+            </div>
+          ` : ''}
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; margin-top: 0.25rem; border-top: 1px dashed var(--border-color); padding-top: 0.75rem;">
+            <button type="button" class="btn-book" style="padding: 0.4rem 0.75rem; font-size: 0.82rem; background: #0284c7;" onclick="DoctorSuite.startPrescriptionForPatient('${apt.patient_name.replace(/'/g, "\\'")}', '${(apt.patient_phone || '').replace(/'/g, "\\'")}')">
+              ✍️ Write Prescription
+            </button>
+            ${isConfirmed ? `
+              <button type="button" class="btn-book" style="padding: 0.4rem 0.75rem; font-size: 0.82rem; background: #059669;" onclick="DoctorSuite.updateAppointmentStatusDirect('${aptId}', 'Completed')">
+                ✓ Mark Completed
+              </button>
+              <button type="button" class="btn-action-cancel" style="padding: 0.4rem 0.75rem; font-size: 0.82rem;" onclick="DoctorSuite.updateAppointmentStatusDirect('${aptId}', 'Cancelled')">
+                ✕ Cancel Booking
+              </button>
+            ` : ''}
+            ${!isConfirmed && !isCompleted ? `
+              <button type="button" class="btn-book" style="padding: 0.4rem 0.75rem; font-size: 0.82rem; background: #059669;" onclick="DoctorSuite.updateAppointmentStatusDirect('${aptId}', 'Confirmed')">
+                ✓ Re-confirm
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  startPrescriptionForPatient(patientName, patientPhone) {
+    this.switchSubView('add-patient');
+    const nameInput = document.getElementById('patient-input-name');
+    if (nameInput) nameInput.value = patientName;
+    const phoneInput = document.getElementById('patient-input-phone');
+    if (phoneInput) phoneInput.value = patientPhone;
+    showToast(`Prescription prepared for ${patientName}`, 'info');
+  },
+
+  async updateAppointmentStatusDirect(aptId, newStatus) {
+    try {
+      await API.updateAppointmentStatus(aptId, newStatus);
+      showToast(`Appointment status updated to ${newStatus}!`, 'success');
+      const item = this.appointmentsCache.find(a => (a.id == aptId || a._id == aptId));
+      if (item) item.status = newStatus;
+      this.renderDedicatedAppointments();
+      this.loadSummaryStats();
+      if (typeof loadDoctorPortalAppointments === 'function') {
+        loadDoctorPortalAppointments();
+      }
+    } catch (err) {
+      showToast('Failed to update status: ' + err.message, 'error');
+    }
+  },
+
+  // Save Consultation Directly to MediNexa Database (PDF pages 2, 7, 21)
+  async saveConsultationDirectly() {
+    const nameInput = document.getElementById('patient-input-name');
+    const phoneInput = document.getElementById('patient-input-phone');
+    const ageInput = document.getElementById('patient-input-age');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const age = ageInput ? ageInput.value.trim() : '';
+
+    if (!name) {
+      showToast('Please enter the patient full name.', 'error');
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    if (!phone) {
+      showToast('Please enter a 10-digit WhatsApp/mobile number.', 'error');
+      if (phoneInput) phoneInput.focus();
+      return;
+    }
+
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (cleanPhone.length < 10) {
+      showToast('Please enter a valid 10-digit mobile phone number.', 'error');
+      if (phoneInput) phoneInput.focus();
+      return;
+    }
+
+    if (!age) {
+      showToast('Please enter patient age.', 'error');
+      if (ageInput) ageInput.focus();
+      return;
+    }
+
+    const gender = this.selectedGender || 'Male';
+    const langSelect = document.getElementById('patient-lang-select');
+    const lang = langSelect ? langSelect.value : 'Bengali';
+    const docName = (this.currentDoctor && this.currentDoctor.name !== 'Doctor') ? this.currentDoctor.name : ((typeof Auth !== 'undefined' && Auth.currentUser) ? Auth.currentUser.name : 'Doctor');
+    const costInfo = this.calculateTotalCost();
+
+    const payload = {
+      patient_name: name,
+      patient_phone: phone,
+      patient_age: age,
+      patient_gender: gender,
+      doctor_name: docName,
+      language: lang,
+      medicines: this.savedMedicines,
+      toggles: {
+        prescription_simplifier: document.getElementById('toggle-rx-simplifier') ? document.getElementById('toggle-rx-simplifier').checked : true,
+        follow_up: {
+          enabled: document.getElementById('toggle-followup') ? document.getElementById('toggle-followup').checked : false,
+          date: document.getElementById('followup-date') ? document.getElementById('followup-date').value : '',
+          time: document.getElementById('followup-time') ? document.getElementById('followup-time').value : ''
+        },
+        vaccination: {
+          enabled: document.getElementById('toggle-vaccination') ? document.getElementById('toggle-vaccination').checked : false,
+          date: document.getElementById('vaccination-date') ? document.getElementById('vaccination-date').value : ''
+        },
+        report_review: {
+          enabled: document.getElementById('toggle-report-review') ? document.getElementById('toggle-report-review').checked : false,
+          name: document.getElementById('report-name-input') ? document.getElementById('report-name-input').value : '',
+          date: document.getElementById('report-date-input') ? document.getElementById('report-date-input').value : '',
+          time: document.getElementById('report-time-input') ? document.getElementById('report-time-input').value : ''
+        },
+        additional_instructions: {
+          enabled: document.getElementById('toggle-instructions') ? document.getElementById('toggle-instructions').checked : false,
+          text: document.getElementById('instructions-textarea') ? document.getElementById('instructions-textarea').value.trim() : ''
+        },
+        internal_notes: {
+          enabled: document.getElementById('toggle-internal-notes') ? document.getElementById('toggle-internal-notes').checked : false,
+          text: document.getElementById('internal-notes-textarea') ? document.getElementById('internal-notes-textarea').value.trim() : ''
+        }
+      },
+      instructions: document.getElementById('instructions-textarea') ? document.getElementById('instructions-textarea').value.trim() : '',
+      internal_notes: document.getElementById('internal-notes-textarea') ? document.getElementById('internal-notes-textarea').value.trim() : '',
+      total_cost: costInfo.total
+    };
+
+    try {
+      showToast('Saving patient consultation to database...', 'info');
+      const res = await this.portalFetch('/api/doctors/portal/consultations', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to record consultation');
+
+      showToast(`Consultation for ${name} saved successfully to database!`, 'success');
+
+      if (data.wallet_balance !== undefined) {
+        this.walletBalance = data.wallet_balance;
+      }
+
+      // Clear the Add Patient form
+      if (nameInput) nameInput.value = '';
+      if (phoneInput) phoneInput.value = '';
+      if (ageInput) ageInput.value = '';
+      const instArea = document.getElementById('instructions-textarea');
+      if (instArea) instArea.value = '';
+      const notesArea = document.getElementById('internal-notes-textarea');
+      if (notesArea) notesArea.value = '';
+
+      // Reset template medicines
+      this.loadTemplateMedicines();
+
+      // Refresh data and switch to history
+      await Promise.all([
+        this.loadSummaryStats(),
+        this.loadWalletData(),
+        this.loadConsultationsHistory(),
+        this.loadRemindersData()
+      ]);
+      this.switchSubView('history');
+
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
   }
 };
+
+// Explicitly attach DoctorSuite to window for inline onclick handlers and Capacitor WebView
+if (typeof window !== 'undefined') {
+  window.DoctorSuite = DoctorSuite;
+}
