@@ -565,6 +565,11 @@ const DoctorSuite = {
   walletBalance: 6573.50,
   spentToday: 0.00,
 
+  apiUrl(path) {
+    const base = (typeof API !== 'undefined' && API.baseUrl) ? API.baseUrl : '';
+    return base + path;
+  },
+
   setDoctorInfo(user, profile) {
     if (!user && !profile) return;
     let name = (profile && profile.name) || (user && user.name) || 'Doctor';
@@ -1157,7 +1162,7 @@ const DoctorSuite = {
     };
 
     try {
-      const res = await fetch('/api/doctors/portal/consultations', {
+      const res = await fetch(this.apiUrl('/api/doctors/portal/consultations'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1213,7 +1218,7 @@ const DoctorSuite = {
 
   async quickRecharge(amount) {
     try {
-      const res = await fetch('/api/doctors/portal/wallet/recharge', {
+      const res = await fetch(this.apiUrl('/api/doctors/portal/wallet/recharge'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount })
@@ -1231,7 +1236,11 @@ const DoctorSuite = {
 
   async loadSummaryStats() {
     try {
-      const res = await fetch('/api/doctors/portal/summary');
+      const docName = (this.currentDoctor && this.currentDoctor.name !== 'Doctor') ? this.currentDoctor.name : '';
+      const path = docName ? `/api/doctors/portal/summary?doctor_name=${encodeURIComponent(docName)}` : '/api/doctors/portal/summary';
+      const token = localStorage.getItem('medinexa_token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const res = await fetch(this.apiUrl(path), { headers });
       const data = await res.json();
 
       const setVal = (id, val) => {
@@ -1259,7 +1268,7 @@ const DoctorSuite = {
 
   async loadWalletData() {
     try {
-      const res = await fetch('/api/doctors/portal/wallet');
+      const res = await fetch(this.apiUrl('/api/doctors/portal/wallet'));
       const data = await res.json();
 
       const setVal = (id, val) => {
@@ -1299,7 +1308,7 @@ const DoctorSuite = {
 
   async loadConsultationsHistory() {
     try {
-      const res = await fetch('/api/doctors/portal/consultations');
+      const res = await fetch(this.apiUrl('/api/doctors/portal/consultations'));
       const data = await res.json();
 
       const badge = document.getElementById('history-count-badge');
@@ -1357,7 +1366,7 @@ const DoctorSuite = {
 
   async loadRemindersData() {
     try {
-      const res = await fetch('/api/doctors/portal/reminders');
+      const res = await fetch(this.apiUrl('/api/doctors/portal/reminders'));
       const data = await res.json();
       this.remindersCache = data;
       this.renderCalendar();
@@ -1468,7 +1477,7 @@ const DoctorSuite = {
 
       const token = localStorage.getItem('medinexa_token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch('/api/doctors/portal/profile', { headers });
+      const res = await fetch(this.apiUrl('/api/doctors/portal/profile'), { headers });
       const data = await res.json();
       if (data && data.name) {
         this.setDoctorInfo({ name: data.name, phone: data.phone }, { specialty: data.specialization, available_hours: data.chamber_timing });
@@ -1485,7 +1494,7 @@ const DoctorSuite = {
     const chamber_timing = document.getElementById('profile-input-timing').value.trim();
 
     try {
-      const res = await fetch('/api/doctors/portal/profile', {
+      const res = await fetch(this.apiUrl('/api/doctors/portal/profile'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, specialization, phone, chamber_timing })
