@@ -223,9 +223,9 @@ function renderDoctorCards(doctors, targetContainer) {
           <span>🕒</span>
           <span>${doc.available_days || 'Mon - Fri'} (${doc.available_hours || '09:00 AM - 05:00 PM'})</span>
         </div>
-        <div class="info-row" style="font-size: 0.78rem; color: #34d399;">
+        <div class="info-row" style="font-size: 0.78rem; color: ${String(doc.verification_status).toUpperCase() === 'VERIFIED' ? '#34d399' : '#60a5fa'};">
           <span>🛡️</span>
-          <span>Reg: <strong>${doc.registration_number || 'WBMC-VERIFIED'}</strong> (${doc.verification_status || 'Verified'})</span>
+          <span>${doc.registration_authority || 'WBMC'}: <strong>${doc.registration_number || 'WBMC-VERIFIED'}</strong> • <em>${doc.verification_status || 'VERIFIED'}</em></span>
         </div>
         <p class="doctor-bio">${doc.bio || 'Dedicated medical professional focused on providing compassionate, patient-centered care.'}</p>
       </div>

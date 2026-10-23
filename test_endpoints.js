@@ -59,7 +59,7 @@ const server = app.listen(PORT, async () => {
       city: 'Kolkata',
       specialty: 'Neurology',
       fee: 850,
-      registration_number: 'WBMC-89312',
+      registration_number: `WBMC-${Date.now().toString().slice(-5)}`,
       registration_authority: 'West Bengal Medical Council (WBMC)'
     });
     console.log('Status:', regRes.status, 'User Role:', regRes.data.user.role, 'Token received:', Boolean(regRes.data.token));

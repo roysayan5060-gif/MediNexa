@@ -415,11 +415,9 @@ async function loadDoctorPortalDoctorList() {
           <div>
             <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-white);">${doc.name}</div>
             <div style="font-size: 0.85rem; color: var(--text-secondary);">${doc.specialty} • ${doc.qualification}</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
-              📍 ${doc.location}, <strong>${doc.city}</strong> | Fee: <strong>₹${doc.fee}</strong>
-              <span class="role-badge ${doc.verification_status === 'Verified' ? 'doctor' : 'patient'}" style="margin-left: 0.5rem; font-size: 0.68rem;">
-                ${doc.registration_number || 'WBMC'} (${doc.verification_status || 'Pending'})
-              </span>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
+              <span>📍 ${doc.location}, <strong>${doc.city}</strong> | Fee: <strong>₹${doc.fee}</strong></span>
+              ${renderDoctorVerificationBadge(doc.verification_status, doc.registration_number)}
             </div>
           </div>
         </div>
@@ -481,6 +479,46 @@ async function deleteDoctorProfile(doctorId, docName) {
   }
 }
 
+// West Bengal Medical Council (WBMC) Status Badge Generator
+function renderDoctorVerificationBadge(status, regNo) {
+  const s = String(status || 'PENDING').toUpperCase();
+  let label = 'PENDING';
+  let icon = '⏳';
+  let color = '#fbbf24';
+  let bg = 'rgba(234, 179, 8, 0.15)';
+  let border = 'rgba(234, 179, 8, 0.4)';
+
+  if (s === 'VERIFIED') {
+    label = 'WBMC VERIFIED';
+    icon = '✓';
+    color = '#34d399';
+    bg = 'rgba(16, 185, 129, 0.15)';
+    border = 'rgba(16, 185, 129, 0.4)';
+  } else if (s === 'UNDER_REVIEW' || s === 'PENDING VERIFICATION') {
+    label = 'UNDER REVIEW';
+    icon = '🛡️';
+    color = '#60a5fa';
+    bg = 'rgba(59, 130, 246, 0.15)';
+    border = 'rgba(59, 130, 246, 0.4)';
+  } else if (s === 'REJECTED') {
+    label = 'REJECTED';
+    icon = '✕';
+    color = '#f87171';
+    bg = 'rgba(239, 68, 68, 0.15)';
+    border = 'rgba(239, 68, 68, 0.4)';
+  } else if (s === 'UNABLE_TO_VERIFY') {
+    label = 'UNABLE TO VERIFY';
+    icon = '⚠️';
+    color = '#fb923c';
+    bg = 'rgba(249, 115, 22, 0.15)';
+    border = 'rgba(249, 115, 22, 0.4)';
+  }
+
+  return `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; background: ${bg}; color: ${color}; border: 1px solid ${border}; margin-left: 0.25rem;">
+    <span>${icon}</span> ${regNo ? `${regNo} • ` : ''}${label}
+  </span>`;
+}
+
 // West Bengal Medical Council Verification Review Queue
 async function loadVerificationQueue() {
   const container = document.getElementById('verification-queue-list');
@@ -488,7 +526,7 @@ async function loadVerificationQueue() {
 
   try {
     const queue = await API.getVerificationQueue();
-    if (queue.length === 0) {
+    if (!queue || queue.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">🛡️</div>
@@ -499,23 +537,43 @@ async function loadVerificationQueue() {
       return;
     }
 
-    container.innerHTML = '';
+    container.innerHTML = `
+      <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <div>
+          <span>Official Verification Portal: </span>
+          <a href="https://wbmc.wb.gov.in/index.php/doctor_search" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: underline; font-weight: 600;">
+            West Bengal Medical Council Doctor Search ↗
+          </a>
+        </div>
+        <span style="font-size: 0.78rem; color: var(--text-muted);">Compare submitted license & name before approving</span>
+      </div>
+    `;
+
     queue.forEach(doc => {
       const item = document.createElement('div');
       item.className = 'appointment-item';
+      item.style.marginBottom = '0.75rem';
       item.innerHTML = `
         <div style="flex: 1;">
-          <h4 style="color: var(--text-white); font-weight: 800;">${doc.name} (${doc.specialty})</h4>
-          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
-            Registration No: <strong style="color: #f87171;">${doc.registration_number || 'Not provided'}</strong> | Authority: <strong>${doc.registration_authority}</strong>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <h4 style="color: var(--text-white); font-weight: 800; margin: 0;">${doc.name}</h4>
+            <span style="font-size: 0.8rem; color: #93c5fd; background: rgba(59, 130, 246, 0.2); padding: 2px 6px; border-radius: 4px;">${doc.specialty} • ${doc.qualification || 'MBBS'}</span>
+            ${renderDoctorVerificationBadge(doc.verification_status)}
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem;">
+            Registration No: <strong style="color: #f87171; font-family: monospace; font-size: 0.95rem;">${doc.registration_number || 'Not provided'}</strong>
+            ${doc.registration_year ? ` | Reg Year: <strong>${doc.registration_year}</strong>` : ''} 
+            | Authority: <strong>${doc.registration_authority || 'WBMC'}</strong>
           </div>
           <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
-            Clinic: ${doc.clinic_name || 'N/A'} | City: ${doc.city} | Phone: ${doc.phone || 'N/A'}
+            City: ${doc.city} | Phone: ${doc.phone || 'N/A'} | Source: ${doc.verification_source || 'PENDING_REVIEW'}
           </div>
+          ${doc.verification_notes ? `<div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 0.35rem; font-style: italic; background: rgba(0,0,0,0.25); padding: 4px 8px; border-radius: 4px;">Notes: ${doc.verification_notes}</div>` : ''}
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button class="btn-action-done" onclick="reviewDoctorVerification('${doc._id || doc.id}', 'Verified')">✓ Approve WBMC</button>
-          <button class="btn-action-cancel" onclick="reviewDoctorVerification('${doc._id || doc.id}', 'Rejected')">✕ Reject</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="https://wbmc.wb.gov.in/index.php/doctor_search" target="_blank" rel="noopener noreferrer" class="btn-book" style="padding: 0.4rem 0.65rem; font-size: 0.78rem; background: #334155; text-decoration: none; color: white;">🔍 Check WBMC</a>
+          <button class="btn-action-done" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="reviewDoctorVerification('${doc._id || doc.id}', 'VERIFIED')">✓ Approve</button>
+          <button class="btn-action-cancel" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="reviewDoctorVerification('${doc._id || doc.id}', 'REJECTED')">✕ Reject</button>
         </div>
       `;
       container.appendChild(item);
@@ -526,12 +584,15 @@ async function loadVerificationQueue() {
 }
 
 async function reviewDoctorVerification(docId, status) {
-  const notes = prompt(`Enter review notes for ${status}:`, status === 'Verified' ? 'Verified against WBMC Register.' : 'Invalid registration details.');
+  const defaultNotes = status === 'VERIFIED'
+    ? 'Verified against official West Bengal Medical Council rolls.'
+    : 'Credentials could not be verified on WBMC register.';
+  const notes = prompt(`Enter official audit review notes for status: ${status}:`, defaultNotes);
   if (notes === null) return;
 
   try {
     await API.verifyDoctor(docId, status, notes);
-    showToast(`Doctor registration ${status}!`, 'success');
+    showToast(`Doctor registration status updated to ${status}!`, 'success');
     loadVerificationQueue();
     loadDoctorPortalDoctorList();
   } catch (err) {
