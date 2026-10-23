@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doctor X - Smart Healthcare & Doctor Booking Platform</title>
+  <title>MediNexa — One Platform. Better Connected Care.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,77 +15,141 @@
   <header class="header">
     <div class="header-container">
       <div class="brand" id="brand-home-link">
-        <div class="brand-icon">X</div>
+        <!-- Professional Stethoscope Logo with Subtle Medical Cross -->
+        <svg class="brand-logo-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="23" fill="#0f172a" stroke="#243049" stroke-width="2"/>
+          <!-- Stethoscope Binaural & Tube in Red -->
+          <path d="M14 11V18C14 23.5228 18.4772 28 24 28C29.5228 28 34 23.5228 34 18V11" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+          <path d="M24 28V34C24 36.2091 25.7909 38 28 38H31" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+          <!-- Chestpiece with Center Subtle Cross -->
+          <circle cx="34" cy="38" r="4.5" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
+          <path d="M34 36V40M32 38H36" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Earpieces -->
+          <circle cx="14" cy="11" r="2" fill="#ef4444"/>
+          <circle cx="34" cy="11" r="2" fill="#ef4444"/>
+        </svg>
         <div class="brand-text">
-          <h1>Doctor X</h1>
-          <span>Healthcare Connected</span>
+          <h1>Medi<span>Nexa</span></h1>
+          <p>One Platform. Better Connected Care.</p>
         </div>
       </div>
 
-      <!-- Navigation for Patient's 4 core interfaces -->
+      <!-- Core Navigation Buttons -->
       <nav class="nav-links">
         <button class="nav-btn active" data-view="home">
           <span>🏠</span> Home / Ask Issues
         </button>
         <button class="nav-btn" data-view="doctors">
-          <span>👨‍⚕️</span> All Doctors & Fees
+          <span>👨‍⚕️</span> Doctors & Fees
         </button>
         <button class="nav-btn" data-view="appointments">
           <span>📅</span> My Appointments
         </button>
+        <button class="nav-btn" data-view="doctor-portal">
+          <span>🩺</span> Doctor Portal
+        </button>
+        <button class="nav-btn" data-view="clinic-portal">
+          <span>🏥</span> Clinic Portal
+        </button>
       </nav>
 
-      <!-- Role Switcher: Patient Side (Frontend) vs Doctor Side (Backend) -->
-      <div class="role-switcher">
-        <span class="badge-role patient" id="role-badge">Patient View</span>
-        <button class="btn-switch-portal" id="btn-toggle-portal">
-          <span>⚙️</span>
-          <span id="btn-switch-role-text">Doctor Portal (Backend)</span>
+      <!-- User Session Actions -->
+      <div class="header-actions">
+        <span class="role-badge patient" id="role-badge">PATIENT VIEW</span>
+        <button class="btn-header-auth" id="btn-header-auth">
+          <span>🔒</span> Login / Register
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Areas -->
+  <!-- Main Content View Container -->
   <main class="main-wrapper">
 
-    <!-- ============================================== -->
-    <!-- INTERFACE 1: HOME PAGE & SYMPTOM SUGGESTION ENGINE -->
-    <!-- ============================================== -->
+    <!-- ============================================================== -->
+    <!-- VIEW 1: HOME PAGE — APPROVED MEDINEXA WELCOME SCREEN & TRIAGE -->
+    <!-- ============================================================== -->
     <section id="view-home" class="view-section active">
-      <div class="hero">
-        <div class="hero-content">
-          <div class="hero-pill">✨ Intelligent Medical Assistant</div>
-          <h2 class="hero-title">Feeling Unwell? Tell Doctor X What's Bothering You.</h2>
-          <p class="hero-subtitle">
-            Describe your health issues, symptoms, or concerns in natural words. Our triage assistant will analyze your condition and immediately suggest the right specialist doctors for you.
-          </p>
+      
+      <!-- MediNexa Welcome Screen -->
+      <div class="welcome-hero">
+        <div class="hero-pill">✨ One Platform. Better Connected Care.</div>
+        <h2 class="hero-title">
+          Modern Healthcare Connected Across <span>Patients, Doctors & Clinics</span>
+        </h2>
+        <p class="hero-subtitle">
+          Experience accredited medical care with verified West Bengal Medical Council doctors, transparent clinic financial settlements, intelligent symptom guidance, and direct WhatsApp prescriptions.
+        </p>
 
-          <!-- Symptom / Health Issue Input Box -->
-          <div class="symptom-box">
-            <form id="symptom-form">
-              <div class="symptom-input-wrapper">
-                <input 
-                  type="text" 
-                  id="symptom-input" 
-                  class="symptom-input" 
-                  placeholder="e.g. Chest pain with shortness of breath, severe skin rash, continuous migraine..."
-                  required
-                />
-                <button type="submit" class="btn-diagnose" id="btn-diagnose-submit">
-                  <span>🩺</span> Ask Doctor X
-                </button>
-              </div>
-            </form>
-            <div class="symptom-tags">
-              <span>Quick issues:</span>
-              <button class="tag-btn" data-symptom="Severe chest tightness and palpitations">Heart & Chest Pain</button>
-              <button class="tag-btn" data-symptom="Itchy red skin rash on arms">Skin Rash</button>
-              <button class="tag-btn" data-symptom="Throbbing migraine with dizziness">Migraine & Vertigo</button>
-              <button class="tag-btn" data-symptom="High fever and muscle ache">Fever & Flu</button>
-              <button class="tag-btn" data-symptom="Severe lower back pain and knee swelling">Joint & Spine Pain</button>
+        <!-- 3 Role-Selection Cards (Opening existing auth/login flow without duplicate code) -->
+        <div class="role-selection-grid">
+          <!-- Card 1: Patient -->
+          <div class="role-card patient-card" onclick="selectRole('patient')">
+            <span class="role-card-badge">Patient Portal</span>
+            <div class="role-card-icon">👤</div>
+            <h3>Patient Care</h3>
+            <p>Describe your health concerns, find certified specialist doctors, book appointment slots, and pay securely via Razorpay.</p>
+            <div class="role-card-action">
+              <span>Sign In as Patient</span>
+              <span>&rarr;</span>
             </div>
           </div>
+
+          <!-- Card 2: Doctor -->
+          <div class="role-card doctor-card" onclick="selectRole('doctor')">
+            <span class="role-card-badge">Doctor Portal</span>
+            <div class="role-card-icon">🩺</div>
+            <h3>Doctor Practice</h3>
+            <p>Manage patient visits, verify your WBMC medical registration, formulate digital prescriptions, and share instantly via WhatsApp.</p>
+            <div class="role-card-action">
+              <span>Sign In as Doctor</span>
+              <span>&rarr;</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Clinic -->
+          <div class="role-card clinic-card" onclick="selectRole('clinic')">
+            <span class="role-card-badge">Clinic Accounting</span>
+            <div class="role-card-icon">🏥</div>
+            <h3>Clinic Operations</h3>
+            <p>Access full financial auditing: total patient collections, verified receipts, gateway fees, bank settlements, and recorded expenses.</p>
+            <div class="role-card-action">
+              <span>Sign In as Clinic</span>
+              <span>&rarr;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Intelligent Symptom Diagnosis Input Box (Preserved Feature) -->
+      <div class="symptom-box">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-white);">
+          Feeling Unwell? Tell MediNexa What's Bothering You.
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+          Our medical triage engine will instantly match your symptoms to the most appropriate specialty and certified practitioners.
+        </p>
+        <form id="symptom-form">
+          <div class="symptom-input-wrapper">
+            <input 
+              type="text" 
+              id="symptom-input" 
+              class="symptom-input" 
+              placeholder="e.g. Chest pain with shortness of breath, severe skin rash, continuous migraine, high fever..."
+              required
+            />
+            <button type="submit" class="btn-diagnose" id="btn-diagnose-submit">
+              <span>🩺</span> Analyze Symptoms
+            </button>
+          </div>
+        </form>
+        <div class="symptom-tags">
+          <span>Quick issues:</span>
+          <button class="tag-btn" data-symptom="Severe chest tightness and palpitations">Heart & Chest Pain</button>
+          <button class="tag-btn" data-symptom="Itchy red skin rash on arms">Skin Rash</button>
+          <button class="tag-btn" data-symptom="Throbbing migraine with dizziness">Migraine & Vertigo</button>
+          <button class="tag-btn" data-symptom="High fever and muscle ache">Fever & Flu</button>
+          <button class="tag-btn" data-symptom="Severe lower back pain and knee swelling">Joint & Spine Pain</button>
         </div>
       </div>
 
@@ -97,57 +161,33 @@
             <p class="rec-explanation" id="rec-explanation"></p>
           </div>
         </div>
-        <h4 style="margin-bottom: 1rem; font-weight: 700;">Top Matched Doctors For You:</h4>
+        <h4 style="margin-bottom: 1rem; font-weight: 800; color: var(--text-white);">Top Matched Doctors For You:</h4>
         <div class="doctor-grid" id="rec-doctors-grid"></div>
       </div>
 
-      <!-- 4 Core Navigation Cards -->
-      <div class="features-grid">
-        <div class="feature-card" onclick="switchView('doctors')">
-          <div class="feature-icon blue">🩺</div>
-          <h3>Find Specialist Doctors</h3>
-          <p>Browse all registered doctors across cities, view consultation fees, qualifications, and patient ratings.</p>
-        </div>
-        <div class="feature-card" onclick="document.getElementById('symptom-input').focus()">
-          <div class="feature-icon teal">💡</div>
-          <h3>Symptom Checker</h3>
-          <p>Describe your unhealthiness and get instant suggestions on medical fields and tailored doctors.</p>
-        </div>
-        <div class="feature-card" onclick="switchView('appointments')">
-          <div class="feature-icon amber">📅</div>
-          <h3>Easy Appointment Booking</h3>
-          <p>Pick doctor consultation time slots and follow up with doctor prescriptions and medical advice.</p>
-        </div>
-        <div class="feature-card" onclick="toggleRolePortal()">
-          <div class="feature-icon purple">💼</div>
-          <h3>Doctor Management Portal</h3>
-          <p>Dedicated backend for healthcare providers to input profiles, update fees, and manage patient visits.</p>
-        </div>
-      </div>
-
       <!-- Featured / Top Rated Doctors Showcase -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <h3 style="font-size: 1.4rem; font-weight: 800;">Top Rated Doctors on Doctor X</h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Verified healthcare providers ready for consultation</p>
+          <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-white);">Top Rated Doctors on MediNexa</h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">West Bengal Medical Council verified healthcare practitioners</p>
         </div>
-        <button class="btn-book" style="background: transparent; color: var(--primary); border: 1px solid var(--primary);" onclick="switchView('doctors')">
+        <button class="btn-book" style="background: transparent; color: var(--primary-red); border: 1px solid var(--primary-red);" onclick="switchView('doctors')">
           View All Doctors &rarr;
         </button>
       </div>
       <div class="doctor-grid" id="featured-doctors-grid"></div>
     </section>
 
-    <!-- ============================================== -->
-    <!-- INTERFACE 2: ALL DOCTORS DIRECTORY (NAMES, FEES, LOCATIONS) -->
-    <!-- ============================================== -->
+    <!-- ============================================================== -->
+    <!-- VIEW 2: ALL DOCTORS DIRECTORY (NAMES, FEES, WBMC, LOCATIONS) -->
+    <!-- ============================================================== -->
     <section id="view-doctors" class="view-section">
       <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <h2 style="font-size: 1.8rem; font-weight: 800;">Doctors Directory</h2>
-          <p style="color: var(--text-muted);">Compare doctor locations, consultation fees, and available hours</p>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Doctors Directory</h2>
+          <p style="color: var(--text-secondary);">Browse verified doctors across Kolkata and West Bengal with transparent consultation fees</p>
         </div>
-        <span class="badge-role patient" id="doctors-count-badge">Loading doctors...</span>
+        <span class="role-badge patient" id="doctors-count-badge">Loading doctors...</span>
       </div>
 
       <!-- Filter and Search Bar -->
@@ -169,24 +209,24 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Max Fee ($)</label>
+          <label>Max Fee (₹)</label>
           <input type="number" id="filter-fee" class="filter-input" placeholder="Any Fee" min="0">
         </div>
-        <button class="btn-reset-filters" id="btn-reset-filters">Reset</button>
+        <button class="btn-reset-filters" id="btn-reset-filters">Reset Filters</button>
       </div>
 
-      <!-- Doctors Catalog Grid -->
+      <!-- Doctors Grid -->
       <div class="doctor-grid" id="all-doctors-grid"></div>
     </section>
 
-    <!-- ============================================== -->
-    <!-- INTERFACE 3: PATIENT APPOINTMENTS TRACKER -->
-    <!-- ============================================== -->
+    <!-- ============================================================== -->
+    <!-- VIEW 3: PATIENT APPOINTMENTS TRACKER & PRESCRIPTION VIEW -->
+    <!-- ============================================================== -->
     <section id="view-appointments" class="view-section">
       <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <h2 style="font-size: 1.8rem; font-weight: 800;">Scheduled Appointments</h2>
-          <p style="color: var(--text-muted);">View status, dates, clinic addresses, and doctor recommendations</p>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Scheduled Consultations</h2>
+          <p style="color: var(--text-secondary);">Track appointment statuses, clinic locations, payment verification receipts, and medical advice</p>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
           <input type="text" id="search-apt-phone" class="filter-input" placeholder="Filter by phone number..." oninput="loadPatientAppointments()">
@@ -196,30 +236,33 @@
       <div class="appointment-list" id="patient-appointments-list"></div>
     </section>
 
-    <!-- ============================================== -->
-    <!-- INTERFACE 4 / BACKEND: DOCTOR PORTAL (DOCTOR'S SIDE) -->
-    <!-- ============================================== -->
+    <!-- ============================================================== -->
+    <!-- VIEW 4: DOCTOR MANAGEMENT PORTAL (BACKEND / PRESERVED) -->
+    <!-- ============================================================== -->
     <section id="view-doctor-portal" class="view-section">
-      <div class="doctor-portal-header">
-        <div class="portal-title">
-          <h2>Doctor's Management Portal (Backend)</h2>
-          <p>Register or update your doctor profile, set consultation fees and hours, and manage patient visits.</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Doctor Clinical Portal</h2>
+          <p style="color: var(--text-secondary);">Manage incoming patient consultations, formulate digital prescriptions, and manage medical registration.</p>
         </div>
-        <button class="btn-switch-portal" onclick="toggleRolePortal()">
-          Switch Back to Patient View
-        </button>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <span class="role-badge doctor" id="doctor-status-badge">WBMC Verified</span>
+        </div>
       </div>
 
       <!-- Doctor Portal Tabs -->
       <div class="portal-tabs">
         <button class="tab-btn active" data-target="portal-appointments">
-          📋 Patient Bookings & Consultations
+          📋 Patient Bookings & Prescriptions
         </button>
         <button class="tab-btn" data-target="portal-add-doctor">
           ➕ Register / Edit Doctor Profile
         </button>
         <button class="tab-btn" data-target="portal-my-doctors">
-          👨‍⚕️ All Registered Providers
+          👨‍⚕️ Registered Providers
+        </button>
+        <button class="tab-btn" data-target="portal-verification">
+          🛡️ WBMC Verification Review
         </button>
       </div>
 
@@ -231,14 +274,14 @@
       <!-- Subview 2: Doctor Input Form (Database Input) -->
       <div id="portal-add-doctor" class="portal-view">
         <div class="form-card">
-          <h3 id="form-doctor-title" style="margin-bottom: 1.5rem; font-size: 1.35rem; font-weight: 800;">
+          <h3 id="form-doctor-title" style="margin-bottom: 1.5rem; font-size: 1.35rem; font-weight: 800; color: var(--text-white);">
             Register New Doctor Profile
           </h3>
           <form id="doctor-profile-form">
             <div class="form-grid">
               <div class="form-control">
                 <label>Doctor Full Name *</label>
-                <input type="text" id="doc-input-name" placeholder="e.g. Dr. Johnathan Reed" required>
+                <input type="text" id="doc-input-name" placeholder="e.g. Dr. Sourav Banerjee" required>
               </div>
 
               <div class="form-control">
@@ -255,9 +298,24 @@
                 </select>
               </div>
 
+              <!-- West Bengal Medical Council Verification Fields -->
+              <div class="form-control">
+                <label>Medical Registration Number (WBMC / NMC) *</label>
+                <input type="text" id="doc-input-regno" placeholder="e.g. WBMC-74921" required>
+              </div>
+
+              <div class="form-control">
+                <label>Registration Authority *</label>
+                <select id="doc-input-authority" required>
+                  <option value="West Bengal Medical Council (WBMC)">West Bengal Medical Council (WBMC)</option>
+                  <option value="National Medical Commission (NMC/MCI)">National Medical Commission (NMC/MCI)</option>
+                  <option value="Other State Medical Council">Other State Medical Council</option>
+                </select>
+              </div>
+
               <div class="form-control">
                 <label>Qualifications</label>
-                <input type="text" id="doc-input-qualification" placeholder="e.g. MBBS, MD, Board Certified">
+                <input type="text" id="doc-input-qualification" placeholder="e.g. MBBS, MD (Calcutta Medical College)">
               </div>
 
               <div class="form-control">
@@ -266,33 +324,33 @@
               </div>
 
               <div class="form-control">
-                <label>Consultation Fee ($) *</label>
-                <input type="number" id="doc-input-fee" placeholder="e.g. 75" min="0" required>
+                <label>Consultation Fee (₹) *</label>
+                <input type="number" id="doc-input-fee" placeholder="e.g. 700" min="0" required>
               </div>
 
               <div class="form-control">
-                <label>Clinic / Hospital Name</label>
-                <input type="text" id="doc-input-clinic" placeholder="e.g. St. Jude Wellness Center">
+                <label>Affiliated Clinic / Hospital Name</label>
+                <input type="text" id="doc-input-clinic" placeholder="e.g. Metropolis Healthcare & Polyclinic">
               </div>
 
               <div class="form-control">
-                <label>Street Address / Location *</label>
-                <input type="text" id="doc-input-location" placeholder="e.g. 500 Grand Avenue, Suite 2B" required>
+                <label>Street Address / Chamber Location *</label>
+                <input type="text" id="doc-input-location" placeholder="e.g. 128 Park Street, 2nd Floor" required>
               </div>
 
               <div class="form-control">
                 <label>City *</label>
-                <input type="text" id="doc-input-city" placeholder="e.g. New York" required>
+                <input type="text" id="doc-input-city" placeholder="e.g. Kolkata" required>
               </div>
 
               <div class="form-control">
                 <label>Phone Contact</label>
-                <input type="text" id="doc-input-phone" placeholder="e.g. +1 (555) 019-2831">
+                <input type="text" id="doc-input-phone" placeholder="e.g. +91 98301 23456">
               </div>
 
               <div class="form-control">
                 <label>Official Email</label>
-                <input type="email" id="doc-input-email" placeholder="e.g. doctor@doctorx.health">
+                <input type="email" id="doc-input-email" placeholder="e.g. doctor@medinexa.health">
               </div>
 
               <div class="form-control">
@@ -302,7 +360,7 @@
 
               <div class="form-control">
                 <label>Available Hours</label>
-                <input type="text" id="doc-input-hours" placeholder="e.g. 09:00 AM - 04:00 PM">
+                <input type="text" id="doc-input-hours" placeholder="e.g. 09:00 AM - 02:00 PM">
               </div>
 
               <div class="form-control span-2">
@@ -311,7 +369,7 @@
               </div>
 
               <div class="form-control span-2">
-                <label>Doctor Bio / Background Overview</label>
+                <label>Doctor Bio / Clinical Expertise Overview</label>
                 <textarea id="doc-input-bio" rows="3" placeholder="Brief summary of clinical specialties, achievements, and patient care philosophies..."></textarea>
               </div>
             </div>
@@ -332,22 +390,268 @@
       <div id="portal-my-doctors" class="portal-view">
         <div class="appointment-list" id="portal-doctors-list"></div>
       </div>
+
+      <!-- Subview 4: West Bengal Medical Council Verification Review Queue -->
+      <div id="portal-verification" class="portal-view">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h3 style="color: var(--text-white); font-weight: 800; margin-bottom: 0.5rem;">West Bengal Medical Council (WBMC) Credential Review</h3>
+          <p style="color: var(--text-secondary); font-size: 0.88rem;">
+            Per regulatory guidelines, medical registration numbers must be verified before displaying the verified badge. Unverified submissions remain pending until manual review is completed.
+          </p>
+        </div>
+        <div class="appointment-list" id="verification-queue-list"></div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- VIEW 5: CLINIC FINANCIAL MANAGEMENT PORTAL (12 METRICS) -->
+    <!-- ============================================================== -->
+    <section id="view-clinic-portal" class="view-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-white);">Clinic Operations & Financial Accounting</h2>
+          <p style="color: var(--text-secondary);">Verified collections, gateway processing fees, bank settlements, and operational expenses</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn-book" style="background: #334155;" onclick="document.getElementById('modal-record-expense').classList.add('active')">
+            ➕ Record Expense
+          </button>
+          <button class="btn-submit" onclick="document.getElementById('modal-record-settlement').classList.add('active')">
+            🏦 Record Settlement
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters by Doctor & Date Range -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>Filter by Attending Doctor</label>
+          <select id="clinic-filter-doctor" class="filter-select">
+            <option value="All">All Doctors</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>From Date</label>
+          <input type="date" id="clinic-filter-from" class="filter-input">
+        </div>
+        <div class="filter-group">
+          <label>To Date</label>
+          <input type="date" id="clinic-filter-to" class="filter-input">
+        </div>
+        <button class="btn-submit" id="btn-apply-clinic-filters" style="padding: 0.65rem 1.25rem;">Apply Filters</button>
+      </div>
+
+      <!-- 12 Clearly Separated Financial Metric Cards -->
+      <div class="clinic-metrics-grid">
+        <!-- 1. Total Patient Payments Collected -->
+        <div class="metric-card accent-blue">
+          <div class="metric-card-header">
+            <span class="metric-label">1. Total Payments Attempted</span>
+            <span class="metric-icon">💳</span>
+          </div>
+          <div class="metric-value" id="metric-total-collected">₹0</div>
+          <div class="metric-sub">Total gross collections initiated</div>
+        </div>
+
+        <!-- 2. Payments Pending Verification -->
+        <div class="metric-card accent-amber">
+          <div class="metric-card-header">
+            <span class="metric-label">2. Pending Verification</span>
+            <span class="metric-icon">⏳</span>
+          </div>
+          <div class="metric-value" id="metric-pending-verification">₹0</div>
+          <div class="metric-sub">Awaiting gateway capture verification</div>
+        </div>
+
+        <!-- 3. Verified Payments Received -->
+        <div class="metric-card accent-green">
+          <div class="metric-card-header">
+            <span class="metric-label">3. Verified Payments</span>
+            <span class="metric-icon">✓</span>
+          </div>
+          <div class="metric-value" id="metric-verified-received">₹0</div>
+          <div class="metric-sub">Confirmed via cryptographic signature</div>
+        </div>
+
+        <!-- 4. Gateway Fees -->
+        <div class="metric-card accent-red">
+          <div class="metric-card-header">
+            <span class="metric-label">4. Gateway Fees</span>
+            <span class="metric-icon">🏷️</span>
+          </div>
+          <div class="metric-value" id="metric-gateway-fees">₹0</div>
+          <div class="metric-sub">2% provider transaction charge</div>
+        </div>
+
+        <!-- 5. Refunds and Refund Statuses -->
+        <div class="metric-card accent-red">
+          <div class="metric-card-header">
+            <span class="metric-label">5. Processed Refunds</span>
+            <span class="metric-icon">↩️</span>
+          </div>
+          <div class="metric-value" id="metric-refunds-total">₹0</div>
+          <div class="metric-sub">Total patient refunds processed</div>
+        </div>
+
+        <!-- 6. Amount Settled to Bank Account -->
+        <div class="metric-card accent-green">
+          <div class="metric-card-header">
+            <span class="metric-label">6. Settled to Bank</span>
+            <span class="metric-icon">🏦</span>
+          </div>
+          <div class="metric-value" id="metric-settled-to-bank">₹0</div>
+          <div class="metric-sub">Verified transfers deposited into bank</div>
+        </div>
+
+        <!-- 7. Available Funds -->
+        <div class="metric-card accent-cyan">
+          <div class="metric-card-header">
+            <span class="metric-label">7. Available Funds</span>
+            <span class="metric-icon">💰</span>
+          </div>
+          <div class="metric-value" id="metric-available-funds">₹0</div>
+          <div class="metric-sub">Net verified surplus available for payout</div>
+        </div>
+
+        <!-- 8. Recorded Operational Expenses -->
+        <div class="metric-card accent-amber">
+          <div class="metric-card-header">
+            <span class="metric-label">8. Recorded Expenses</span>
+            <span class="metric-icon">🧾</span>
+          </div>
+          <div class="metric-value" id="metric-recorded-expenses">₹0</div>
+          <div class="metric-sub">Labelled as manually recorded expenses</div>
+        </div>
+
+        <!-- 9. Doctor Payments Due -->
+        <div class="metric-card accent-blue">
+          <div class="metric-card-header">
+            <span class="metric-label">9. Doctor Payments Due</span>
+            <span class="metric-icon">👨‍⚕️</span>
+          </div>
+          <div class="metric-value" id="metric-doctor-due">₹0</div>
+          <div class="metric-sub">Outstanding consultation shares</div>
+        </div>
+
+        <!-- 10. Doctor Settlements Completed -->
+        <div class="metric-card accent-green">
+          <div class="metric-card-header">
+            <span class="metric-label">10. Doctor Settled</span>
+            <span class="metric-icon">💸</span>
+          </div>
+          <div class="metric-value" id="metric-doctor-settled">₹0</div>
+          <div class="metric-sub">Completed doctor disbursement payouts</div>
+        </div>
+
+        <!-- 11. Outstanding Doctor Liabilities -->
+        <div class="metric-card accent-red">
+          <div class="metric-card-header">
+            <span class="metric-label">11. Doctor Liabilities</span>
+            <span class="metric-icon">⚖️</span>
+          </div>
+          <div class="metric-value" id="metric-outstanding-liabilities">₹0</div>
+          <div class="metric-sub">Net pending practitioner payout debt</div>
+        </div>
+
+        <!-- 12. Internal Accounting Balance -->
+        <div class="metric-card accent-cyan">
+          <div class="metric-card-header">
+            <span class="metric-label">12. Internal Balance</span>
+            <span class="metric-icon">📊</span>
+          </div>
+          <div class="metric-value" id="metric-accounting-balance">₹0</div>
+          <div class="metric-sub">Net collections minus recorded expenses</div>
+        </div>
+      </div>
+
+      <!-- Clinic Sub Tabs -->
+      <div class="portal-tabs">
+        <button class="tab-btn active" data-target="clinic-financials">
+          💳 Verified Collections & Transactions
+        </button>
+        <button class="tab-btn" data-target="clinic-expenses">
+          🧾 Recorded Operational Expenses
+        </button>
+        <button class="tab-btn" data-target="clinic-settlements">
+          🏦 Doctor Payouts & Bank Settlements
+        </button>
+      </div>
+
+      <!-- Tab 1: Verified Transactions -->
+      <div id="clinic-financials" class="portal-view active">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem;">
+                <th style="padding: 1rem;">Order ID</th>
+                <th style="padding: 1rem;">Patient</th>
+                <th style="padding: 1rem;">Doctor</th>
+                <th style="padding: 1rem;">Gross Fee</th>
+                <th style="padding: 1rem;">Gateway Fee</th>
+                <th style="padding: 1rem;">Status</th>
+                <th style="padding: 1rem;">Date</th>
+              </tr>
+            </thead>
+            <tbody id="clinic-transactions-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: Operational Expenses -->
+      <div id="clinic-expenses" class="portal-view">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem;">
+                <th style="padding: 1rem;">Expense Title</th>
+                <th style="padding: 1rem;">Category</th>
+                <th style="padding: 1rem;">Amount</th>
+                <th style="padding: 1rem;">Recorded By</th>
+                <th style="padding: 1rem;">Type Classification</th>
+                <th style="padding: 1rem;">Date</th>
+              </tr>
+            </thead>
+            <tbody id="clinic-expenses-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Settlements -->
+      <div id="clinic-settlements" class="portal-view">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem;">
+                <th style="padding: 1rem;">Settlement Type</th>
+                <th style="padding: 1rem;">Recipient</th>
+                <th style="padding: 1rem;">Amount</th>
+                <th style="padding: 1rem;">Payment Method</th>
+                <th style="padding: 1rem;">UTR / Reference</th>
+                <th style="padding: 1rem;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="clinic-settlements-body"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
   </main>
 
-  <!-- Appointment Booking Modal -->
+  <!-- ============================================================== -->
+  <!-- MODAL: APPOINTMENT BOOKING WITH DOCTOR -->
+  <!-- ============================================================== -->
   <div class="modal-overlay" id="booking-modal">
     <div class="modal-box">
       <button class="modal-close" id="btn-close-modal">&times;</button>
       
-      <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
-        <img id="modal-doctor-avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+      <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+        <img id="modal-doctor-avatar" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-red);">
         <div>
-          <h3 id="modal-doctor-name" style="font-size: 1.25rem; font-weight: 800;"></h3>
-          <div id="modal-doctor-specialty" style="font-size: 0.85rem; color: var(--primary); font-weight: 700;"></div>
-          <div id="modal-doctor-location" style="font-size: 0.8rem; color: var(--text-muted);"></div>
-          <div id="modal-doctor-fee" style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-top: 2px;"></div>
+          <h3 id="modal-doctor-name" style="font-size: 1.25rem; font-weight: 800; color: var(--text-white);"></h3>
+          <div id="modal-doctor-specialty" style="font-size: 0.85rem; color: #f87171; font-weight: 700;"></div>
+          <div id="modal-doctor-location" style="font-size: 0.8rem; color: var(--text-secondary);"></div>
+          <div id="modal-doctor-fee" style="font-size: 0.95rem; font-weight: 800; color: var(--text-white); margin-top: 3px;"></div>
         </div>
       </div>
 
@@ -356,24 +660,24 @@
         <div class="form-grid full">
           <div class="form-control">
             <label>Patient Full Name *</label>
-            <input type="text" id="apt-patient-name" placeholder="John Doe" required>
+            <input type="text" id="apt-patient-name" placeholder="e.g. Anirban Roy" required>
           </div>
 
           <div class="form-grid" style="gap: 1rem;">
             <div class="form-control">
-              <label>Phone Number *</label>
-              <input type="tel" id="apt-patient-phone" placeholder="+1 (555) 000-0000" required>
+              <label>Phone Number (for WhatsApp Rx) *</label>
+              <input type="tel" id="apt-patient-phone" placeholder="e.g. 9830123456" required>
             </div>
             <div class="form-control">
               <label>Email Address</label>
-              <input type="email" id="apt-patient-email" placeholder="john@example.com">
+              <input type="email" id="apt-patient-email" placeholder="patient@example.com">
             </div>
           </div>
 
           <div class="form-grid" style="gap: 1rem;">
             <div class="form-control">
               <label>Patient Age</label>
-              <input type="number" id="apt-patient-age" placeholder="e.g. 32" min="1" max="120">
+              <input type="number" id="apt-patient-age" placeholder="e.g. 34" min="1" max="120">
             </div>
             <div class="form-control">
               <label>Gender</label>
@@ -405,14 +709,369 @@
 
           <div class="form-control">
             <label>Symptoms / Primary Health Concern *</label>
-            <textarea id="apt-symptoms" rows="3" placeholder="Describe your unhealthiness or reason for consultation..." required></textarea>
+            <textarea id="apt-symptoms" rows="3" placeholder="Describe symptoms or medical history for the doctor..." required></textarea>
           </div>
         </div>
 
         <div style="margin-top: 1.5rem;">
           <button type="submit" class="btn-submit" id="btn-confirm-booking" style="width: 100%;">
-            Confirm & Book Appointment
+            Proceed to Secure Payment
           </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: RAZORPAY PAYMENT CHECKOUT & CRYPTOGRAPHIC VERIFICATION -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="payment-checkout-modal">
+    <div class="modal-box" style="max-width: 480px; text-align: center;">
+      <button class="modal-close" onclick="document.getElementById('payment-checkout-modal').classList.remove('active')">&times;</button>
+      <div style="width: 58px; height: 58px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.6rem;">
+        💳
+      </div>
+      <h3 style="color: var(--text-white); font-weight: 800; font-size: 1.35rem; margin-bottom: 0.35rem;">
+        Razorpay Secure Gateway
+      </h3>
+      <span class="role-badge patient" id="pay-gateway-mode" style="margin-bottom: 1.25rem;">RAZORPAY TEST MODE</span>
+
+      <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; text-align: left; margin-bottom: 1.5rem; font-size: 0.88rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--text-secondary);">Consulting Doctor:</span>
+          <strong style="color: var(--text-white);" id="pay-doctor-name">Dr. Alexander Cross</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--text-secondary);">Order Reference:</span>
+          <span style="color: #60a5fa; font-family: monospace;" id="pay-order-id">order_medinexa_123</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-top: 0.5rem;">
+          <span style="color: var(--text-white); font-weight: 700;">Consultation Fee:</span>
+          <strong style="color: #34d399; font-size: 1.2rem;" id="pay-amount">₹800</strong>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btn-complete-pay" style="width: 100%; padding: 0.9rem; font-size: 1rem;">
+        Confirm & Pay (Razorpay)
+      </button>
+      <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.75rem;">
+        Payment order is validated by MediNexa server. Consultation confirmed upon HMAC signature verification.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: PRESCRIPTION BUILDER -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="prescription-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="document.getElementById('prescription-modal').classList.remove('active')">&times;</button>
+      
+      <div style="margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-white);">
+          Clinical Prescription Builder
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Patient: <strong id="rx-patient-name" style="color: var(--text-white);"></strong> | 
+          Phone: <strong id="rx-patient-phone" style="color: #60a5fa;"></strong> | 
+          Age: <span id="rx-patient-age"></span>
+        </p>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+          Stated Symptoms: <span id="rx-patient-symptoms" style="color: var(--text-primary);"></span>
+        </div>
+      </div>
+
+      <form id="prescription-form">
+        <div class="form-grid full" style="gap: 1rem;">
+          <div class="form-control">
+            <label>Clinical Diagnosis *</label>
+            <input type="text" id="rx-input-diagnosis" placeholder="e.g. Acute Viral Bronchitis / Hypertension Stage 1" required>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary);">Prescribed Medications *</label>
+              <button type="button" class="btn-reset-filters" id="btn-add-medicine-row" style="padding: 0.25rem 0.65rem; font-size: 0.75rem;">
+                + Add Medication
+              </button>
+            </div>
+            <div id="rx-medicines-container"></div>
+          </div>
+
+          <div class="form-control">
+            <label>General Advice & Instructions</label>
+            <textarea id="rx-input-advice" rows="2" placeholder="e.g. Drink warm fluids, avoid heavy exertion, follow up in 5 days if fever persists."></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+          <button type="submit" class="btn-submit" style="flex: 1;">
+            Review Prescription Before Sharing &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: PRESCRIPTION REVIEW BEFORE WHATSAPP SHARING -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="prescription-review-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="document.getElementById('prescription-review-modal').classList.remove('active')">&times;</button>
+      
+      <div style="margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-white);">
+          Review Prescription Before Sharing
+        </h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+          Verify medication details, dosages, and patient contact number before initiating WhatsApp dispatch.
+        </p>
+      </div>
+
+      <div id="rx-review-content" style="margin-bottom: 1.5rem;"></div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button type="button" class="btn-reset-filters" onclick="document.getElementById('prescription-review-modal').classList.remove('active'); document.getElementById('prescription-modal').classList.add('active');">
+          Back to Edit
+        </button>
+        <button type="button" class="btn-action-whatsapp" style="flex: 1; padding: 0.85rem;" onclick="confirmAndSharePrescription()">
+          <span>📲</span> Confirm & Open in WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: RECORD CLINIC EXPENSE -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="modal-record-expense">
+    <div class="modal-box">
+      <button class="modal-close" onclick="document.getElementById('modal-record-expense').classList.remove('active')">&times;</button>
+      <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-white); margin-bottom: 1.25rem;">
+        Record Operational Clinic Expense
+      </h3>
+      <form id="form-record-expense">
+        <div class="form-grid full" style="gap: 1rem;">
+          <div class="form-control">
+            <label>Expense Title *</label>
+            <input type="text" id="exp-title" placeholder="e.g. Oxygen Cylinder Refill / Lab Diagnostic Kits" required>
+          </div>
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Category *</label>
+              <select id="exp-category" required>
+                <option value="Medical Supplies">Medical Supplies</option>
+                <option value="Utilities">Utilities (Electricity/Water)</option>
+                <option value="Salaries & Staff">Salaries & Staff</option>
+                <option value="Equipment Maintenance">Equipment Maintenance</option>
+                <option value="Sanitization & PPE">Sanitization & PPE</option>
+                <option value="Administrative">Administrative</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-control">
+              <label>Amount (₹) *</label>
+              <input type="number" id="exp-amount" placeholder="e.g. 5000" min="1" required>
+            </div>
+          </div>
+          <div class="form-control">
+            <label>Date Incurred *</label>
+            <input type="date" id="exp-date" required>
+          </div>
+          <div class="form-control">
+            <label>Expense Description / Vendor Notes</label>
+            <textarea id="exp-desc" rows="2" placeholder="Details of invoice or supplier..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn-submit" style="width: 100%;">Save Recorded Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: RECORD SETTLEMENT / DOCTOR PAYOUT -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="modal-record-settlement">
+    <div class="modal-box">
+      <button class="modal-close" onclick="document.getElementById('modal-record-settlement').classList.remove('active')">&times;</button>
+      <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-white); margin-bottom: 1.25rem;">
+        Record Payout or Bank Settlement
+      </h3>
+      <form id="form-record-settlement">
+        <div class="form-grid full" style="gap: 1rem;">
+          <div class="form-control">
+            <label>Settlement Type *</label>
+            <select id="set-type" required>
+              <option value="doctor_settlement">Doctor Consultation Payout</option>
+              <option value="bank_withdrawal">Withdrawal to Clinic Bank Account</option>
+            </select>
+          </div>
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Amount (₹) *</label>
+              <input type="number" id="set-amount" placeholder="e.g. 15000" min="1" required>
+            </div>
+            <div class="form-control">
+              <label>Recipient Name *</label>
+              <input type="text" id="set-doctor-name" placeholder="Doctor or Clinic Bank Name" required>
+            </div>
+          </div>
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Payment Method</label>
+              <select id="set-method">
+                <option value="Bank Transfer (NEFT/RTGS/IMPS)">NEFT/RTGS/IMPS Bank Transfer</option>
+                <option value="UPI Direct Payout">UPI Direct Payout</option>
+                <option value="Demand Draft / Cheque">Demand Draft / Cheque</option>
+              </select>
+            </div>
+            <div class="form-control">
+              <label>Bank UTR / Transaction Reference</label>
+              <input type="text" id="set-ref" placeholder="e.g. UTR-9831092831">
+            </div>
+          </div>
+          <div class="form-control">
+            <label>Settlement Notes</label>
+            <textarea id="set-notes" rows="2" placeholder="Accounting remarks..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn-submit" style="width: 100%;">Record Completed Settlement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: AUTHENTICATION (PATIENT, DOCTOR, CLINIC) -->
+  <!-- ============================================================== -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-box" style="max-width: 520px;">
+      <button class="modal-close" id="btn-close-auth-modal">&times;</button>
+      
+      <!-- Auth Tabs: Login vs Register -->
+      <div class="portal-tabs" style="margin-bottom: 1.5rem;">
+        <button class="tab-btn active" id="tab-auth-login">Sign In</button>
+        <button class="tab-btn" id="tab-auth-register">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-auth-login">
+        <div class="form-grid full" style="gap: 1rem;">
+          <div class="form-control">
+            <label>Email Address *</label>
+            <input type="email" id="login-email" placeholder="e.g. doctor@medinexa.health" required>
+          </div>
+          <div class="form-control">
+            <label>Password *</label>
+            <input type="password" id="login-password" placeholder="••••••••" required>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn-submit" style="width: 100%;">Sign In to MediNexa</button>
+        </div>
+        <div style="margin-top: 1rem; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+          Demo accounts: <code>alexander.cross@medinexa.health</code> / <code>password123</code>
+        </div>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-auth-register" style="display: none;">
+        <div class="form-grid full" style="gap: 1rem;">
+          <div class="form-control">
+            <label>Account Role *</label>
+            <select id="auth-role-select" required>
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor (Medical Practitioner)</option>
+              <option value="clinic">Clinic / Healthcare Facility</option>
+            </select>
+          </div>
+
+          <div class="form-control">
+            <label>Full Name / Legal Entity Name *</label>
+            <input type="text" id="reg-name" placeholder="e.g. Dr. Subhash Chandra" required>
+          </div>
+
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Email Address *</label>
+              <input type="email" id="reg-email" placeholder="name@domain.com" required>
+            </div>
+            <div class="form-control">
+              <label>Password (min 6 chars) *</label>
+              <input type="password" id="reg-password" placeholder="••••••••" required>
+            </div>
+          </div>
+
+          <div class="form-grid" style="gap: 1rem;">
+            <div class="form-control">
+              <label>Phone Number *</label>
+              <input type="tel" id="reg-phone" placeholder="+91 98300 00000" required>
+            </div>
+            <div class="form-control">
+              <label>City *</label>
+              <input type="text" id="reg-city" placeholder="Kolkata" required>
+            </div>
+          </div>
+
+          <!-- Doctor Specific Fields -->
+          <div id="reg-doctor-fields" style="display: none;">
+            <div class="form-grid" style="gap: 1rem; margin-top: 0.5rem;">
+              <div class="form-control">
+                <label>Specialty *</label>
+                <select id="reg-doc-specialty">
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Dermatology">Dermatology</option>
+                  <option value="Neurology">Neurology</option>
+                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                  <option value="General Medicine">General Medicine</option>
+                  <option value="Psychiatry & Mental Health">Psychiatry & Mental Health</option>
+                  <option value="ENT & Otolaryngology">ENT & Otolaryngology</option>
+                </select>
+              </div>
+              <div class="form-control">
+                <label>Consultation Fee (₹) *</label>
+                <input type="number" id="reg-doc-fee" placeholder="700">
+              </div>
+            </div>
+            <div class="form-control" style="margin-top: 0.5rem;">
+              <label>Medical Qualifications</label>
+              <input type="text" id="reg-doc-qualification" placeholder="MBBS, MD (General Medicine)">
+            </div>
+            <div class="form-grid" style="gap: 1rem; margin-top: 0.5rem;">
+              <div class="form-control">
+                <label>Medical Registration No *</label>
+                <input type="text" id="reg-doc-regno" placeholder="e.g. WBMC-83192">
+              </div>
+              <div class="form-control">
+                <label>Authority *</label>
+                <select id="reg-doc-authority">
+                  <option value="West Bengal Medical Council (WBMC)">West Bengal Medical Council (WBMC)</option>
+                  <option value="National Medical Commission (NMC/MCI)">National Medical Commission (NMC/MCI)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinic Specific Fields -->
+          <div id="reg-clinic-fields" style="display: none;">
+            <div class="form-control" style="margin-top: 0.5rem;">
+              <label>Clinical Establishment License Number</label>
+              <input type="text" id="reg-clinic-license" placeholder="e.g. WB/DHS/CE-2026/0912">
+            </div>
+            <div class="form-control" style="margin-top: 0.5rem;">
+              <label>Registered Clinic Name</label>
+              <input type="text" id="reg-clinic-name" placeholder="e.g. Park Street Care Hospital">
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn-submit" style="width: 100%;">Create MediNexa Account</button>
         </div>
       </form>
     </div>
@@ -425,22 +1084,29 @@
   <footer class="footer">
     <div class="footer-container">
       <div class="footer-brand">
-        <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1.1rem;">X</div>
+        <svg class="brand-logo-svg" style="width: 32px; height: 32px;" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="23" fill="#0f172a" stroke="#243049" stroke-width="2"/>
+          <path d="M14 11V18C14 23.5228 18.4772 28 24 28C29.5228 28 34 23.5228 34 18V11" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+          <path d="M24 28V34C24 36.2091 25.7909 38 28 38H31" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="34" cy="38" r="4" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+        </svg>
         <div>
-          <div style="font-weight: 800; color: white;">Doctor X</div>
-          <div style="font-size: 0.75rem;">Digital Healthcare & Provider Management Platform</div>
+          <div style="font-weight: 800; color: white;">MediNexa</div>
+          <div style="font-size: 0.75rem;">One Platform. Better Connected Care.</div>
         </div>
       </div>
-      <div style="font-size: 0.85rem;">
-        Patient Care Portal • Doctor Administration Backend • SQLite Database
+      <div>
+        Patient Discovery • WBMC Doctor Credential Verification • WhatsApp Prescriptions • Razorpay Gateway
       </div>
     </div>
   </footer>
 
   <!-- Scripts -->
   <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
   <script src="/js/patient.js"></script>
   <script src="/js/doctor.js"></script>
+  <script src="/js/clinic.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>

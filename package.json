@@ -7,8 +7,16 @@
     "start": "node server/server.js"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
     "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.3",
+    "razorpay": "^2.9.8",
     "sqlite3": "^5.1.7"
   }
 }

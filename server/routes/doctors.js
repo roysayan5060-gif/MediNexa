@@ -1,159 +1,256 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const Doctor = require('../models/Doctor');
+const { isMongoConnected, memoryStore } = require('../db');
 
-// GET /api/doctors - Fetch all doctors with optional filtering
-router.get('/', (req, res) => {
-  const { specialty, city, search, maxFee, sortBy } = req.query;
-  
-  let conditions = [];
-  let params = [];
+// GET /api/doctors - Fetch all doctors with search, filters, and sorting
+router.get('/', async (req, res) => {
+  try {
+    const { specialty, city, search, maxFee, sortBy } = req.query;
 
-  if (specialty && specialty !== 'All') {
-    conditions.push("specialty = ?");
-    params.push(specialty);
+    if (isMongoConnected()) {
+      let query = {};
+
+      if (specialty && specialty !== 'All') {
+        query.specialty = specialty;
+      }
+
+      if (city && city !== 'All') {
+        query.city = city;
+      }
+
+      if (maxFee) {
+        query.fee = { $lte: parseFloat(maxFee) };
+      }
+
+      if (search) {
+        const regex = new RegExp(search, 'i');
+        query.$or = [
+          { name: regex },
+          { specialty: regex },
+          { clinic_name: regex },
+          { location: regex },
+          { city: regex }
+        ];
+      }
+
+      let sortOption = { rating: -1 };
+      if (sortBy === 'fee_asc') sortOption = { fee: 1 };
+      else if (sortBy === 'fee_desc') sortOption = { fee: -1 };
+      else if (sortBy === 'experience') sortOption = { experience: -1 };
+
+      const doctors = await Doctor.find(query).sort(sortOption);
+      // Map for frontend compatibility (ensure id field exists)
+      const mapped = doctors.map(d => ({
+        ...d.toObject(),
+        id: d.legacy_id || d._id.toString()
+      }));
+      return res.json(mapped);
+
+    } else {
+      let filtered = [...memoryStore.doctors];
+
+      if (specialty && specialty !== 'All') {
+        filtered = filtered.filter(d => d.specialty.toLowerCase() === specialty.toLowerCase());
+      }
+
+      if (city && city !== 'All') {
+        filtered = filtered.filter(d => d.city.toLowerCase() === city.toLowerCase());
+      }
+
+      if (maxFee) {
+        filtered = filtered.filter(d => d.fee <= parseFloat(maxFee));
+      }
+
+      if (search) {
+        const q = search.toLowerCase();
+        filtered = filtered.filter(d => 
+          (d.name && d.name.toLowerCase().includes(q)) ||
+          (d.specialty && d.specialty.toLowerCase().includes(q)) ||
+          (d.clinic_name && d.clinic_name.toLowerCase().includes(q)) ||
+          (d.location && d.location.toLowerCase().includes(q)) ||
+          (d.city && d.city.toLowerCase().includes(q))
+        );
+      }
+
+      if (sortBy === 'fee_asc') {
+        filtered.sort((a, b) => a.fee - b.fee);
+      } else if (sortBy === 'fee_desc') {
+        filtered.sort((a, b) => b.fee - a.fee);
+      } else if (sortBy === 'experience') {
+        filtered.sort((a, b) => b.experience - a.experience);
+      } else {
+        filtered.sort((a, b) => b.rating - a.rating);
+      }
+
+      return res.json(filtered);
+    }
+  } catch (err) {
+    console.error('Error fetching doctors:', err);
+    res.status(500).json({ error: 'Failed to retrieve doctors directory: ' + err.message });
   }
-
-  if (city && city !== 'All') {
-    conditions.push("city = ?");
-    params.push(city);
-  }
-
-  if (maxFee) {
-    conditions.push("fee <= ?");
-    params.push(Number(maxFee));
-  }
-
-  if (search && search.trim()) {
-    conditions.push("(name LIKE ? OR specialty LIKE ? OR clinic_name LIKE ? OR location LIKE ?)");
-    const searchTerm = `%${search.trim()}%`;
-    params.push(searchTerm, searchTerm, searchTerm, searchTerm);
-  }
-
-  let whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
-
-  let orderClause = "ORDER BY rating DESC";
-  if (sortBy === 'fee_low') orderClause = "ORDER BY fee ASC";
-  if (sortBy === 'fee_high') orderClause = "ORDER BY fee DESC";
-  if (sortBy === 'experience') orderClause = "ORDER BY experience DESC";
-
-  const sql = `SELECT * FROM doctors ${whereClause} ${orderClause}`;
-
-  db.all(sql, params, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
 });
 
 // GET /api/doctors/meta/filters - Unique specialties and cities for dropdowns
-router.get('/meta/filters', (req, res) => {
-  db.all(`SELECT DISTINCT specialty FROM doctors ORDER BY specialty ASC`, [], (err, specs) => {
-    if (err) return res.status(500).json({ error: err.message });
-    db.all(`SELECT DISTINCT city FROM doctors ORDER BY city ASC`, [], (err2, cities) => {
-      if (err2) return res.status(500).json({ error: err2.message });
-      res.json({
-        specialties: specs.map(s => s.specialty),
-        cities: cities.map(c => c.city)
-      });
-    });
-  });
+router.get('/meta/filters', async (req, res) => {
+  try {
+    if (isMongoConnected()) {
+      const specialties = await Doctor.distinct('specialty');
+      const cities = await Doctor.distinct('city');
+      return res.json({ specialties, cities });
+    } else {
+      const specialties = Array.from(new Set(memoryStore.doctors.map(d => d.specialty))).filter(Boolean);
+      const cities = Array.from(new Set(memoryStore.doctors.map(d => d.city))).filter(Boolean);
+      return res.json({ specialties, cities });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load filters: ' + err.message });
+  }
 });
 
 // GET /api/doctors/:id - Single doctor details
-router.get('/:id', (req, res) => {
-  db.get(`SELECT * FROM doctors WHERE id = ?`, [req.params.id], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!row) return res.status(404).json({ error: 'Doctor not found' });
-    res.json(row);
-  });
-});
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
 
-// POST /api/doctors - Create new doctor (Doctor Portal side)
-router.post('/', (req, res) => {
-  const {
-    name, specialty, qualification, experience, fee, clinic_name,
-    location, city, phone, email, avatar, bio, available_days, available_hours
-  } = req.body;
+    if (isMongoConnected()) {
+      let doctor = null;
+      if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        doctor = await Doctor.findById(id);
+      }
+      if (!doctor && !isNaN(id)) {
+        doctor = await Doctor.findOne({ legacy_id: parseInt(id) });
+      }
+      if (!doctor) {
+        doctor = await Doctor.findOne({ _id: id });
+      }
 
-  if (!name || !specialty || !fee || !location || !city) {
-    return res.status(400).json({ error: 'Please provide required fields: Name, Specialty, Fee, Location, City' });
+      if (!doctor) {
+        return res.status(404).json({ error: 'Doctor not found' });
+      }
+      return res.json({ ...doctor.toObject(), id: doctor.legacy_id || doctor._id.toString() });
+
+    } else {
+      const doctor = memoryStore.doctors.find(d => d._id === id || d.id == id);
+      if (!doctor) {
+        return res.status(404).json({ error: 'Doctor not found' });
+      }
+      return res.json(doctor);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching doctor: ' + err.message });
   }
+});
 
-  const defaultAvatar = avatar || `https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&auto=format&fit=crop&q=80`;
-
-  const sql = `
-    INSERT INTO doctors (
+// POST /api/doctors - Create new doctor profile
+router.post('/', async (req, res) => {
+  try {
+    const {
       name, specialty, qualification, experience, fee, clinic_name,
-      location, city, phone, email, avatar, bio, available_days, available_hours
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+      location, city, phone, email, avatar, bio, available_days,
+      available_hours, registration_number, registration_authority
+    } = req.body;
 
-  const params = [
-    name, specialty, qualification || 'Board Certified',
-    Number(experience) || 1, Number(fee), clinic_name || 'Doctor X Clinic',
-    location, city, phone || '', email || '',
-    defaultAvatar, bio || 'Experienced healthcare specialist at Doctor X.',
-    available_days || 'Mon,Tue,Wed,Thu,Fri', available_hours || '09:00 AM - 05:00 PM'
-  ];
+    if (!name || !specialty || fee === undefined || !location || !city) {
+      return res.status(400).json({ error: 'Name, specialty, fee, location, and city are mandatory.' });
+    }
 
-  db.run(sql, params, function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    db.get(`SELECT * FROM doctors WHERE id = ?`, [this.lastID], (fetchErr, newDoc) => {
-      if (fetchErr) return res.status(500).json({ error: fetchErr.message });
-      res.status(201).json(newDoc);
-    });
-  });
+    const doctorData = {
+      name: name.trim(),
+      specialty: specialty.trim(),
+      qualification: (qualification || 'MBBS').trim(),
+      experience: experience ? parseInt(experience) : 1,
+      fee: parseFloat(fee),
+      clinic_name: (clinic_name || 'MediNexa Clinic').trim(),
+      location: location.trim(),
+      city: city.trim(),
+      phone: phone ? phone.trim() : '',
+      email: email ? email.trim() : '',
+      avatar: avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400',
+      bio: bio ? bio.trim() : 'Dedicated healthcare specialist committed to high-standard connected clinical care.',
+      available_days: available_days || 'Mon,Tue,Wed,Thu,Fri',
+      available_hours: available_hours || '09:00 AM - 05:00 PM',
+      rating: 4.8,
+      registration_number: registration_number || '',
+      registration_authority: registration_authority || 'West Bengal Medical Council (WBMC)',
+      verification_status: 'Pending Verification',
+      verification_notes: 'Submitted for verification.'
+    };
+
+    if (isMongoConnected()) {
+      const doc = new Doctor(doctorData);
+      await doc.save();
+      return res.status(201).json({ ...doc.toObject(), id: doc._id.toString() });
+    } else {
+      const newDoc = {
+        _id: `mem_doc_${Date.now()}`,
+        id: memoryStore.doctors.length + 1,
+        ...doctorData
+      };
+      memoryStore.doctors.push(newDoc);
+      return res.status(201).json(newDoc);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create doctor: ' + err.message });
+  }
 });
 
-// PUT /api/doctors/:id - Update existing doctor profile (Doctor Portal side)
-router.put('/:id', (req, res) => {
-  const {
-    name, specialty, qualification, experience, fee, clinic_name,
-    location, city, phone, email, avatar, bio, available_days, available_hours
-  } = req.body;
+// PUT /api/doctors/:id - Update doctor profile
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
 
-  const sql = `
-    UPDATE doctors SET
-      name = COALESCE(?, name),
-      specialty = COALESCE(?, specialty),
-      qualification = COALESCE(?, qualification),
-      experience = COALESCE(?, experience),
-      fee = COALESCE(?, fee),
-      clinic_name = COALESCE(?, clinic_name),
-      location = COALESCE(?, location),
-      city = COALESCE(?, city),
-      phone = COALESCE(?, phone),
-      email = COALESCE(?, email),
-      avatar = COALESCE(?, avatar),
-      bio = COALESCE(?, bio),
-      available_days = COALESCE(?, available_days),
-      available_hours = COALESCE(?, available_hours)
-    WHERE id = ?
-  `;
+    if (isMongoConnected()) {
+      let doc = null;
+      if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        doc = await Doctor.findByIdAndUpdate(id, updateData, { new: true });
+      }
+      if (!doc && !isNaN(id)) {
+        doc = await Doctor.findOneAndUpdate({ legacy_id: parseInt(id) }, updateData, { new: true });
+      }
 
-  const params = [
-    name, specialty, qualification, experience, fee, clinic_name,
-    location, city, phone, email, avatar, bio, available_days, available_hours,
-    req.params.id
-  ];
+      if (!doc) return res.status(404).json({ error: 'Doctor profile not found.' });
+      return res.json({ ...doc.toObject(), id: doc.legacy_id || doc._id.toString() });
 
-  db.run(sql, params, function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: 'Doctor not found' });
-    db.get(`SELECT * FROM doctors WHERE id = ?`, [req.params.id], (fetchErr, updatedDoc) => {
-      if (fetchErr) return res.status(500).json({ error: fetchErr.message });
-      res.json(updatedDoc);
-    });
-  });
+    } else {
+      const index = memoryStore.doctors.findIndex(d => d._id === id || d.id == id);
+      if (index === -1) return res.status(404).json({ error: 'Doctor not found.' });
+
+      memoryStore.doctors[index] = { ...memoryStore.doctors[index], ...updateData };
+      return res.json(memoryStore.doctors[index]);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update doctor profile: ' + err.message });
+  }
 });
 
-// DELETE /api/doctors/:id
-router.delete('/:id', (req, res) => {
-  db.run(`DELETE FROM doctors WHERE id = ?`, [req.params.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    if (this.changes === 0) return res.status(404).json({ error: 'Doctor not found' });
-    res.json({ message: 'Doctor profile deleted successfully.' });
-  });
+// DELETE /api/doctors/:id - Delete doctor profile
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (isMongoConnected()) {
+      let deleted = null;
+      if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        deleted = await Doctor.findByIdAndDelete(id);
+      }
+      if (!deleted && !isNaN(id)) {
+        deleted = await Doctor.findOneAndDelete({ legacy_id: parseInt(id) });
+      }
+      if (!deleted) return res.status(404).json({ error: 'Doctor not found.' });
+      return res.json({ message: 'Doctor deleted successfully', id });
+
+    } else {
+      const index = memoryStore.doctors.findIndex(d => d._id === id || d.id == id);
+      if (index === -1) return res.status(404).json({ error: 'Doctor not found.' });
+
+      memoryStore.doctors.splice(index, 1);
+      return res.json({ message: 'Doctor deleted successfully', id });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete doctor: ' + err.message });
+  }
 });
 
 module.exports = router;

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MediNexa</string>
+    <string name="title_activity_main">MediNexa</string>
+    <string name="package_name">com.medinexa.app</string>
+    <string name="custom_url_scheme">com.medinexa.app</string>
+</resources>
