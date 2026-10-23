@@ -1,7 +1,7 @@
 {
-  "name": "doctor-x",
+  "name": "medinexa",
   "version": "1.0.0",
-  "description": "Doctor X - Healthcare Web Platform",
+  "description": "MediNexa - One Platform. Better Connected Care.",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
