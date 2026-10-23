@@ -1,4 +1,7 @@
-const DEFAULT_DOCTOR_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
+if (typeof window !== 'undefined' && !window.DEFAULT_DOCTOR_AVATAR) {
+  window.DEFAULT_DOCTOR_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
+}
+var DEFAULT_DOCTOR_AVATAR = (typeof window !== 'undefined' && window.DEFAULT_DOCTOR_AVATAR) ? window.DEFAULT_DOCTOR_AVATAR : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
 
 // Doctor Portal Controller — Preserving All Working Features & Adding PDF Doctor Suite
 let editingDoctorId = null;
@@ -1772,9 +1775,9 @@ const DoctorSuite = {
           </div>
 
           <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary); background: rgba(15, 23, 42, 0.5); padding: 0.65rem 0.85rem; border-radius: var(--radius-md);">
-            <div>📅 <strong>Date:</strong> ${apt.date || 'Today'}</div>
-            <div>⏰ <strong>Slot:</strong> ${apt.time_slot || 'Regular Chamber'}</div>
-            ${apt.fee ? `<div>💰 <strong>Fee:</strong> ₹${apt.fee}</div>` : ''}
+            <div>📅 <strong>Date:</strong> ${apt.appointment_date || apt.date || 'Today'}</div>
+            <div>⏰ <strong>Slot:</strong> ${apt.appointment_time || apt.time_slot || 'Regular Chamber'}</div>
+            ${apt.fee || apt.doctor_fee ? `<div>💰 <strong>Fee:</strong> ₹${apt.fee || apt.doctor_fee}</div>` : ''}
           </div>
 
           ${apt.symptoms ? `

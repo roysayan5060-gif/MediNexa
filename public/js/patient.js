@@ -1,4 +1,7 @@
-const DEFAULT_DOCTOR_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
+if (typeof window !== 'undefined' && !window.DEFAULT_DOCTOR_AVATAR) {
+  window.DEFAULT_DOCTOR_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
+}
+var DEFAULT_DOCTOR_AVATAR = (typeof window !== 'undefined' && window.DEFAULT_DOCTOR_AVATAR) ? window.DEFAULT_DOCTOR_AVATAR : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='40' fill='%231e293b'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%2394a3b8'/%3E%3Cpath d='M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22' fill='%2338bdf8'/%3E%3Ccircle cx='40' cy='46' r='3.5' fill='%23e11d48'/%3E%3C/svg%3E";
 
 // Patient Side Functionality — Discovery, Symptom Triage, Booking, & Real Razorpay Payments
 
