@@ -135,11 +135,65 @@ const Auth = {
     switchView('welcome');
   },
 
+  currentModalRole: 'patient',
+
+  updateModalHeader(role, isRegister = false) {
+    this.currentModalRole = role;
+    const badge = document.getElementById('auth-modal-role-badge');
+    const title = document.getElementById('auth-modal-title');
+    const subtitle = document.getElementById('auth-modal-subtitle');
+    const demoCode = document.querySelector('#form-auth-login code');
+
+    const roleConfigs = {
+      patient: {
+        badgeText: 'PATIENT PORTAL',
+        badgeClass: 'role-badge patient',
+        loginTitle: 'Sign In as Patient',
+        registerTitle: 'Create Patient Account',
+        subtitle: 'Access medical consultations, verified doctors & prescriptions',
+        demo: 'rahul.sharma@example.com / password123'
+      },
+      doctor: {
+        badgeText: 'DOCTOR PORTAL',
+        badgeClass: 'role-badge doctor',
+        loginTitle: 'Sign In as Doctor',
+        registerTitle: 'Doctor Registration (WBMC)',
+        subtitle: 'Manage patient consultations, WBMC verification & WhatsApp Rx',
+        demo: 'marcus.vance@medinexa.health / password123'
+      },
+      clinic: {
+        badgeText: 'CLINIC PORTAL',
+        badgeClass: 'role-badge clinic',
+        loginTitle: 'Sign In as Clinic',
+        registerTitle: 'Clinic Registration',
+        subtitle: 'Access financial accounting, verified gateway settlements & doctor payouts',
+        demo: 'alexander.cross@medinexa.health / password123'
+      }
+    };
+
+    const config = roleConfigs[role] || roleConfigs.patient;
+    if (badge) {
+      badge.textContent = config.badgeText;
+      badge.className = config.badgeClass;
+    }
+    if (title) {
+      title.textContent = isRegister ? config.registerTitle : config.loginTitle;
+    }
+    if (subtitle) {
+      subtitle.textContent = config.subtitle;
+    }
+    if (demoCode) {
+      demoCode.textContent = config.demo;
+    }
+  },
+
   openAuthModal(intendedRole = 'patient', isRegister = false) {
     const modal = document.getElementById('auth-modal');
     if (!modal) return;
 
-    document.getElementById('auth-role-select').value = intendedRole;
+    this.updateModalHeader(intendedRole, isRegister);
+    const roleSelect = document.getElementById('auth-role-select');
+    if (roleSelect) roleSelect.value = intendedRole;
     this.toggleRoleSpecificFields(intendedRole);
 
     if (isRegister) {
@@ -178,6 +232,7 @@ const Auth = {
         tabRegister.classList.remove('active');
         formLogin.style.display = 'block';
         formRegister.style.display = 'none';
+        this.updateModalHeader(this.currentModalRole, false);
       };
 
       tabRegister.onclick = () => {
@@ -185,12 +240,14 @@ const Auth = {
         tabLogin.classList.remove('active');
         formRegister.style.display = 'block';
         formLogin.style.display = 'none';
+        this.updateModalHeader(this.currentModalRole, true);
       };
     }
 
     if (roleSelect) {
       roleSelect.onchange = (e) => {
         this.toggleRoleSpecificFields(e.target.value);
+        this.updateModalHeader(e.target.value, true);
       };
     }
 
