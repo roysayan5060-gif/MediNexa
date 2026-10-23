@@ -12,3 +12,5 @@ android/build
 android/app/build
 server/backups/
 *.db
+*.apk
+*.pre-api-backup

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediNexa — One Platform. Better Connected Care.</title>
+  <title>MediNexa â€” One Platform. Better Connected Care.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -37,19 +37,19 @@
       <!-- Core Navigation Buttons (Hidden on opening welcome screen, shown inside respective portals) -->
       <nav class="nav-links hidden" id="main-nav-links">
         <button class="nav-btn active" data-view="patient-home" id="nav-btn-patient-home">
-          <span>🏠</span> Home / Ask Issues
+          <span>ðŸ </span> Home / Ask Issues
         </button>
         <button class="nav-btn" data-view="doctors" id="nav-btn-doctors">
-          <span>👨‍⚕️</span> Doctors & Fees
+          <span>ðŸ‘¨â€âš•ï¸</span> Doctors & Fees
         </button>
         <button class="nav-btn" data-view="appointments" id="nav-btn-appointments">
-          <span>📅</span> My Appointments
+          <span>ðŸ“…</span> My Appointments
         </button>
         <button class="nav-btn" data-view="doctor-portal" id="nav-btn-doctor-portal" style="display: none;">
-          <span>🩺</span> Doctor Portal
+          <span>ðŸ©º</span> Doctor Portal
         </button>
         <button class="nav-btn" data-view="clinic-portal" id="nav-btn-clinic-portal" style="display: none;">
-          <span>🏥</span> Clinic Portal
+          <span>ðŸ¥</span> Clinic Portal
         </button>
       </nav>
 
@@ -57,7 +57,7 @@
       <div class="header-actions" id="header-actions" style="display: none;">
         <span class="role-badge patient" id="role-badge">PATIENT VIEW</span>
         <button class="btn-header-auth" id="btn-header-auth">
-          <span>🔒</span> Logout
+          <span>ðŸ”’</span> Logout
         </button>
       </div>
     </div>
@@ -67,7 +67,7 @@
   <main class="main-wrapper">
 
     <!-- ============================================================== -->
-    <!-- VIEW 1: CLEAN MINIMAL FIRST SCREEN — MEDINEXA WELCOME PAGE -->
+    <!-- VIEW 1: CLEAN MINIMAL FIRST SCREEN â€” MEDINEXA WELCOME PAGE -->
     <!-- Display ONLY branding, tagline, subtitle, and 3 role sign-in options -->
     <!-- ============================================================== -->
     <section id="view-welcome" class="view-section active">
@@ -92,14 +92,14 @@
         <div class="welcome-tagline">One Platform. Better Connected Care.</div>
 
         <!-- Short Subtitle -->
-        <p class="welcome-subtitle">“Your care, your doctors, your clinic — connected in one place.”</p>
+        <p class="welcome-subtitle">â€œYour care, your doctors, your clinic â€” connected in one place.â€</p>
 
         <!-- Three Clear Role Sign-in Options -->
         <div class="role-signin-options">
           <!-- 1. Sign in as Patient -->
           <button type="button" class="role-signin-btn patient-btn" onclick="selectRole('patient')">
             <div class="btn-left">
-              <div class="btn-icon">👤</div>
+              <div class="btn-icon">ðŸ‘¤</div>
               <div>
                 <div class="btn-label">Sign in as Patient</div>
                 <div class="btn-sublabel">Consultations, doctors & prescriptions</div>
@@ -111,7 +111,7 @@
           <!-- 2. Sign in as Doctor -->
           <button type="button" class="role-signin-btn doctor-btn" onclick="selectRole('doctor')">
             <div class="btn-left">
-              <div class="btn-icon">🩺</div>
+              <div class="btn-icon">ðŸ©º</div>
               <div>
                 <div class="btn-label">Sign in as Doctor</div>
                 <div class="btn-sublabel">Patient consultations, WBMC & WhatsApp Rx</div>
@@ -123,7 +123,7 @@
           <!-- 3. Sign in as Clinic -->
           <button type="button" class="role-signin-btn clinic-btn" onclick="selectRole('clinic')">
             <div class="btn-left">
-              <div class="btn-icon">🏥</div>
+              <div class="btn-icon">ðŸ¥</div>
               <div>
                 <div class="btn-label">Sign in as Clinic</div>
                 <div class="btn-sublabel">Financial auditing, settlements & accounting</div>
@@ -148,10 +148,10 @@
         </div>
         <div style="display: flex; gap: 0.75rem;">
           <button class="btn-book" style="background: var(--bg-card); color: var(--text-white); border: 1px solid var(--border-color);" onclick="switchView('doctors')">
-            <span>👨‍⚕️</span> Browse All Doctors
+            <span>ðŸ‘¨â€âš•ï¸</span> Browse All Doctors
           </button>
           <button class="btn-book" onclick="switchView('appointments')">
-            <span>📅</span> My Appointments
+            <span>ðŸ“…</span> My Appointments
           </button>
         </div>
       </div>
@@ -174,7 +174,7 @@
               required
             />
             <button type="submit" class="btn-diagnose" id="btn-diagnose-submit">
-              <span>🩺</span> Analyze Symptoms
+              <span>ðŸ©º</span> Analyze Symptoms
             </button>
           </div>
         </form>
@@ -244,7 +244,7 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Max Fee (₹)</label>
+          <label>Max Fee (â‚¹)</label>
           <input type="number" id="filter-fee" class="filter-input" placeholder="Any Fee" min="0">
         </div>
         <button class="btn-reset-filters" id="btn-reset-filters">Reset Filters</button>
@@ -284,7 +284,7 @@
           <div style="display: flex; gap: 0.75rem; align-items: center;">
             <span class="role-badge doctor" id="doctor-status-badge">WBMC Verified</span>
             <button class="btn-book" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0.4rem 0.85rem; font-size: 0.85rem;" onclick="DoctorSuite.switchSubView('wallet')">
-              👛 <span id="header-wallet-balance">₹6,573.50</span>
+              ðŸ‘› <span id="header-wallet-balance">â‚¹6,573.50</span>
             </button>
           </div>
         </div>
@@ -305,7 +305,7 @@
           <!-- 4 Core Metric Cards (Page 37) -->
           <div class="doc-metrics-row">
             <div class="doc-stat-card">
-              <div class="doc-stat-icon blue">👥</div>
+              <div class="doc-stat-icon blue">ðŸ‘¥</div>
               <div>
                 <div class="doc-stat-val" id="metric-patients-today">0</div>
                 <div class="doc-stat-label">Patients Today</div>
@@ -314,16 +314,16 @@
             </div>
 
             <div class="doc-stat-card" style="cursor: pointer;" onclick="DoctorSuite.switchSubView('wallet')">
-              <div class="doc-stat-icon green">👛</div>
+              <div class="doc-stat-icon green">ðŸ‘›</div>
               <div>
-                <div class="doc-stat-val" id="metric-wallet-balance">₹6,573.50</div>
+                <div class="doc-stat-val" id="metric-wallet-balance">â‚¹6,573.50</div>
                 <div class="doc-stat-label">Wallet Balance</div>
-                <div class="doc-stat-sub" id="metric-wallet-spent">Spent today ₹0.00</div>
+                <div class="doc-stat-sub" id="metric-wallet-spent">Spent today â‚¹0.00</div>
               </div>
             </div>
 
             <div class="doc-stat-card">
-              <div class="doc-stat-icon purple">💬</div>
+              <div class="doc-stat-icon purple">ðŸ’¬</div>
               <div>
                 <div class="doc-stat-val" id="metric-whatsapp-sent">14</div>
                 <div class="doc-stat-label">WhatsApp Sent</div>
@@ -332,7 +332,7 @@
             </div>
 
             <div class="doc-stat-card">
-              <div class="doc-stat-icon orange">💊</div>
+              <div class="doc-stat-icon orange">ðŸ’Š</div>
               <div>
                 <div class="doc-stat-val" id="metric-prescriptions-count">12</div>
                 <div class="doc-stat-label">Prescriptions</div>
@@ -344,14 +344,14 @@
           <!-- Secondary Metric Cards (Page 34) -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
             <div class="doc-stat-card" style="padding: 1rem;">
-              <div class="doc-stat-icon orange" style="width: 40px; height: 40px; font-size: 1.15rem;">💉</div>
+              <div class="doc-stat-icon orange" style="width: 40px; height: 40px; font-size: 1.15rem;">ðŸ’‰</div>
               <div>
                 <div class="doc-stat-val" id="metric-vaccinations-count" style="font-size: 1.3rem;">4</div>
                 <div class="doc-stat-label">Vaccinations</div>
               </div>
             </div>
             <div class="doc-stat-card" style="padding: 1rem;">
-              <div class="doc-stat-icon green" style="width: 40px; height: 40px; font-size: 1.15rem;">📅</div>
+              <div class="doc-stat-icon green" style="width: 40px; height: 40px; font-size: 1.15rem;">ðŸ“…</div>
               <div>
                 <div class="doc-stat-val" id="metric-followups-count" style="font-size: 1.3rem;">3</div>
                 <div class="doc-stat-label">Follow-ups Due</div>
@@ -362,7 +362,7 @@
           <!-- Reminders Due Today Card (Page 34) -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-              <span>📋</span>
+              <span>ðŸ“‹</span>
               <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-white); text-transform: uppercase; letter-spacing: 0.04em;">
                 Reminders Due Today
               </h4>
@@ -371,19 +371,19 @@
             <div style="display: flex; flex-direction: column; gap: 0.85rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; color: var(--text-secondary);">
                 <div style="display: flex; align-items: center; gap: 0.65rem;">
-                  <span>📅</span> Follow-ups due today
+                  <span>ðŸ“…</span> Follow-ups due today
                 </div>
                 <span style="font-weight: 700; color: var(--text-muted);" id="due-followups">0</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; color: var(--text-secondary);">
                 <div style="display: flex; align-items: center; gap: 0.65rem;">
-                  <span>💉</span> Vaccinations due today
+                  <span>ðŸ’‰</span> Vaccinations due today
                 </div>
                 <span style="font-weight: 700; color: var(--text-muted);" id="due-vaccines">0</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; color: var(--text-secondary);">
                 <div style="display: flex; align-items: center; gap: 0.65rem;">
-                  <span>🔬</span> Report reviews due today
+                  <span>ðŸ”¬</span> Report reviews due today
                 </div>
                 <span style="font-weight: 700; color: var(--text-muted);" id="due-reports">0</span>
               </div>
@@ -394,7 +394,7 @@
           <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="DoctorSuite.switchSubView('calendar')">
             <div style="display: flex; align-items: center; gap: 1rem;">
               <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #60a5fa;">
-                📅
+                ðŸ“…
               </div>
               <div>
                 <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-white); margin-bottom: 0.2rem;">Reminder Calendar</h4>
@@ -409,7 +409,7 @@
           <!-- Big Action Button: Add New Patient (Page 34) -->
           <div style="margin-bottom: 2rem;">
             <button type="button" class="btn-submit" style="width: 100%; padding: 1.15rem; font-size: 1.1rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);" onclick="DoctorSuite.switchSubView('add-patient')">
-              <span>👤+</span> Add New Patient
+              <span>ðŸ‘¤+</span> Add New Patient
             </button>
           </div>
 
@@ -417,10 +417,10 @@
           <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
             <div class="portal-tabs" style="margin-bottom: 1rem;">
               <button class="tab-btn active" data-target="portal-appointments">
-                📋 Patient Appointments Queue
+                ðŸ“‹ Patient Appointments Queue
               </button>
               <button class="tab-btn" data-target="portal-verification">
-                🛡️ WBMC Credential Review
+                ðŸ›¡ï¸ WBMC Credential Review
               </button>
             </div>
             <div id="portal-appointments" class="portal-view active">
@@ -498,10 +498,10 @@
           <div class="service-toggle-card">
             <div class="service-toggle-header">
               <div class="service-toggle-info">
-                <span class="service-toggle-icon">💊</span>
+                <span class="service-toggle-icon">ðŸ’Š</span>
                 <div>
                   <div class="service-toggle-title">Prescription Simplifier</div>
-                  <div class="service-toggle-price">₹1.50 • per use (if medicine saved)</div>
+                  <div class="service-toggle-price">â‚¹1.50 â€¢ per use (if medicine saved)</div>
                 </div>
               </div>
               <label class="ios-switch">
@@ -520,13 +520,13 @@
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                 <span style="font-size: 0.8rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">ADD MEDICINE</span>
                 <button type="button" style="background: transparent; border: none; color: #60a5fa; font-size: 0.85rem; font-weight: 600; cursor: pointer;" onclick="DoctorSuite.loadTemplateMedicines()">
-                  📖 Template v
+                  ðŸ“– Template v
                 </button>
               </div>
 
               <!-- Medicine Search / Name -->
               <div class="form-control" style="margin-bottom: 1rem;">
-                <input type="text" id="med-input-name" placeholder="🔍 Type medicine name (e.g. Pantoprazole, Clonazepam)...">
+                <input type="text" id="med-input-name" placeholder="ðŸ” Type medicine name (e.g. Pantoprazole, Clonazepam)...">
               </div>
 
               <!-- Form, Dose, Unit -->
@@ -611,12 +611,12 @@
               <div class="form-control" style="margin-bottom: 1rem;">
                 <label>TIME SLOTS</label>
                 <div class="chip-group" id="med-timeslot-chips">
-                  <button type="button" class="chip-btn timeslot active" data-slot="Early Morning" data-range="5–7 AM">Early Morning 5–7 AM</button>
-                  <button type="button" class="chip-btn timeslot" data-slot="Morning" data-range="7–10 AM">Morning 7–10 AM</button>
-                  <button type="button" class="chip-btn timeslot" data-slot="Noon" data-range="12–2 PM">Noon 12–2 PM</button>
-                  <button type="button" class="chip-btn timeslot" data-slot="Afternoon" data-range="2–5 PM">Afternoon 2–5 PM</button>
-                  <button type="button" class="chip-btn timeslot" data-slot="Evening" data-range="5–7 PM">Evening 5–7 PM</button>
-                  <button type="button" class="chip-btn timeslot" data-slot="Night" data-range="8–10 PM">Night 8–10 PM</button>
+                  <button type="button" class="chip-btn timeslot active" data-slot="Early Morning" data-range="5â€“7 AM">Early Morning 5â€“7 AM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Morning" data-range="7â€“10 AM">Morning 7â€“10 AM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Noon" data-range="12â€“2 PM">Noon 12â€“2 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Afternoon" data-range="2â€“5 PM">Afternoon 2â€“5 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Evening" data-range="5â€“7 PM">Evening 5â€“7 PM</button>
+                  <button type="button" class="chip-btn timeslot" data-slot="Night" data-range="8â€“10 PM">Night 8â€“10 PM</button>
                   <button type="button" class="chip-btn timeslot" data-slot="Bedtime" data-range="Before sleep">Bedtime Before sleep</button>
                 </div>
               </div>
@@ -655,10 +655,10 @@
           <div class="service-toggle-card">
             <div class="service-toggle-header">
               <div class="service-toggle-info">
-                <span class="service-toggle-icon">📅</span>
+                <span class="service-toggle-icon">ðŸ“…</span>
                 <div>
                   <div class="service-toggle-title">Follow-up Reminder</div>
-                  <div class="service-toggle-price">₹1.50 • per use</div>
+                  <div class="service-toggle-price">â‚¹1.50 â€¢ per use</div>
                 </div>
               </div>
               <label class="ios-switch">
@@ -677,7 +677,7 @@
                   <input type="time" id="followup-time" class="filter-input" value="10:00">
                 </div>
               </div>
-              <div style="font-size: 0.75rem; color: #4ade80;">📅 Reminder sent 24 hours before</div>
+              <div style="font-size: 0.75rem; color: #4ade80;">ðŸ“… Reminder sent 24 hours before</div>
             </div>
           </div>
 
@@ -685,10 +685,10 @@
           <div class="service-toggle-card">
             <div class="service-toggle-header">
               <div class="service-toggle-info">
-                <span class="service-toggle-icon">💉</span>
+                <span class="service-toggle-icon">ðŸ’‰</span>
                 <div>
                   <div class="service-toggle-title">Vaccination Reminder</div>
-                  <div class="service-toggle-price">₹2.50 • per use</div>
+                  <div class="service-toggle-price">â‚¹2.50 â€¢ per use</div>
                 </div>
               </div>
               <label class="ios-switch">
@@ -701,7 +701,7 @@
                 <label>VACCINATION DATE</label>
                 <input type="date" id="vaccination-date" class="filter-input" value="2026-06-30">
               </div>
-              <div style="font-size: 0.75rem; color: #fb923c;">💉 Reminder sent 24 hours before</div>
+              <div style="font-size: 0.75rem; color: #fb923c;">ðŸ’‰ Reminder sent 24 hours before</div>
             </div>
           </div>
 
@@ -709,10 +709,10 @@
           <div class="service-toggle-card">
             <div class="service-toggle-header">
               <div class="service-toggle-info">
-                <span class="service-toggle-icon">🔬</span>
+                <span class="service-toggle-icon">ðŸ”¬</span>
                 <div>
                   <div class="service-toggle-title">Report Review Reminder</div>
-                  <div class="service-toggle-price">₹1.50 • per use</div>
+                  <div class="service-toggle-price">â‚¹1.50 â€¢ per use</div>
                 </div>
               </div>
               <label class="ios-switch">
@@ -735,7 +735,7 @@
                   <input type="time" id="report-time-input" class="filter-input" value="10:00">
                 </div>
               </div>
-              <div style="font-size: 0.75rem; color: #38bdf8;">🔬 Reminder: Please bring your report for review</div>
+              <div style="font-size: 0.75rem; color: #38bdf8;">ðŸ”¬ Reminder: Please bring your report for review</div>
             </div>
           </div>
 
@@ -743,10 +743,10 @@
           <div class="service-toggle-card">
             <div class="service-toggle-header">
               <div class="service-toggle-info">
-                <span class="service-toggle-icon">📝</span>
+                <span class="service-toggle-icon">ðŸ“</span>
                 <div>
                   <div class="service-toggle-title">Additional Instructions</div>
-                  <div class="service-toggle-price">₹0.50 • if text entered</div>
+                  <div class="service-toggle-price">â‚¹0.50 â€¢ if text entered</div>
                 </div>
               </div>
               <label class="ios-switch">
@@ -773,10 +773,10 @@
           <div class="service-toggle-card">
             <div class="service-toggle-header">
               <div class="service-toggle-info">
-                <span class="service-toggle-icon">🔒</span>
+                <span class="service-toggle-icon">ðŸ”’</span>
                 <div>
                   <div class="service-toggle-title">Internal Notes</div>
-                  <div class="service-toggle-price">Free • not sent to patient</div>
+                  <div class="service-toggle-price">Free â€¢ not sent to patient</div>
                 </div>
               </div>
               <label class="ios-switch">
@@ -788,7 +788,7 @@
               <div class="form-control" style="margin-bottom: 0.5rem;">
                 <textarea id="internal-notes-textarea" rows="2" placeholder="Private note for clinic/doctor. Not sent to patient."></textarea>
               </div>
-              <div style="font-size: 0.75rem; color: #fbbf24;">🔒 This note will NOT appear in the WhatsApp message.</div>
+              <div style="font-size: 0.75rem; color: #fbbf24;">ðŸ”’ This note will NOT appear in the WhatsApp message.</div>
             </div>
           </div>
 
@@ -799,23 +799,23 @@
             </h4>
             <div class="cost-row">
               <span>Prescription Simplifier</span>
-              <span id="cost-item-simplifier">₹1.50</span>
+              <span id="cost-item-simplifier">â‚¹1.50</span>
             </div>
             <div class="cost-row">
               <span>Follow-up Reminder</span>
-              <span id="cost-item-followup">₹0.00</span>
+              <span id="cost-item-followup">â‚¹0.00</span>
             </div>
             <div class="cost-row">
               <span>Vaccination Reminder</span>
-              <span id="cost-item-vaccine">₹0.00</span>
+              <span id="cost-item-vaccine">â‚¹0.00</span>
             </div>
             <div class="cost-row">
               <span>Report Review Reminder</span>
-              <span id="cost-item-report">₹0.00</span>
+              <span id="cost-item-report">â‚¹0.00</span>
             </div>
             <div class="cost-row">
               <span>Additional Instructions</span>
-              <span id="cost-item-instructions">₹0.00</span>
+              <span id="cost-item-instructions">â‚¹0.00</span>
             </div>
             <div class="cost-row">
               <span>Internal Notes</span>
@@ -823,7 +823,7 @@
             </div>
             <div class="cost-row total-row">
               <span>Total</span>
-              <span class="cost-val" id="cost-item-total">₹1.50</span>
+              <span class="cost-val" id="cost-item-total">â‚¹1.50</span>
             </div>
             <div style="font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 0.4rem;">
               Pay only for what you use.
@@ -862,10 +862,10 @@
           <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
             <div>
               <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">CURRENT WALLET BALANCE</div>
-              <div style="font-size: 2.2rem; font-weight: 800; color: #38bdf8; line-height: 1.2; margin: 0.25rem 0;" id="wallet-panel-balance">₹6,573.50</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);" id="wallet-panel-spent">Spent today: ₹0.00</div>
+              <div style="font-size: 2.2rem; font-weight: 800; color: #38bdf8; line-height: 1.2; margin: 0.25rem 0;" id="wallet-panel-balance">â‚¹6,573.50</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);" id="wallet-panel-spent">Spent today: â‚¹0.00</div>
             </div>
-            <div style="font-size: 2.5rem;">👛</div>
+            <div style="font-size: 2.5rem;">ðŸ‘›</div>
           </div>
 
           <!-- Quick Recharge Options (Page 22) -->
@@ -873,19 +873,19 @@
             <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-white); margin-bottom: 0.5rem;">Quick Recharge</h4>
             <div class="recharge-grid">
               <div class="recharge-card" onclick="DoctorSuite.quickRecharge(100)">
-                <div class="recharge-amt">₹100</div>
+                <div class="recharge-amt">â‚¹100</div>
                 <div class="recharge-sub">Tap to recharge</div>
               </div>
               <div class="recharge-card" onclick="DoctorSuite.quickRecharge(300)">
-                <div class="recharge-amt">₹300</div>
+                <div class="recharge-amt">â‚¹300</div>
                 <div class="recharge-sub">Tap to recharge</div>
               </div>
               <div class="recharge-card" onclick="DoctorSuite.quickRecharge(500)">
-                <div class="recharge-amt">₹500</div>
+                <div class="recharge-amt">â‚¹500</div>
                 <div class="recharge-sub">Tap to recharge</div>
               </div>
               <div class="recharge-card" onclick="DoctorSuite.quickRecharge(1000)">
-                <div class="recharge-amt">₹1000</div>
+                <div class="recharge-amt">â‚¹1000</div>
                 <div class="recharge-sub">Tap to recharge</div>
               </div>
             </div>
@@ -894,28 +894,28 @@
           <!-- Feature Pricing Table (Pages 22, 25) -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-              <span>⚡</span>
+              <span>âš¡</span>
               <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-white);">Feature Pricing</h4>
             </div>
             <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
               <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
-                <span><strong style="color: #60a5fa;">₹1.50</strong> &nbsp; Prescription Simplifier</span>
+                <span><strong style="color: #60a5fa;">â‚¹1.50</strong> &nbsp; Prescription Simplifier</span>
                 <span>per use</span>
               </div>
               <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
-                <span><strong style="color: #4ade80;">₹1.50</strong> &nbsp; Follow-up Reminder</span>
+                <span><strong style="color: #4ade80;">â‚¹1.50</strong> &nbsp; Follow-up Reminder</span>
                 <span>per use</span>
               </div>
               <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
-                <span><strong style="color: #fb923c;">₹2.50</strong> &nbsp; Vaccination Reminder</span>
+                <span><strong style="color: #fb923c;">â‚¹2.50</strong> &nbsp; Vaccination Reminder</span>
                 <span>per use</span>
               </div>
               <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
-                <span><strong style="color: #c084fc;">₹1.50</strong> &nbsp; Report Review Reminder</span>
+                <span><strong style="color: #c084fc;">â‚¹1.50</strong> &nbsp; Report Review Reminder</span>
                 <span>per use</span>
               </div>
               <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
-                <span><strong style="color: #f43f5e;">₹0.50</strong> &nbsp; Additional Instructions</span>
+                <span><strong style="color: #f43f5e;">â‚¹0.50</strong> &nbsp; Additional Instructions</span>
                 <span>per use</span>
               </div>
               <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
@@ -931,7 +931,7 @@
           <!-- Transaction History (Pages 1, 23, 25) -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.25rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem;">
-              <span>📉</span>
+              <span>ðŸ“‰</span>
               <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--text-white);">Transaction History</h4>
             </div>
             <div id="wallet-transactions-list">
@@ -1005,7 +1005,7 @@
           <div class="doc-profile-avatar-box">
             <div class="doc-avatar-circle">
               DR
-              <div class="doc-avatar-badge">📷</div>
+              <div class="doc-avatar-badge">ðŸ“·</div>
             </div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--text-white); margin-top: 0.75rem;" id="profile-display-name">
               Doctor
@@ -1078,7 +1078,7 @@
                   <input type="text" id="doc-input-regno" placeholder="WBMC-74921" required>
                 </div>
                 <div class="form-control">
-                  <label>Consultation Fee (₹) *</label>
+                  <label>Consultation Fee (â‚¹) *</label>
                   <input type="number" id="doc-input-fee" placeholder="500" required>
                 </div>
                 <div class="form-control span-2">
@@ -1100,23 +1100,23 @@
       <!-- ============================================================== -->
       <nav class="doc-bottom-nav">
         <button type="button" class="doc-nav-item active" data-subview="dashboard" onclick="DoctorSuite.switchSubView('dashboard')">
-          <span class="nav-icon">⊞</span>
+          <span class="nav-icon">âŠž</span>
           <span>Dashboard</span>
         </button>
         <button type="button" class="doc-nav-item" data-subview="add-patient" onclick="DoctorSuite.switchSubView('add-patient')">
-          <span class="nav-icon">👤+</span>
+          <span class="nav-icon">ðŸ‘¤+</span>
           <span>Add Patient</span>
         </button>
         <button type="button" class="doc-nav-item" data-subview="history" onclick="DoctorSuite.switchSubView('history')">
-          <span class="nav-icon">📋</span>
+          <span class="nav-icon">ðŸ“‹</span>
           <span>History</span>
         </button>
         <button type="button" class="doc-nav-item" data-subview="wallet" onclick="DoctorSuite.switchSubView('wallet')">
-          <span class="nav-icon">👛</span>
+          <span class="nav-icon">ðŸ‘›</span>
           <span>Wallet</span>
         </button>
         <button type="button" class="doc-nav-item" data-subview="profile" onclick="DoctorSuite.switchSubView('profile')">
-          <span class="nav-icon">👤</span>
+          <span class="nav-icon">ðŸ‘¤</span>
           <span>Profile</span>
         </button>
       </nav>
@@ -1130,7 +1130,7 @@
         <button class="modal-close" onclick="document.getElementById('modal-confirm-send').classList.remove('active')">&times;</button>
         
         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
-          <span style="font-size: 1.5rem; color: #22c55e;">💬</span>
+          <span style="font-size: 1.5rem; color: #22c55e;">ðŸ’¬</span>
           <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-white);">Confirm & Send</h3>
         </div>
 
@@ -1145,31 +1145,31 @@
           </div>
 
           <div style="margin-bottom: 0.75rem;">
-            <strong>📋 Prescription:</strong>
+            <strong>ðŸ“‹ Prescription:</strong>
             <div id="confirm-medicines-text" style="margin-top: 0.35rem;">
               <!-- 1. Pantoprazole 40 mg tablet... -->
             </div>
           </div>
 
           <div id="confirm-instructions-section" style="margin-bottom: 0.75rem;">
-            <strong>📝 Instructions:</strong>
+            <strong>ðŸ“ Instructions:</strong>
             <div id="confirm-instructions-text" style="margin-top: 0.25rem; color: var(--text-secondary);"></div>
           </div>
 
           <div id="confirm-followup-section" style="margin-bottom: 0.4rem; color: #4ade80;">
-            📅 <strong>Follow-up:</strong> <span id="confirm-followup-text"></span>
+            ðŸ“… <strong>Follow-up:</strong> <span id="confirm-followup-text"></span>
           </div>
 
           <div id="confirm-vaccine-section" style="margin-bottom: 0.4rem; color: #fb923c;">
-            💉 <strong>Vaccination:</strong> <span id="confirm-vaccine-text"></span>
+            ðŸ’‰ <strong>Vaccination:</strong> <span id="confirm-vaccine-text"></span>
           </div>
 
           <div id="confirm-report-section" style="margin-bottom: 0.75rem; color: #38bdf8;">
-            🔬 <strong>Report Review:</strong> <span id="confirm-report-text"></span>
+            ðŸ”¬ <strong>Report Review:</strong> <span id="confirm-report-text"></span>
           </div>
 
           <div style="font-style: italic; color: var(--text-muted); margin-top: 0.75rem; border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 0.5rem;">
-            Get well soon! — <span id="confirm-sign-doctor">Doctor</span>
+            Get well soon! â€” <span id="confirm-sign-doctor">Doctor</span>
           </div>
         </div>
 
@@ -1181,7 +1181,7 @@
           <div id="confirm-cost-breakdown-items"></div>
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem; font-weight: 800; font-size: 1.15rem; color: var(--text-white);">
             <span>Total</span>
-            <span style="color: #38bdf8;" id="confirm-total-cost-val">₹7.50</span>
+            <span style="color: #38bdf8;" id="confirm-total-cost-val">â‚¹7.50</span>
           </div>
         </div>
 
@@ -1190,7 +1190,7 @@
             Cancel
           </button>
           <button type="button" class="btn-submit" style="flex: 2; background: #16a34a; font-weight: 800;" onclick="DoctorSuite.executeSendWhatsApp()">
-            📲 Confirm & Send via WhatsApp
+            ðŸ“² Confirm & Send via WhatsApp
           </button>
         </div>
       </div>
@@ -1207,10 +1207,10 @@
         </div>
         <div style="display: flex; gap: 0.75rem;">
           <button class="btn-book" style="background: #334155;" onclick="document.getElementById('modal-record-expense').classList.add('active')">
-            ➕ Record Expense
+            âž• Record Expense
           </button>
           <button class="btn-submit" onclick="document.getElementById('modal-record-settlement').classList.add('active')">
-            🏦 Record Settlement
+            ðŸ¦ Record Settlement
           </button>
         </div>
       </div>
@@ -1240,9 +1240,9 @@
         <div class="metric-card accent-blue">
           <div class="metric-card-header">
             <span class="metric-label">1. Total Payments Attempted</span>
-            <span class="metric-icon">💳</span>
+            <span class="metric-icon">ðŸ’³</span>
           </div>
-          <div class="metric-value" id="metric-total-collected">₹0</div>
+          <div class="metric-value" id="metric-total-collected">â‚¹0</div>
           <div class="metric-sub">Total gross collections initiated</div>
         </div>
 
@@ -1250,9 +1250,9 @@
         <div class="metric-card accent-amber">
           <div class="metric-card-header">
             <span class="metric-label">2. Pending Verification</span>
-            <span class="metric-icon">⏳</span>
+            <span class="metric-icon">â³</span>
           </div>
-          <div class="metric-value" id="metric-pending-verification">₹0</div>
+          <div class="metric-value" id="metric-pending-verification">â‚¹0</div>
           <div class="metric-sub">Awaiting gateway capture verification</div>
         </div>
 
@@ -1260,9 +1260,9 @@
         <div class="metric-card accent-green">
           <div class="metric-card-header">
             <span class="metric-label">3. Verified Payments</span>
-            <span class="metric-icon">✓</span>
+            <span class="metric-icon">âœ“</span>
           </div>
-          <div class="metric-value" id="metric-verified-received">₹0</div>
+          <div class="metric-value" id="metric-verified-received">â‚¹0</div>
           <div class="metric-sub">Confirmed via cryptographic signature</div>
         </div>
 
@@ -1270,9 +1270,9 @@
         <div class="metric-card accent-red">
           <div class="metric-card-header">
             <span class="metric-label">4. Gateway Fees</span>
-            <span class="metric-icon">🏷️</span>
+            <span class="metric-icon">ðŸ·ï¸</span>
           </div>
-          <div class="metric-value" id="metric-gateway-fees">₹0</div>
+          <div class="metric-value" id="metric-gateway-fees">â‚¹0</div>
           <div class="metric-sub">2% provider transaction charge</div>
         </div>
 
@@ -1280,9 +1280,9 @@
         <div class="metric-card accent-red">
           <div class="metric-card-header">
             <span class="metric-label">5. Processed Refunds</span>
-            <span class="metric-icon">↩️</span>
+            <span class="metric-icon">â†©ï¸</span>
           </div>
-          <div class="metric-value" id="metric-refunds-total">₹0</div>
+          <div class="metric-value" id="metric-refunds-total">â‚¹0</div>
           <div class="metric-sub">Total patient refunds processed</div>
         </div>
 
@@ -1290,9 +1290,9 @@
         <div class="metric-card accent-green">
           <div class="metric-card-header">
             <span class="metric-label">6. Settled to Bank</span>
-            <span class="metric-icon">🏦</span>
+            <span class="metric-icon">ðŸ¦</span>
           </div>
-          <div class="metric-value" id="metric-settled-to-bank">₹0</div>
+          <div class="metric-value" id="metric-settled-to-bank">â‚¹0</div>
           <div class="metric-sub">Verified transfers deposited into bank</div>
         </div>
 
@@ -1300,9 +1300,9 @@
         <div class="metric-card accent-cyan">
           <div class="metric-card-header">
             <span class="metric-label">7. Available Funds</span>
-            <span class="metric-icon">💰</span>
+            <span class="metric-icon">ðŸ’°</span>
           </div>
-          <div class="metric-value" id="metric-available-funds">₹0</div>
+          <div class="metric-value" id="metric-available-funds">â‚¹0</div>
           <div class="metric-sub">Net verified surplus available for payout</div>
         </div>
 
@@ -1310,9 +1310,9 @@
         <div class="metric-card accent-amber">
           <div class="metric-card-header">
             <span class="metric-label">8. Recorded Expenses</span>
-            <span class="metric-icon">🧾</span>
+            <span class="metric-icon">ðŸ§¾</span>
           </div>
-          <div class="metric-value" id="metric-recorded-expenses">₹0</div>
+          <div class="metric-value" id="metric-recorded-expenses">â‚¹0</div>
           <div class="metric-sub">Labelled as manually recorded expenses</div>
         </div>
 
@@ -1320,9 +1320,9 @@
         <div class="metric-card accent-blue">
           <div class="metric-card-header">
             <span class="metric-label">9. Doctor Payments Due</span>
-            <span class="metric-icon">👨‍⚕️</span>
+            <span class="metric-icon">ðŸ‘¨â€âš•ï¸</span>
           </div>
-          <div class="metric-value" id="metric-doctor-due">₹0</div>
+          <div class="metric-value" id="metric-doctor-due">â‚¹0</div>
           <div class="metric-sub">Outstanding consultation shares</div>
         </div>
 
@@ -1330,9 +1330,9 @@
         <div class="metric-card accent-green">
           <div class="metric-card-header">
             <span class="metric-label">10. Doctor Settled</span>
-            <span class="metric-icon">💸</span>
+            <span class="metric-icon">ðŸ’¸</span>
           </div>
-          <div class="metric-value" id="metric-doctor-settled">₹0</div>
+          <div class="metric-value" id="metric-doctor-settled">â‚¹0</div>
           <div class="metric-sub">Completed doctor disbursement payouts</div>
         </div>
 
@@ -1340,9 +1340,9 @@
         <div class="metric-card accent-red">
           <div class="metric-card-header">
             <span class="metric-label">11. Doctor Liabilities</span>
-            <span class="metric-icon">⚖️</span>
+            <span class="metric-icon">âš–ï¸</span>
           </div>
-          <div class="metric-value" id="metric-outstanding-liabilities">₹0</div>
+          <div class="metric-value" id="metric-outstanding-liabilities">â‚¹0</div>
           <div class="metric-sub">Net pending practitioner payout debt</div>
         </div>
 
@@ -1350,9 +1350,9 @@
         <div class="metric-card accent-cyan">
           <div class="metric-card-header">
             <span class="metric-label">12. Internal Balance</span>
-            <span class="metric-icon">📊</span>
+            <span class="metric-icon">ðŸ“Š</span>
           </div>
-          <div class="metric-value" id="metric-accounting-balance">₹0</div>
+          <div class="metric-value" id="metric-accounting-balance">â‚¹0</div>
           <div class="metric-sub">Net collections minus recorded expenses</div>
         </div>
       </div>
@@ -1360,13 +1360,13 @@
       <!-- Clinic Sub Tabs -->
       <div class="portal-tabs">
         <button class="tab-btn active" data-target="clinic-financials">
-          💳 Verified Collections & Transactions
+          ðŸ’³ Verified Collections & Transactions
         </button>
         <button class="tab-btn" data-target="clinic-expenses">
-          🧾 Recorded Operational Expenses
+          ðŸ§¾ Recorded Operational Expenses
         </button>
         <button class="tab-btn" data-target="clinic-settlements">
-          🏦 Doctor Payouts & Bank Settlements
+          ðŸ¦ Doctor Payouts & Bank Settlements
         </button>
       </div>
 
@@ -1522,7 +1522,7 @@
     <div class="modal-box" style="max-width: 480px; text-align: center;">
       <button class="modal-close" onclick="document.getElementById('payment-checkout-modal').classList.remove('active')">&times;</button>
       <div style="width: 58px; height: 58px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.6rem;">
-        💳
+        ðŸ’³
       </div>
       <h3 style="color: var(--text-white); font-weight: 800; font-size: 1.35rem; margin-bottom: 0.35rem;">
         Razorpay Secure Gateway
@@ -1540,7 +1540,7 @@
         </div>
         <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-top: 0.5rem;">
           <span style="color: var(--text-white); font-weight: 700;">Consultation Fee:</span>
-          <strong style="color: #34d399; font-size: 1.2rem;" id="pay-amount">₹800</strong>
+          <strong style="color: #34d399; font-size: 1.2rem;" id="pay-amount">â‚¹800</strong>
         </div>
       </div>
 
@@ -1629,7 +1629,7 @@
           Back to Edit
         </button>
         <button type="button" class="btn-action-whatsapp" style="flex: 1; padding: 0.85rem;" onclick="confirmAndSharePrescription()">
-          <span>📲</span> Confirm & Open in WhatsApp
+          <span>ðŸ“²</span> Confirm & Open in WhatsApp
         </button>
       </div>
     </div>
@@ -1664,7 +1664,7 @@
               </select>
             </div>
             <div class="form-control">
-              <label>Amount (₹) *</label>
+              <label>Amount (â‚¹) *</label>
               <input type="number" id="exp-amount" placeholder="e.g. 5000" min="1" required>
             </div>
           </div>
@@ -1704,7 +1704,7 @@
           </div>
           <div class="form-grid" style="gap: 1rem;">
             <div class="form-control">
-              <label>Amount (₹) *</label>
+              <label>Amount (â‚¹) *</label>
               <input type="number" id="set-amount" placeholder="e.g. 15000" min="1" required>
             </div>
             <div class="form-control">
@@ -1767,7 +1767,7 @@
           </div>
           <div class="form-control">
             <label>Password *</label>
-            <input type="password" id="login-password" placeholder="••••••••" required>
+            <input type="password" id="login-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
           </div>
         </div>
         <div style="margin-top: 1.5rem;">
@@ -1802,7 +1802,7 @@
             </div>
             <div class="form-control">
               <label>Password (min 6 chars) *</label>
-              <input type="password" id="reg-password" placeholder="••••••••" required>
+              <input type="password" id="reg-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
             </div>
           </div>
 
@@ -1820,7 +1820,7 @@
           <!-- Doctor Specific Fields -->
           <div id="reg-doctor-fields" style="display: none;">
             <div style="background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; padding: 0.65rem 0.85rem; border-radius: 6px; margin: 0.5rem 0 0.75rem 0; font-size: 0.82rem; color: #93c5fd; line-height: 1.4;">
-              🛡️ <strong>West Bengal Medical Council Verification Only:</strong> MediNexa currently verifies and supports allopathic medical practitioners registered with the <strong>West Bengal Medical Council (WBMC)</strong>. Registrations from other state councils cannot be verified automatically and will be rejected.
+              ðŸ›¡ï¸ <strong>West Bengal Medical Council Verification Only:</strong> MediNexa currently verifies and supports allopathic medical practitioners registered with the <strong>West Bengal Medical Council (WBMC)</strong>. Registrations from other state councils cannot be verified automatically and will be rejected.
             </div>
             <div class="form-grid" style="gap: 1rem; margin-top: 0.5rem;">
               <div class="form-control">
@@ -1837,7 +1837,7 @@
                 </select>
               </div>
               <div class="form-control">
-                <label>Consultation Fee (₹) *</label>
+                <label>Consultation Fee (â‚¹) *</label>
                 <input type="number" id="reg-doc-fee" placeholder="700">
               </div>
             </div>
@@ -1904,12 +1904,13 @@
         </div>
       </div>
       <div>
-        Patient Discovery • WBMC Doctor Credential Verification • WhatsApp Prescriptions • Razorpay Gateway
+        Patient Discovery â€¢ WBMC Doctor Credential Verification â€¢ WhatsApp Prescriptions â€¢ Razorpay Gateway
       </div>
     </div>
   </footer>
 
   <!-- Scripts -->
+  <script>window.API_BASE_URL = "https://medinexa-ycam.onrender.com";</script>
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/patient.js"></script>

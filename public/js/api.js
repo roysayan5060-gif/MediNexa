@@ -1,7 +1,20 @@
 // API helper methods for MediNexa Platform
+const CLOUD_BACKEND_URL = 'https://medinexa-ycam.onrender.com';
+
 const API = {
-  // Configured to automatically adapt to current host or deployed backend
-  baseUrl: (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : '',
+  // Configured to adapt between local testing, deployed browser, and standalone Android APK
+  baseUrl: (function() {
+    if (typeof window !== 'undefined' && window.API_BASE_URL) return window.API_BASE_URL;
+    if (typeof window !== 'undefined') {
+      const isMobileApp = Boolean(window.Capacitor) || 
+                          window.location.protocol === 'capacitor:' || 
+                          window.location.protocol === 'file:' || 
+                          window.location.hostname === 'localhost' || 
+                          window.location.hostname === '127.0.0.1';
+      return isMobileApp ? CLOUD_BACKEND_URL : '';
+    }
+    return CLOUD_BACKEND_URL;
+  })(),
 
   getToken() {
     return localStorage.getItem('medinexa_token') || '';
