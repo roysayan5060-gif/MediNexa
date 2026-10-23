@@ -1388,3 +1388,559 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================== */
+/* DOCTOR CLINICAL SUITE & WALLET MANAGEMENT (PDF STYLING)        */
+/* ============================================================== */
+
+.doc-suite-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 5rem;
+}
+
+/* Doctor Bottom Navigation Bar */
+.doc-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom));
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.doc-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.doc-nav-item .nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.doc-nav-item:hover {
+  color: var(--text-white);
+}
+
+.doc-nav-item.active {
+  color: #38bdf8;
+}
+
+.doc-nav-item.active::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background: #38bdf8;
+  border-radius: var(--radius-full);
+}
+
+/* Doctor View Panels */
+.doc-panel {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.doc-panel.active {
+  display: block;
+}
+
+/* Metric Cards in Doctor Dashboard */
+.doc-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.doc-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.doc-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.doc-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.doc-stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.doc-stat-icon.green { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.doc-stat-icon.orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+.doc-stat-icon.purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+.doc-stat-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-white);
+  line-height: 1.2;
+}
+
+.doc-stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.doc-stat-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Service Toggles Card (Pay as you go) */
+.service-toggle-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.service-toggle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.service-toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.service-toggle-icon {
+  font-size: 1.35rem;
+}
+
+.service-toggle-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-white);
+}
+
+.service-toggle-price {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.service-toggle-body {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+/* iOS Style Switch */
+.ios-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.ios-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ios-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #334155;
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.ios-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+input:checked + .ios-slider {
+  background-color: #2563eb;
+}
+
+input:checked + .ios-slider:before {
+  transform: translateX(22px);
+}
+
+/* Chip Selectors */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.chip-btn {
+  background: #1e293b;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.chip-btn:hover {
+  border-color: #475569;
+  color: var(--text-white);
+}
+
+.chip-btn.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.chip-btn.food-pc.active,
+.chip-btn.food-ac.active {
+  background: #16a34a;
+  border-color: #22c55e;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.4);
+}
+
+.chip-btn.timeslot.active {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.chip-caption {
+  font-size: 0.75rem;
+  color: #60a5fa;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+/* Saved Medicine Card */
+.saved-med-item {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.saved-med-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text-white);
+}
+
+.saved-med-badges {
+  font-size: 0.82rem;
+  color: #38bdf8;
+  margin-top: 0.25rem;
+  font-weight: 600;
+}
+
+.saved-med-plain {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.4rem;
+  line-height: 1.4;
+  background: rgba(30, 41, 59, 0.6);
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #38bdf8;
+}
+
+/* Cost Breakdown Card */
+.cost-breakdown-box {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.cost-row.total-row {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-white);
+}
+
+.cost-row.total-row .cost-val {
+  color: #38bdf8;
+}
+
+/* Quick Recharge Grid */
+.recharge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.85rem;
+  margin: 1rem 0;
+}
+
+.recharge-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.recharge-card:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.recharge-amt {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.recharge-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Transactions List */
+.tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tx-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tx-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.tx-icon.recharge { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.tx-icon.deduction { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.tx-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-white);
+}
+
+.tx-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.tx-amount {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.tx-amount.positive { color: #4ade80; }
+.tx-amount.negative { color: #f87171; }
+
+/* Interactive Calendar */
+.calendar-widget {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cal-nav-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-white);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.cal-day-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 0.35rem 0;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.cal-cell:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-white);
+}
+
+.cal-cell.today {
+  border: 1px solid #38bdf8;
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.cal-cell.active-date {
+  background: #2563eb;
+  color: #ffffff !important;
+}
+
+.cal-dots {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.cal-dot.follow_up { background: #22c55e; }
+.cal-dot.vaccination { background: #f97316; }
+.cal-dot.report_review { background: #38bdf8; }
+
+/* Doctor Profile Header */
+.doc-profile-avatar-box {
+  text-align: center;
+  margin: 1rem 0 1.5rem;
+}
+
+.doc-avatar-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
+  position: relative;
+}
+
+.doc-avatar-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #0f172a;
+  border: 2px solid #2563eb;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
