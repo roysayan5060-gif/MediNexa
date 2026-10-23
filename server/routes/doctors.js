@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const Doctor = require('../models/Doctor');
+const { JWT_SECRET } = require('../middleware/auth');
 const { isMongoConnected, memoryStore } = require('../db');
 
 // GET /api/doctors - Fetch all doctors with search, filters, and sorting
@@ -268,9 +270,35 @@ router.get('/portal/summary', (req, res) => {
   const vaccinationsDue = reminders.filter(r => r.type === 'vaccination').length;
   const reportReviewsDue = reminders.filter(r => r.type === 'report_review').length;
 
+  let docName = req.query.doctor_name;
+  let docSpec = req.query.doctor_specialization;
+
+  const authHeader = req.headers['authorization'];
+  if (!docName && authHeader) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded && decoded.name) {
+        docName = decoded.name;
+      }
+    } catch (e) {}
+  }
+
+  if (!docName && memoryStore.doctorProfile && memoryStore.doctorProfile.name) {
+    docName = memoryStore.doctorProfile.name;
+    docSpec = memoryStore.doctorProfile.specialization;
+  }
+  if (!docName) {
+    docName = 'Dr. Marcus Vance';
+  }
+  if (!docSpec) {
+    const matchedDoc = memoryStore.doctors.find(d => d.name === docName);
+    docSpec = (matchedDoc && (matchedDoc.specialty || matchedDoc.qualification)) || 'Specialist Physician';
+  }
+
   res.json({
-    doctor_name: 'Dr. Priya Sharma',
-    doctor_specialization: 'MD(Community medicine), MBBS',
+    doctor_name: docName,
+    doctor_specialization: docSpec,
     patients_today: 0,
     patients_all_time: consultations.length + 4,
     wallet_balance: wallet.balance,
@@ -421,7 +449,7 @@ router.post('/portal/consultations', (req, res) => {
     patient_phone,
     patient_age: patient_age || 'N/A',
     patient_gender: patient_gender || 'Other',
-    doctor_name: 'Dr. Priya Sharma',
+    doctor_name: req.body.doctor_name || (memoryStore.doctorProfile && memoryStore.doctorProfile.name) || 'Doctor',
     language,
     tags,
     cost,
@@ -488,27 +516,60 @@ router.get('/portal/reminders', (req, res) => {
 
 // GET /api/doctors/portal/profile - Doctor profile details
 router.get('/portal/profile', (req, res) => {
-  res.json({
-    name: 'Dr. Priya Sharma',
+  let docProfile = memoryStore.doctorProfile || {
+    name: 'Doctor',
     type: 'Individual Doctor',
-    specialization: 'MD(Community medicine), MBBS',
+    specialization: 'General Medicine',
     phone: '+91-9876543210',
     chamber_timing: 'Mon-Sat, 9AM-1PM'
-  });
+  };
+
+  const authHeader = req.headers['authorization'];
+  let tokenName = null;
+  if (authHeader) {
+    try {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+      if (decoded && decoded.name) tokenName = decoded.name;
+    } catch (e) {}
+  }
+
+  const queryName = req.query.doctor_name || tokenName;
+  if (queryName) {
+    const matched = memoryStore.doctors.find(d => d.name.toLowerCase() === queryName.toLowerCase() || d.email === req.query.email);
+    if (matched) {
+      docProfile = {
+        name: matched.name,
+        type: 'Individual Doctor',
+        specialization: matched.specialty || matched.qualification || 'Specialist',
+        phone: matched.phone || '+91-9876543210',
+        chamber_timing: matched.available_hours || 'Mon-Sat, 9AM-1PM'
+      };
+    } else {
+      docProfile = {
+        ...docProfile,
+        name: queryName
+      };
+    }
+  }
+
+  res.json(docProfile);
 });
 
 // POST /api/doctors/portal/profile - Update doctor profile
 router.post('/portal/profile', (req, res) => {
   const { name, specialization, phone, chamber_timing } = req.body;
+  const updated = {
+    name: name || 'Doctor',
+    type: 'Individual Doctor',
+    specialization: specialization || 'General Medicine',
+    phone: phone || '+91-9876543210',
+    chamber_timing: chamber_timing || 'Mon-Sat, 9AM-1PM'
+  };
+  memoryStore.doctorProfile = updated;
   res.json({
     message: 'Doctor profile updated successfully!',
-    profile: {
-      name: name || 'Dr. Priya Sharma',
-      type: 'Individual Doctor',
-      specialization: specialization || 'MD(Community medicine), MBBS',
-      phone: phone || '+91-9876543210',
-      chamber_timing: chamber_timing || 'Mon-Sat, 9AM-1PM'
-    }
+    profile: updated
   });
 });
 

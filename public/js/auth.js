@@ -94,6 +94,9 @@ const Auth = {
       if (docBadge && this.currentProfile) {
         docBadge.textContent = this.currentProfile.verification_status || 'WBMC Verified';
       }
+      if (typeof DoctorSuite !== 'undefined') {
+        DoctorSuite.setDoctorInfo(user, this.currentProfile);
+      }
     }
   },
 
@@ -101,6 +104,10 @@ const Auth = {
     this.currentUser = null;
     this.currentProfile = null;
     localStorage.removeItem('medinexa_token');
+
+    if (typeof DoctorSuite !== 'undefined') {
+      DoctorSuite.setDoctorInfo({ name: 'Doctor', role: 'doctor' }, { specialty: 'General Medicine' });
+    }
 
     const authBtn = document.getElementById('btn-header-auth');
     const roleBadge = document.getElementById('role-badge');
