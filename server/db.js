@@ -12,7 +12,14 @@ const Payment = require('./models/Payment');
 const ClinicExpense = require('./models/ClinicExpense');
 
 const ATLAS_FALLBACK_URI = 'mongodb+srv://<username>:<password>@cluster0.okgvkax.mongodb.net/medinexa?retryWrites=true&w=majority&compressors=zlib';
-const MONGODB_URI = process.env.MONGODB_URI || ATLAS_FALLBACK_URI;
+function getMongoUri() {
+  const envUri = (process.env.MONGODB_URI || '').trim();
+  if (envUri && envUri.startsWith('mongodb') && envUri.includes('@')) {
+    return envUri;
+  }
+  return ATLAS_FALLBACK_URI;
+}
+const MONGODB_URI = getMongoUri();
 
 let isMongoConnected = false;
 
@@ -380,11 +387,14 @@ function migrateLegacySQLiteData() {
 }
 
 // Connect to MongoDB
+let retryCount = 0;
+const MAX_RETRIES = 10;
+
 async function connectDB() {
   try {
     mongoose.set('strictQuery', false);
     await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 4000
+      serverSelectionTimeoutMS: 15000
     });
     isMongoConnected = true;
     console.log(`🍃 Connected to MongoDB successfully (${MONGODB_URI})`);
@@ -399,6 +409,11 @@ async function connectDB() {
   } catch (err) {
     isMongoConnected = false;
     console.warn(`⚠️ Notice: MongoDB connection to ${MONGODB_URI} deferred (${err.message}). Using resilient active storage layer. Zero downtime.`);
+    if (retryCount < MAX_RETRIES) {
+      retryCount++;
+      console.log(`🔄 Retrying MongoDB connection in 6s (attempt ${retryCount}/${MAX_RETRIES})...`);
+      setTimeout(connectDB, 6000);
+    }
   }
 }
 
@@ -406,7 +421,7 @@ connectDB();
 
 module.exports = {
   connectDB,
-  isMongoConnected: () => isMongoConnected,
+  isMongoConnected: () => Boolean(isMongoConnected || (mongoose.connection && mongoose.connection.readyState === 1)),
   seedDoctors,
   memoryStore,
   sqliteDb
