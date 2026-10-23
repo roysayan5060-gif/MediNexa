@@ -10,3 +10,5 @@ build/
 android/.gradle
 android/build
 android/app/build
+server/backups/
+*.db
