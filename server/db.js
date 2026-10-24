@@ -11,11 +11,7 @@ const Clinic = require('./models/Clinic');
 const Payment = require('./models/Payment');
 const ClinicExpense = require('./models/ClinicExpense');
 
-// Production MongoDB Atlas URIs (Explicitly targeting the 'medinexa' database)
-// Direct Replica Set URI bypasses SRV DNS lookups which fail in Linux/Docker/Render container environments
-const DIRECT_ATLAS_URI = 'mongodb://<username>:<password>@ac-xpg8tio-shard-00-00.okgvkax.mongodb.net:27017,ac-xpg8tio-shard-00-01.okgvkax.mongodb.net:27017,ac-xpg8tio-shard-00-02.okgvkax.mongodb.net:27017/medinexa?ssl=true&replicaSet=atlas-vclavq-shard-0&authSource=admin&retryWrites=true&w=majority';
-const SRV_ATLAS_URI = 'mongodb+srv://<username>:<password>@cluster0.okgvkax.mongodb.net/medinexa?retryWrites=true&w=majority';
-
+// Secure MongoDB Atlas URI resolution (Strictly sourced from environment variables; zero credentials in source control)
 function getCandidateUris() {
   const uris = [];
   const envUri = (process.env.MONGODB_URI || '').trim();
@@ -27,11 +23,21 @@ function getCandidateUris() {
     } else if (normalized.endsWith('.mongodb.net') || normalized.endsWith('.mongodb.net/')) {
       normalized = normalized.replace(/\.mongodb\.net\/?$/, '.mongodb.net/medinexa');
     }
-    uris.push(normalized);
+
+    // If an Atlas SRV URI for cluster0.okgvkax.mongodb.net is provided in env,
+    // dynamically derive the direct replica-set URI to bypass DNS SRV lookups in cloud containers (Render/Docker)
+    const srvMatch = normalized.match(/mongodb\+srv:\/\/([^@]+)@cluster0\.okgvkax\.mongodb\.net\/([^?]+)(\?.*)?/);
+    if (srvMatch) {
+      const auth = srvMatch[1];
+      const db = srvMatch[2] || 'medinexa';
+      const directUri = `mongodb://${auth}@ac-xpg8tio-shard-00-00.okgvkax.mongodb.net:27017,ac-xpg8tio-shard-00-01.okgvkax.mongodb.net:27017,ac-xpg8tio-shard-00-02.okgvkax.mongodb.net:27017/${db}?ssl=true&replicaSet=atlas-vclavq-shard-0&authSource=admin&retryWrites=true&w=majority`;
+      uris.push(directUri);
+    }
+
+    if (!uris.includes(normalized)) {
+      uris.push(normalized);
+    }
   }
-  // Include Direct Replica Set URI (guaranteed zero DNS SRV lookup failures)
-  if (!uris.includes(DIRECT_ATLAS_URI)) uris.push(DIRECT_ATLAS_URI);
-  if (!uris.includes(SRV_ATLAS_URI)) uris.push(SRV_ATLAS_URI);
   return uris;
 }
 

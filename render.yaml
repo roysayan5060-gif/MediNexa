@@ -12,7 +12,7 @@ services:
       - key: PORT
         value: 10000
       - key: MONGODB_URI
-        value: mongodb+srv://<username>:<password>@cluster0.okgvkax.mongodb.net/medinexa?retryWrites=true&w=majority&compressors=zlib
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: RAZORPAY_KEY_ID
